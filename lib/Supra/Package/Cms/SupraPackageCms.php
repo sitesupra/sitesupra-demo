@@ -35,8 +35,8 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		//routing
 		$container->getRouter()->loadConfiguration(
-				$container->getApplication()->locateConfigFile($this, 'routes.yml')
-			);
+			$container->getApplication()->locateConfigFile($this, 'routes.yml')
+		);
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
@@ -57,7 +57,40 @@ class SupraPackageCms extends AbstractSupraPackage
 		//setting up doctrine
 		$frameworkConfiguration = $container->getApplication()->getConfigurationSection('framework');
 
-		$frameworkConfiguration['doctrine']['event_managers']['cms'] = array_merge_recursive(
+		//add audited entities
+		$frameworkConfiguration['doctrine_audit']['entities'] = array_merge(
+			$frameworkConfiguration['doctrine_audit']['entities'],
+			array(
+				'Supra\Package\Cms\Entity\Abstraction\Localization',
+				'Supra\Package\Cms\Entity\Abstraction\AbstractPage',
+				'Supra\Package\Cms\Entity\Page',
+				'Supra\Package\Cms\Entity\GroupPage',
+				'Supra\Package\Cms\Entity\Template',
+				'Supra\Package\Cms\Entity\PageLocalization',
+				'Supra\Package\Cms\Entity\TemplateLocalization',
+				'Supra\Package\Cms\Entity\Abstraction\Block',
+				'Supra\Package\Cms\Entity\Abstraction\PlaceHolder',
+				'Supra\Package\Cms\Entity\PagePlaceHolder',
+				'Supra\Package\Cms\Entity\TemplatePlaceHolder',
+				'Supra\Package\Cms\Entity\PageBlock',
+				'Supra\Package\Cms\Entity\TemplateBlock',
+				'Supra\Package\Cms\Entity\BlockProperty',
+				'Supra\Package\Cms\Entity\BlockPropertyMetadata',
+//				'Supra\Package\CmsAuthentication\Entity\AbstractUser',
+//				'Supra\Package\CmsAuthentication\Entity\User'
+			)
+		);
+
+		$frameworkConfiguration['doctrine']['event_managers']['public'] = array_merge_recursive(
+			$frameworkConfiguration['doctrine']['event_managers']['public'],
+			array(
+				'subscribers' => array(
+					'supra.cms.file_storage.event_subscriber.file_path_change_listener'
+				)
+			)
+		);
+
+		/*$frameworkConfiguration['doctrine']['event_managers']['cms'] = array_merge_recursive(
 			$frameworkConfiguration['doctrine']['event_managers']['public'],
 			array(
 				'subscribers' => array(
@@ -80,14 +113,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			)
 		);
 
-		$frameworkConfiguration['doctrine']['event_managers']['public'] = array_merge_recursive(
-			$frameworkConfiguration['doctrine']['event_managers']['public'],
-			array(
-				'subscribers' => array(
-					'supra.cms.file_storage.event_subscriber.file_path_change_listener'
-				)
-			)
-		);
+
 
 		$frameworkConfiguration['doctrine']['connections']['cms'] = array_merge(
 			$frameworkConfiguration['doctrine']['connections']['default'],
@@ -125,7 +151,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			'connection'	=> 'audit',
 			'event_manager'	=> 'audit',
 			'configuration'	=> 'audit'
-		);
+		);*/
 
 		$container->getApplication()->setConfigurationSection('framework', $frameworkConfiguration);
 
@@ -133,8 +159,8 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container[$this->name . '.pages.blocks.collection'] = function () {
 
 			return new BlockCollection(array(
-						new BlockGroupConfiguration('features', 'Features', true),
-						new BlockGroupConfiguration('system', 'System'),
+				new BlockGroupConfiguration('features', 'Features', true),
+				new BlockGroupConfiguration('system', 'System'),
 			));
 		};
 
@@ -156,12 +182,14 @@ class SupraPackageCms extends AbstractSupraPackage
 		);
 
 		$container->getEventDispatcher()->addListener(
-				KernelEvent::EXCEPTION,
-				array($container[$this->getName().'.cms_exception_listener'], 'listen')
+			KernelEvent::EXCEPTION,
+			array($container[$this->getName().'.cms_exception_listener'], 'listen')
 		);
 
 		$container[$this->getName() . '.pages.layout_processor'] = function ($container) {
+
 			$templating = $container->getTemplating();
+
 			if (! $templating instanceof TwigTemplating) {
 				throw new \RuntimeException('Twig layout processor requires twig templating engine.');
 			}

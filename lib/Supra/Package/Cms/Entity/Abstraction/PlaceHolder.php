@@ -13,8 +13,7 @@ use Supra\Package\Cms\Entity\TemplatePlaceHolder;
  * @DiscriminatorColumn(name="discr", type="string")
  * @DiscriminatorMap({"template" = "Supra\Package\Cms\Entity\TemplatePlaceHolder", "page" = "Supra\Package\Cms\Entity\PagePlaceHolder"})
  */
-abstract class PlaceHolder extends VersionedEntity implements
-		AuditedEntityInterface
+abstract class PlaceHolder extends Entity
 {
 	/**
 	 * FIXME: should be fixed after DDC-482 is done or else there is duplicate
@@ -54,6 +53,7 @@ abstract class PlaceHolder extends VersionedEntity implements
 	public function __construct($name)
 	{
 		parent::__construct();
+
 		$this->setName($name);
 		$this->blocks = new ArrayCollection();
 	}

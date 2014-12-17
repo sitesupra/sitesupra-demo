@@ -2,8 +2,13 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Doctrine\ORM\Query;
+use Supra\Core\Templating\TwigTemplating;
+use Supra\Package\Cms\Pages\PageExecutionContext;
+use Supra\Package\Cms\SQL\AuditWalker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Supra\Core\Controller\Controller;
 use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
@@ -22,10 +27,6 @@ use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Request\PageRequestView;
 
-use Supra\Core\Templating\TwigTemplating;
-use Supra\Package\Cms\Pages\PageExecutionContext;
-
-use Supra\Response\ResponseContextLocalProxy;
 use Supra\Controller\Pages\Event\BlockEvents;
 use Supra\Controller\Pages\Event\BlockEventsArgs;
 use Supra\Cache\CacheGroupManager;
@@ -130,7 +131,7 @@ class PageController extends Controller
 //		}
 
 		$templating = $this->container->getTemplating();
-		
+
 		if ($templating instanceof TwigTemplating) {
 
 			$context = new PageExecutionContext($localization, $this, $this->pageRequest, $this->pageResponse);

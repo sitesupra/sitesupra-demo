@@ -14,7 +14,7 @@ use Supra\Package\Cms\Entity\PageLocalization;
  *		"url"	= "Supra\Package\Cms\Entity\RedirectTargetUrl"
  * })
  */
-abstract class RedirectTarget extends VersionedEntity
+abstract class RedirectTarget extends Entity
 {
 	/**
 	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\PageLocalization")

@@ -1,5 +1,5 @@
 cms:
-    active_theme: sample
+    active_theme: default
 framework:
     doctrine:
         credentials:

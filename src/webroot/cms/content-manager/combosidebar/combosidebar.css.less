@@ -1,0 +1,105 @@
+@import "/cms/lib/supra/less/common.less";
+
+.su-combosidebar {
+	&.su-combosidebar-hidden {
+		display: none;
+	}
+	
+	/*
+	 * Search
+	 */
+	.search-box {
+		display: none;
+		padding: 0 17px 0 18px;
+		
+		.yui3-input {
+			position: relative;
+			
+			input {
+				width: 100%;
+			}
+		}
+	}
+	.has-search .search-box {
+		display: block;
+	}
+	
+	/*
+	 * Content
+	 */
+	.list-box {
+		position: absolute;
+		overflow: hidden;
+		left: 0;
+		top: 0;
+		bottom: 0;
+		width: 100%;
+	}
+	.has-search .list-box {
+		// Size of the search box
+		top: 45px;
+	}
+	
+	/* Data list */
+	.su-datalist {
+		ul {
+			padding: 0 0 12px 18px;
+			width: 100%;
+			.box-sizing (border-box);
+		}
+		li {
+			padding: 0 0 5px;
+		}
+		
+		.su-button,
+		.su-button-content,
+		.su-button button {
+			.box-sizing (border-box);
+			display: block;
+			width: 100%;
+		}
+		
+		.list-empty-message {
+			color: #fff;
+		}
+	}
+	
+	.yui3-tree {
+		margin: 10px 0 0 10px;
+	}
+	
+	/*
+	 * Footer
+	 */
+	.sidebar-content.has-footer {
+		bottom: 71px;
+	}
+	.sidebar-footer {
+		text-align: center;
+		display: none;
+		
+		.description {
+			color: #fff;
+			margin: 10px 0 0;
+		}
+	}
+	.has-footer + .sidebar-footer {
+		display: block;
+	}
+	
+	/*
+	 * Loading state
+	 */
+	.loading-icon {
+		display: none;
+	}
+	
+	.loading .search-box,
+	.loading .list-box {
+		display: none;
+	}
+	.loading > .loading-icon {
+		display: block;
+	}
+	
+}

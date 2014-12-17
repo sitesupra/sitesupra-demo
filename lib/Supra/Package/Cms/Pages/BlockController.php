@@ -21,6 +21,12 @@ use Supra\Package\Cms\Pages\Editable\Filter;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
 
+use Supra\Controller\Pages\Twig\TwigSupraBlockGlobal;
+
+use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
+use Supra\Controller\Pages\Exception;
+//use Supra\Controller\Exception\StopRequestException;
+
 /**
  * Block controller abstraction
  */
@@ -103,7 +109,7 @@ abstract class BlockController extends Controller
 
 		$this->request = $request;
 		$this->response = $this->createBlockResponse($request);
-		
+
 		$page = $request->getPage();
 		$this->setPage($page);
 
@@ -201,6 +207,37 @@ abstract class BlockController extends Controller
 	public function getResponse()
 	{
 		return $this->response;
+	}
+
+	/**
+	 * Assigns supra helper to the twig as global helper
+	 */
+	public function prepareTwigEnvironment()
+	{
+// @FIXME: implement if needed.
+//		$request = $this->getRequest();
+//
+//		$response = $this->getResponse();
+//
+//		if ($response instanceof Response\TwigResponse) {
+//
+//			$twig = $response->getTwigEnvironment();
+//
+//			$helper = new Twig\TwigSupraPageGlobal();
+//			$helper->setRequest($this->request);
+//
+//			$theme = $request->getLayout()->getTheme();
+//
+//			$helper->setTheme($theme);
+//			$helper->setResponseContext($response->getContext());
+//
+//			ObjectRepository::setCallerParent($helper, $this);
+//			$twig->addGlobal('supra', $helper);
+//
+//			$blockHelper = new Twig\TwigSupraBlockGlobal($this);
+//			ObjectRepository::setCallerParent($blockHelper, $this);
+//			$twig->addGlobal('supraBlock', $blockHelper);
+//		}
 	}
 
 	/**
@@ -360,14 +397,19 @@ abstract class BlockController extends Controller
 			return;
 		}
 
-		$filters = array();
+		$entityManager = $this->container->getDoctrine()->getManager();
+
+		$currentLocale = $this->container
+				->getLocaleManager()
+				->getCurrentLocale();
 
 		// Html content filters
 		if ($editable instanceof Editable\Html) {
 			$filters[] = $this->request instanceof PageRequestEdit
 					? new Filter\EditableHtmlFilter()
 					: new Filter\HtmlFilter();
-
+			
+			
 		// Editable Inline String
 		} elseif ($editable instanceof Editable\InlineString) {
 			if ($this->request instanceof PageRequestEdit) {
@@ -453,8 +495,6 @@ abstract class BlockController extends Controller
 //			$filter->property = $property;
 //			$editable->addFilter($filter);
 //		}
-//
-//		$this->configuredBlockProperties[$propertyId] = true;
 
 		foreach ($filters as $filter) {
 
@@ -649,6 +689,8 @@ abstract class BlockController extends Controller
 //		$templating->addGlobal('supra', $pageTwigGlobal);
 //
 		$templateName = $this->configuration->getTemplateName();
+
+		$templating->addGlobal('supraBlock', new TwigSupraBlockGlobal($this));
 
 		return $request instanceof PageRequestEdit
 				? new BlockResponseEdit($this->block, $templateName, $templating)

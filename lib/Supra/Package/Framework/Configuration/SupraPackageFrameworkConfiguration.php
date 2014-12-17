@@ -22,12 +22,29 @@ class SupraPackageFrameworkConfiguration extends AbstractPackageConfiguration im
 				->children()
 					->append($this->getLocalesDefinition())
 					->append($this->getDoctrineDefinition())
-					->append($this->getServicesDefinition())
+					->append($this->getAuditDefinition())
 					->append($this->getSessionDefinition())
 					->append($this->getMailerDefinition())
+					->append($this->getServicesDefinition())
 				->end();
 
 		return $treeBuilder;
+	}
+
+	public function getAuditDefinition()
+	{
+		$definition = new ArrayNodeDefinition('doctrine_audit');
+
+		$definition->children()
+				->arrayNode('entities')
+					->prototype('scalar')->end()
+				->end()
+				->arrayNode('ignore_columns')
+					->prototype('scalar')->end()
+				->end()
+			->end();
+
+		return $definition;
 	}
 
 	public function getMailerDefinition()

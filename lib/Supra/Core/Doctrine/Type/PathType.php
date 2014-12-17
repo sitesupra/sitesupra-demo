@@ -72,5 +72,9 @@ class PathType extends StringType
 		
 		return $path;
 	}
-	
+
+	public function requiresSQLCommentHint(AbstractPlatform $platform)
+	{
+		return true;
+	}
 }

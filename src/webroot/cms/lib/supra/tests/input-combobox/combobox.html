@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ComboBox</title>
+	
+	<script src="/cms/lib/pack.js"></script>
+	<link rel="stylesheet" type="text/css" href="/cms/lib/pack.css" />
+	
+	<link rel="stylesheet" type="text/css" href="combobox.css" />
+</head>
+<body class="yui3-skin-supra">
+
+	<div class="cms-content" id="cmsContent">
+		
+		<div class="layout-a ui-light ui-light-background yui3-form-vertical"></div>
+		<div class="layout-b ui-dark ui-dark-background yui3-form-default"></div>
+		
+	</div>
+
+	<script type="text/javascript">
+	//<![CDATA[
+	
+		Supra('supra.manager', function (Y) {
+			
+			var APP_PATH = null,
+				STATIC_PATH = '/cms',
+				DYNAMIC_PATH = '/cms';
+			
+			//Set current manager paths
+			Supra.Manager.Loader.setStaticPath(STATIC_PATH);
+			Supra.Manager.Loader.setDynamicPath(DYNAMIC_PATH);
+			
+			var layout = Supra.Manager.getAction('LayoutContainers');
+			
+			layout.on('execute', function () {
+				
+				Supra.Manager.executeAction('PageToolbar');
+				Supra.Manager.executeAction('PageButtons');
+				
+				Supra('supra.input-combobox', 'supra.input-keywords', function () {
+					
+					var data = Y.Array.map(Y.Array.unique(Supra.Lipsum.LIPSUM).sort(), function (item) {
+						return {
+							'id': item,
+							'title': item[0].toUpperCase() + item.substr(1)
+						};
+					});
+					
+					// Left side - vertical form style
+					var combobox_a = new Supra.Input.ComboBox({
+						'label': 'Data loaded from URL',
+						//'values': data,
+						'values': '/cms/lib/supra/tests/input-combobox/combobox.json',
+						'multiple': true,
+						'value': [
+							{'id': 'ipsum', 'title': 'Ipsum'},
+							{'id': 'dolor', 'title': 'Dolor'},
+							{'id': 'sit', 'title': 'Sit'}
+						]
+					});
+					
+					
+					combobox_a.render(Y.one('.layout-a'));
+					
+					// CRUD
+					var combobox_c = new Supra.Input.ComboBox({
+						'label': 'Data loaded from CRUD',
+						//'values': data,
+						'values': 'SomeCrudManagerId',
+						'multiple': true,
+						'value': [
+							{'id': 'ipsum', 'title': 'Ipsum'},
+							{'id': 'dolor', 'title': 'Dolor'},
+							{'id': 'sit', 'title': 'Sit'}
+						]
+					});
+					
+					combobox_c.render(Y.one('.layout-a'));
+					
+					// Keywords
+					var keywords = new Supra.Input.Keywords({
+						'label': 'Keywords',
+						'autoCompleteUrl': '/cms/lib/supra/tests/input-combobox/keywords.json',
+						'value': ['Lorem', 'Ipsum']
+					});
+					
+					keywords.render(Y.one('.layout-a'));
+					
+					
+					/*
+					(new Supra.Input.Keywords({'label': 'Keywords', 'value': ['Ipsum', 'Dolor', 'Sit']})).render(Y.one('.layout-a'));
+					(new Supra.Input.Select({'label': 'Select', 'values': data.slice(0, 10)})).render(Y.one('.layout-a'));
+					*/
+					
+					// Right - horizontal form style
+					var combobox_b = new Supra.Input.ComboBox({
+						'label': 'Array of data',
+						'values': data,
+						'value': 'ipsum'
+					});
+					
+					combobox_b.render(Y.one('.layout-b'));
+					
+					/*
+					(new Supra.Input.Keywords({'label': 'Keywords', 'value': ['Ipsum']})).render(Y.one('.layout-b'));
+					(new Supra.Input.Select({'label': 'Select', 'values': data.slice(0, 10)})).render(Y.one('.layout-b'));
+					*/
+					
+					window.combobox_a = combobox_a;
+					window.combobox_b = combobox_b;
+				})
+				
+			});
+			
+			layout.execute();
+			
+		});
+		
+	//]]>
+	</script>
+	
+	<script type="text/template" id="itemTemplate">
+		<li>{{ title }}</li>
+	</script>
+	<script type="text/template" id="itemTemplateEmpty">
+		<li>No results found</li>
+	</script>
+	
+</body>
+</html>

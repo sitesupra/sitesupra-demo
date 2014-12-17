@@ -4,7 +4,7 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Supra\Package\Cms\Entity\LockData;
+use Supra\Package\Cms\Entity\EditLock;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\GroupLocalization;
 use Supra\Package\Cms\Entity\TemplateLocalization;
@@ -28,8 +28,7 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  *		@UniqueConstraint(name="locale_master_idx", columns={"locale", "master_id"})
  * })
  */
-abstract class Localization extends VersionedEntity implements
-		AuditedEntityInterface,
+abstract class Localization extends Entity implements
 		TitleTrackingItemInterface,
 		LocalizationInterface
 {
@@ -68,9 +67,10 @@ abstract class Localization extends VersionedEntity implements
 	protected $master;
 
 	/**
-	 * Object's lock
-	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\LockData", cascade={"persist", "remove"})
-	 * @var LockData
+	 * Edit lock.
+	 * 
+	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\EditLock", cascade={"persist", "remove"})
+	 * @var EditLock
 	 */
 	protected $lock;
 
@@ -155,6 +155,13 @@ abstract class Localization extends VersionedEntity implements
 	protected $creationTime;
 
 	/**
+	 * Last publish time.
+	 * @Column(type="datetime", nullable=true)
+	 * @var \DateTime
+	 */
+	protected $publishTime;
+
+	/**
 	 * Automatically set, required because of DQL Group By limitations reported as improvement suggestion in DDC-1236
 	 * @Column(type="smallint", nullable=true)
 	 * @var int
@@ -175,13 +182,18 @@ abstract class Localization extends VersionedEntity implements
 	protected $tags;
 
 	/**
+	 * @Column(type="integer", nullable=true)
+	 * @var int
+	 */
+	protected $publishedRevision;
+
+	/**
 	 * Construct
 	 * @param string $locale
 	 */
 	public function __construct($localeId)
 	{
 		parent::__construct();
-
 		$this->setLocaleId($localeId);
 
 		$this->blockProperties = new ArrayCollection();
@@ -499,8 +511,9 @@ abstract class Localization extends VersionedEntity implements
 	}
 
 	/**
-	 * Returns page lock object
-	 * @return LockData
+	 * Returns page editing lock.
+	 *
+	 * @return EditLock
 	 */
 	public function getLock()
 	{
@@ -516,10 +529,11 @@ abstract class Localization extends VersionedEntity implements
 	}
 
 	/**
-	 * Sets page lock object
-	 * @param LockData $lock 
+	 * Lock for editing.
+	 * 
+	 * @param EditLock $lock
 	 */
-	public function setLock($lock)
+	public function setLock(EditLock $lock = null)
 	{
 		$this->lock = $lock;
 	}
@@ -894,5 +908,34 @@ abstract class Localization extends VersionedEntity implements
 		if ($this->tags instanceof \Doctrine\ORM\PersistentCollection) {
 			$this->tags->initialize();
 		}
+	}
+
+	public function updatePublishTime()
+	{
+		$this->publishTime = new \DateTime('now');
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isPublished()
+	{
+		return $this->publishedRevision !== null;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getPublishedRevision()
+	{
+		return $this->publishedRevision;
+	}
+
+	/**
+	 * @param int $revision
+	 */
+	public function setPublishedRevision($revision)
+	{
+		$this->publishedRevision = $revision;
 	}
 }

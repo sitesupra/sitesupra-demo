@@ -4,6 +4,7 @@ namespace Supra\Package\CmsAuthentication\Event\Listener;
 
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Event\DataAgnosticEvent;
 use Supra\Core\Event\RequestResponseEvent;
 use Supra\Core\Event\RequestResponseListenerInterface;
 use Supra\Package\CmsAuthentication\Controller\AuthController;
@@ -46,6 +47,8 @@ class CmsAuthenticationRequestListener implements RequestResponseListenerInterfa
 				$securityContext->setToken(
 					$session->get($tokenParameter)
 				);
+
+				$this->container->getEventDispatcher()->dispatch(AuthController::TOKEN_CHANGE_EVENT, new DataAgnosticEvent());
 			}
 
 			//non-authorized users that are not on anonymous paths are getting redirected to login

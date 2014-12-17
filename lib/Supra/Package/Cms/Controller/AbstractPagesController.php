@@ -2,11 +2,13 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Supra\Package\Cms\Entity\EditLock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\NestedSet\Node\EntityNodeInterface;
 use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
+use Supra\Package\Cms\Entity\Abstraction\Entity as AbstractEntity;
 use Supra\Package\Cms\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
@@ -31,6 +33,7 @@ use Supra\Package\Cms\Uri\Path;
 use Supra\Package\Cms\Pages\Editable\Transformer;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
+
 /**
  * Controller containing common methods
  */
@@ -53,13 +56,33 @@ abstract class AbstractPagesController extends AbstractCmsController
 //	private $lockTransactionOpened = false;
 
 	/**
+	 * @var \SimpleThings\EntityAudit\AuditReader
+	 */
+	private $auditReader;
+
+	/**
 	 * @return \Doctrine\ORM\EntityManager
 	 */
 	protected function getEntityManager()
 	{
 		return $this->container
 				->getDoctrine()
-				->getManager('cms');
+				->getManager();
+	}
+
+	/**
+	 * @return \SimpleThings\EntityAudit\AuditReader
+	 */
+	protected function getAuditReader()
+	{
+		if ($this->auditReader === null) {
+			$auditManager = $this->container['entity_audit.manager'];
+			/* @var $auditManager \SimpleThings\EntityAudit\AuditManager */
+			$this->auditReader = $auditManager->createAuditReader($this->getEntityManager());
+			/* @var $auditReader \SimpleThings\EntityAudit\AuditReader */
+		}
+		
+		return $this->auditReader;
 	}
 
 	/**
@@ -88,6 +111,65 @@ abstract class AbstractPagesController extends AbstractCmsController
 //		}
 //
 //		parent::finalize($e);
+//	}
+
+//	/**
+//	 * TODO: must return configurable controller instance (use repository?)
+//	 * @return string
+//	 */
+//	protected function getPageControllerClass()
+//	{
+//		return 'Supra\Controller\Pages\PageController';
+//	}
+
+//	/**
+//	 * Get public entity manager
+//	 * @return EntityManager
+//	 */
+//	protected function getPublicEntityManager()
+//	{
+//		return ObjectRepository::getEntityManager($this->getPageControllerClass());
+//	}
+
+//	/**
+//	 * Get page controller instance
+//	 * @return PageController
+//	 */
+//	protected function getPageController()
+//	{
+//		if (is_null($this->pageController)) {
+//			$controllerClass = $this->getPageControllerClass();
+//			$this->pageController = Loader::getClassInstance($controllerClass, self::PAGE_CONTROLLER_CLASS);
+//
+//			// Override to use the draft repository objects
+//			ObjectRepository::setCallerParent($this->pageController, $this);
+//		}
+//
+//		return $this->pageController;
+//	}
+
+//	/**
+//	 * @param Localization $pageLocalization
+//	 * @return PageRequestEdit
+//	 */
+//	protected function getPageRequest(Localization $pageLocalization = null)
+//	{
+//		$controller = $this->getPageController();
+//		$media = $this->getMedia();
+//		$user = $this->getUser();
+//
+//		if (is_null($pageLocalization)) {
+//			$pageLocalization = $this->getPageLocalization();
+//		}
+//
+//		$request = PageRequestEdit::factory($pageLocalization, $media);
+//		$response = $controller->createResponse($request);
+//
+//		$controller->prepare($request, $response);
+//
+//		$request->setUser($user);
+//
+//		return $request;
 //	}
 
 	/**
@@ -400,7 +482,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 			$dql = "SELECT COUNT(p.id) FROM $localizationEntity p
 	                WHERE p.template = ?0";
 
-			$count = $this->entityManager->createQuery($dql)
+			$count = $this->getEntityManager()->createQuery($dql)
 					->setParameters(array($pageId))
 					->getSingleScalarResult();
 
@@ -408,8 +490,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 				throw new CmsException(null, "Cannot remove template as there are {$count} pages using it.");
 			}
 
-			$publicEm = ObjectRepository::getEntityManager('#public');
-			$count = $publicEm->createQuery($dql)
+			$count = $this->getEntityManager()->createQuery($dql)
 					->setParameter(0, $pageId)
 					->getSingleScalarResult();
 
@@ -418,27 +499,91 @@ abstract class AbstractPagesController extends AbstractCmsController
 			}
 		}
 
-		// EVENTS:
-		// 1. Sets the revision setter listener and audit listener into specific state
-		$this->entityManager->getEventManager()
-				->dispatchEvent(EntityRevisionSetterListener::pagePreDeleteEvent);
+		// 1. remove any published version first
+		$this->unPublish();
 
-		// 2. Supra's event manager listeners
-		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePreRemove);
+		// 2. fire pageDeleteEvent which will cause EntityAuditListener to
+		// catch all entity deletions and store them under single revision
+		$em = $this->getEntityManager();
 
-		// page remove action
-		$pageRequest = $this->getPageRequest();
-		$pageRequest->delete();
+		$localization = $this->getPageLocalization();
+		$masterId = $localization->getMaster()
+			->getId();
 
-		// 3. Resets audit/revision listeners back to normal state
-		$this->entityManager->getEventManager()
-				->dispatchEvent(EntityRevisionSetterListener::pagePostDeleteEvent);
+		// 3. remove master from draft.
+		// all related entites will be removed by cascade removal
+		$removePage = function() use ($em, $masterId) {
 
-		// 4. Again, the Supra's event manager listeners
-		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostRemove);
+			$master = $em->find(AbstractPage::CN(), $masterId);
+
+			if ( ! is_null($master)) {
+				$em->remove($master);
+			}
+		};
+
+		$em->transactional($removePage);
 
 		// Respond with success
-		$this->getResponse()->setResponseData(true);
+		return new SupraJsonResponse();
+	}
+
+	/**
+	 * Deletes all page published localizations from public schema
+	 */
+	public function unPublish()
+	{
+		//todo: STUB
+		return;
+		$publicEm = ObjectRepository::getEntityManager('#public');
+		$publicEm->getConnection()->beginTransaction();
+
+		try {
+
+			$page = $this->getPageLocalization()
+				->getMaster();
+
+			$page = $publicEm->find(AbstractPage::CN(), $page->getId());
+
+			$localizationSet = $page->getLocalizations();
+
+			foreach($localizationSet as $localization) {
+
+				$localization = $publicEm->find(Entity\Abstraction\Localization::CN(), $localization->getId());
+
+				$blocks = $this->getBlocksInPage($publicEm, $localization);
+				foreach($blocks as $block) {
+					$publicEm->remove($block);
+				}
+
+				$properties = $this->getPageBlockProperties($publicEm, $localization);
+				foreach ($properties as $property) {
+					$publicEm->remove($property);
+				}
+
+				$publicEm->remove($localization);
+			}
+
+			// Remove published placeholders
+			/*$placeHolders = $page->getPlaceHolders();*/
+			$placeHolders = $this->getPlaceHolders($publicEm);
+			foreach($placeHolders as $placeHolder) {
+				$publicEm->remove($placeHolder);
+			}
+
+			$placeHolderGroups = $this->getPlaceHolderGroups($publicEm);
+			foreach($placeHolderGroups as $placeHolderGroup) {
+				$publicEm->remove($placeHolderGroup);
+			}
+
+			$publicEm->flush();
+
+		} catch (\Exception $e) {
+
+			$publicEm->getConnection()->rollBack();
+			throw $e;
+		}
+
+		$publicEm->getConnection()->commit();
 	}
 
 	/**
@@ -675,7 +820,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Sets page lock, if no lock is found, or if "force"-locking is used;
+	 * Sets page lock, if no lock is found, or if force is used;
 	 * will output current lock data if page locked by another user and
 	 * force action is not allowed or not provided
 	 */
@@ -699,8 +844,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 				$this->createLock();
 			}
 		} catch (ObjectLockedException $e) {
-			if ( ! $force) {
-				return new SupraJsonResponse($this->getLocalizationLockData($localization));
+			if (! $force) {
+				return new SupraJsonResponse($this->getLocalizationEditLockData($localization));
 			}
 		}
 
@@ -708,7 +853,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Creates localization editing lock object.
+	 * Creates localization edit lock object.
 	 */
 	protected function createLock()
 	{
@@ -720,7 +865,10 @@ abstract class AbstractPagesController extends AbstractCmsController
 		
 		$localization = $this->getPageLocalization();
 
-		$lock = new LockData($user, $localization);
+		$currentRevision = $this->getAuditReader()
+				->getCurrentRevision($localization::CN(), $localization->getId());
+
+		$lock = new EditLock($user, $localization, $currentRevision);
 
 		$entityManager = $this->getEntityManager();
 
@@ -1349,7 +1497,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 * @param Localization $localization
 	 * @return array | null
 	 */
-	protected function getLocalizationLockData(Localization $localization)
+	protected function getLocalizationEditLockData(Localization $localization)
 	{
 		if (! $localization->isLocked()) {
 			return null;
@@ -1392,10 +1540,14 @@ abstract class AbstractPagesController extends AbstractCmsController
 	{
 		$template = $localization->getTemplate();
 
+		$currentRevision = $this->getAuditReader()
+				->getCurrentRevision($localization::CN(), $localization->getId());
+		
 		$publishedLocalization = $this->findLocalizationPublishedVersion($localization);
 
-		$isLatestVersionPublished = ($publishedLocalization
-				&& $publishedLocalization->getRevision() === $localization->getRevision());
+		// @TODO: add to int cast inside AuditReader.
+		$isLatestVersionPublished = $localization->isPublished()
+				&& $localization->getPublishedRevision() === (int) $currentRevision;
 
 		// main data
 		$localizationData = array(
@@ -1414,11 +1566,8 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 			'active' => $publishedLocalization ? $publishedLocalization->isActive() : $localization->isActive(),
 
-			// has published page version published or not
-			'published' => $publishedLocalization && $publishedLocalization->isActive(),
-			
-			// is the latest version published
-			'published_latest' => $isLatestVersionPublished,
+			// is the latest version published or not
+			'published' => $isLatestVersionPublished,
 		);
 
 		// redirect data
@@ -1520,10 +1669,15 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 */
 	private function findLocalizationPublishedVersion(Localization $localization)
 	{
-		$entityManager = $this->container->getDoctrine()
-				->getManager();
+		if (! $localization->isPublished()) {
+			return null;
+		}
 
-		return $entityManager->find(Localization::CN(), $localization->getId());
+		return $this->getAuditReader()->find(
+				$localization::CN(),
+				$localization->getId(),
+				$localization->getPublishedRevision()
+		);
 	}
 
 	/**

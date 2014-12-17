@@ -70,6 +70,31 @@ class PagesGroupController extends AbstractPagesController
 		return new SupraJsonResponse($this->loadNodeMainData($localization));
 	}
 
+
+	/**
+	 * Action for delete virtual folder
+	 */
+	public function deleteAction()
+	{
+		$this->checkLock();
+
+		$this->isPostRequest();
+		$folder = $this->getPageLocalization()->getMaster();
+
+		if( ! $folder instanceof GroupPage ) {
+			throw new CmsException(null, "Not a virtualfolder object");
+		}
+
+
+		if ($folder->hasChildren()) {
+			throw new CmsException(null, "Cannot remove virtualfolder with children");
+		}
+
+		$this->delete();
+
+		return new SupraJsonResponse();
+	}
+
 	/**
 	 * Settings save action handler.
 	 * Initiated when group title is changed via Sitemap.

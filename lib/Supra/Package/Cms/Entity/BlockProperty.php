@@ -6,8 +6,6 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\PersistentCollection;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Package\Cms\Entity\Abstraction\AuditedEntityInterface;
-use Supra\Package\Cms\Entity\Abstraction\VersionedEntity;
 use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
@@ -20,7 +18,7 @@ use Supra\Controller\Pages\Exception;
  * @Entity
  * //HasLifecycleCallbacks
  */
-class BlockProperty extends VersionedEntity implements AuditedEntityInterface
+class BlockProperty extends Abstraction\Entity
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")
@@ -76,7 +74,7 @@ class BlockProperty extends VersionedEntity implements AuditedEntityInterface
 	public function __construct($name)
 	{
 		parent::__construct();
-		
+
 		$this->name = $name;
 		$this->metadata = new ArrayCollection();
 	}
@@ -273,24 +271,24 @@ class BlockProperty extends VersionedEntity implements AuditedEntityInterface
 		return $this->localization;
 	}
 
-//	public function __clone()
-//	{
-//		parent::__clone();
+	public function __clone()
+	{
+		parent::__clone();
+
+		if (! empty($this->id)) {
+
+			$this->block = null;
+			$this->localization = null;
 //
-//		if (! empty($this->id)) {
+//			$clonedMetadata = array();
 //
-////			$this->block = null;
-////			$this->localization = null;
-////
-////			$clonedMetadata = array();
-////
-////			foreach ($this->metadata as $metaItem) {
-////				$clonedMetadata[] = clone $metaItem;
-////			}
-////
-////			$this->metadata = new ArrayCollection($clonedMetadata);
-//		}
-//	}
+//			foreach ($this->metadata as $metaItem) {
+//				$clonedMetadata[] = clone $metaItem;
+//			}
+//
+//			$this->metadata = new ArrayCollection($clonedMetadata);
+		}
+	}
 
 	/**
 	 * Helper for the publishing process.

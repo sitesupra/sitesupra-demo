@@ -72,6 +72,11 @@ routes:
         controller:					Cms:PagesPage:create
         options:
             frontend:       true
+    cms_pages_page_delete:
+        pattern:						%cms.prefix%/content-manager/page/delete
+        controller:					Cms:PagesPage:delete
+        options:
+            frontend:       true
     cms_pages_page_copy:
         pattern:						%cms.prefix%/content-manager/page/copy
         controller:					Cms:PagesPage:copy
@@ -130,6 +135,11 @@ routes:
     cms_pages_group_save:
         pattern:						%cms.prefix%/content-manager/group/save
         controller:					Cms:PagesGroup:save
+        options:
+            frontend:       true
+    cms_pages_group_delete:
+        pattern:						%cms.prefix%/content-manager/group/delete
+        controller:					Cms:PagesGroup:delete
         options:
             frontend:       true
     ## Blocks list
@@ -286,3 +296,13 @@ routes:
             path:                       .*
         defaults:
             path:                       ~
+    recycle_pages_load:
+        pattern:                        %cms.prefix%/recycle/pages/load
+        controller:                     Cms:Recycle:loadPages
+        options:
+            frontend:                   true
+    pagehistory_load:
+        pattern:                        %cms.prefix%/content-manager/pagehistory/load
+        controller:                     Cms:PageHistory:load
+        options:
+            frontend:                   true

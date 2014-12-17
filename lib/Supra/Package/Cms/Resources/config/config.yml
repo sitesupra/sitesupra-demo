@@ -292,4 +292,3 @@ cms_resources:
         - public/cms/supra/build/event/deferred.js
         - public/cms/supra/build/supra/supra-packed-css.js
         - public/cms/supra/build/url/url.js
-        - public/cms/supra/build/ua/normalize.js

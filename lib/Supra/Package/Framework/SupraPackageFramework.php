@@ -9,6 +9,8 @@ use Doctrine\DBAL\Logging\LoggerChain;
 use Doctrine\DBAL\Types\Type;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\Setup;
+use SimpleThings\EntityAudit\AuditConfiguration;
+use SimpleThings\EntityAudit\AuditManager;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Doctrine\ManagerRegistry;
 use Supra\Core\Event\KernelEvent;
@@ -17,6 +19,7 @@ use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\Listener\LocaleDetectorListener;
 use Supra\Package\Cms\Twig\CmsExtension;
+use Supra\Package\CmsAuthentication\Controller\AuthController;
 use Supra\Package\Framework\Command\AssetsPublishCommand;
 use Supra\Package\Framework\Command\CacheClearCommand;
 use Supra\Package\Framework\Command\CacheListCommand;
@@ -36,6 +39,7 @@ use Supra\Package\Framework\Command\SupraShellCommand;
 use Supra\Package\Framework\Listener\NotFoundAssetExceptionListener;
 use Supra\Package\Framework\Twig\FrameworkExtension;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\Security\Http\SecurityEvents;
 
 class SupraPackageFramework extends AbstractSupraPackage
 {
@@ -93,7 +97,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		};
 
 		$container->getEventDispatcher()->addListener(
-			// @FIXME: subscribe to controller pre-execute event instead.
+		// @FIXME: subscribe to controller pre-execute event instead.
 			KernelEvent::REQUEST,
 			array($container[$this->name.'.locale_detector_listener'], 'listen')
 		);
@@ -141,6 +145,38 @@ class SupraPackageFramework extends AbstractSupraPackage
 			return $localeManager;
 		});
 
+		//entity audit
+		$container['entity_audit.configuration'] = function (ContainerInterface $container) {
+			$config = $container->getParameter('framework.doctrine_audit');
+
+			$configuration = new AuditConfiguration();
+			$configuration->setAuditedEntityClasses($config['entities']);
+			$configuration->setGlobalIgnoreColumns($config['ignore_columns']);
+			$configuration->setRevisionTableName('su_' . $configuration->getRevisionTableName());
+
+			$container->getEventDispatcher()->addListener(AuthController::TOKEN_CHANGE_EVENT, function () use ($container, $configuration) {
+				$context = $container->getSecurityContext();
+
+				if ($context->getToken() &&
+					$context->getToken()->getUser()
+				) {
+					$configuration->setCurrentUsername($context->getToken()->getUser()->getUsername());
+				}
+			});
+
+			if (!$configuration->getCurrentUsername()) {
+				$configuration->setCurrentUsername('anonymous');
+			}
+
+			return $configuration;
+		};
+
+		$container['entity_audit.manager'] = function (ContainerInterface $container) {
+			$config = $container['entity_audit.configuration'];
+
+			return new AuditManager($config);
+		};
+
 		//finishing doctrine
 		$doctrineConfig = $container->getParameter('framework.doctrine');
 
@@ -162,6 +198,8 @@ class SupraPackageFramework extends AbstractSupraPackage
 				foreach ($managerDefinition['subscribers'] as $id) {
 					$manager->addEventSubscriber($container[$id]);
 				}
+
+				$container['entity_audit.manager']->registerEvents($manager);
 
 				return $manager;
 			};
@@ -306,7 +344,6 @@ class SupraPackageFramework extends AbstractSupraPackage
 		};
 
 		//mailers
-
 		$mailerConfig = $container->getParameter('framework.swiftmailer');
 
 		$container->setParameter('mailer.mailers', array_map(function ($value) { return 'mailer.mailers.'.$value; }, array_keys($mailerConfig['mailers'])));

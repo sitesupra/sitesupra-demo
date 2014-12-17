@@ -900,5 +900,8 @@ abstract class PageRequest extends Request implements ContainerAware
 	/**
 	 * @return \Doctrine\ORM\EntityManager
 	 */
-	abstract protected function getEntityManager();
+	protected function getEntityManager()
+	{
+		return $this->container->getDoctrine()->getManager();
+	}
 }
