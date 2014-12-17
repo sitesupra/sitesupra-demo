@@ -1,18 +1,23 @@
-<div class="gallery images">
-	{% for image in property('images') %}
+<div class="block">
+	<h3>{{ property('foo.title') }}</h3>
+	<div>{{ property('foo.content') }}</div>
+
+
+	{% set fooSet = property('foo') %}
+	<h3>{{ fooSet.title | raw }}</h3>
+	<div>{{ fooSet.content | raw }}</div>
+</div>
+
+
+<div class="block gallery">
+
+	<h3 class="title">{{ property('title', 'inline_string') }}</h3>
+
+	{% set images = property('images') %}
+
+	<h3>There are {{ images | length }} images.</h3>
+
+	{% for image in images %}
 		{{ image }}
 	{% endfor %}
 </div>
-
-{# Instructions how to render item in CMS Gallery manager edit mode #}
-{% if supraPage.cmsRequest %}{% raw %}
-<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
-	<li class="one_third">
-		<span class="outer">
-			<span class="img">
-				<img src="about:blank" alt="" />
-			</span>
-		</span>
-	</li>
-</script>
-{% endraw %}{% endif %}
