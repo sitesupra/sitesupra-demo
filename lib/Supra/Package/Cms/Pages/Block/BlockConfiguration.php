@@ -313,6 +313,14 @@ abstract class BlockConfiguration
 	}
 
 	/**
+	 * @return CacheMapper
+	 */
+	public function getCache()
+	{
+		return $this->cache;
+	}
+
+	/**
 	 * Concrete classes should override this to configure block attributes.
 	 *
 	 * @param AttributeMapper $mapper
@@ -339,7 +347,7 @@ abstract class BlockConfiguration
 	 */
 	protected function configureCache(CacheMapper $mapper)
 	{
-		
+		$this->cache = null;
 	}
 
 	/**

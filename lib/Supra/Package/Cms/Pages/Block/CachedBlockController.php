@@ -1,18 +1,17 @@
 <?php
 
-namespace Supra\Controller\Pages;
+namespace Supra\Package\Cms\Pages\Block;
 
-use Supra\Request\RequestInterface;
-use Supra\Response\ResponseInterface;
+use Supra\Package\Cms\Pages\BlockController;
+use Supra\Package\Cms\Pages\Response\ResponsePart;
 
 /**
  * CachedBlockController
  */
 class CachedBlockController extends BlockController
 {
-	public function __construct(ResponseInterface $response)
+	public function __construct(ResponsePart $response)
 	{
-		parent::__construct();
 		$this->response = $response;
 	}
 	

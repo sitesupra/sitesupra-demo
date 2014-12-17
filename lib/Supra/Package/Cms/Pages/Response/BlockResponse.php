@@ -27,6 +27,16 @@ abstract class BlockResponse extends ResponsePart
 	 */
 	protected $parameters = array();
 
+	public function __sleep()
+	{
+		return array('templateName', 'parameters', 'context', 'output');
+	}
+
+	public function __wakeup()
+	{
+	}
+
+
 	/**
 	 * @param Block $block
 	 * @param string $templateName

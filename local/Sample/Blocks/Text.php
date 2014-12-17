@@ -4,6 +4,7 @@ namespace Sample\Blocks;
 
 use Supra\Package\Cms\Pages\Block\BlockConfiguration;
 use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
+use Supra\Package\Cms\Pages\Block\Mapper\CacheMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 
 class Text extends BlockConfiguration
@@ -20,5 +21,10 @@ class Text extends BlockConfiguration
 	protected function configureProperties(PropertyMapper $mapper)
 	{
 		$mapper->add('content', 'html');
+	}
+
+	protected function configureCache(CacheMapper $mapper)
+	{
+		$this->cache = $mapper;
 	}
 }

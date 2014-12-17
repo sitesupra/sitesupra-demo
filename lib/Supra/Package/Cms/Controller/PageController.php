@@ -4,7 +4,10 @@ namespace Supra\Package\Cms\Controller;
 
 use Doctrine\ORM\Query;
 use Supra\Core\Templating\TwigTemplating;
+use Supra\Package\Cms\Pages\Block\CachedBlockController;
+use Supra\Package\Cms\Pages\Block\Mapper\CacheMapper;
 use Supra\Package\Cms\Pages\PageExecutionContext;
+use Supra\Package\Cms\Pages\Response\ResponsePart;
 use Supra\Package\Cms\SQL\AuditWalker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -224,30 +227,23 @@ class PageController extends Controller
 		$blockCacheRequests = &$this->blockCacheRequests;
 
 		// Don't search for cache in CMS
-		if ( ! $request instanceof Request\PageRequestView) {
+		if ( ! $request instanceof PageRequestView) {
 			return;
 		}
 
-		$cache = ObjectRepository::getCacheAdapter($this);
-		$cacheGroupManager = new CacheGroupManager();
 		$self = $this;
 
-		$cacheSearch = function(Entity\Abstraction\Block $block)
-				use ($self, $localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests, $request) {
+		$cacheSearch = function(Block $block)
+				use ($self, $localization, &$blockContentCache, &$blockCacheRequests, $request) {
 
 					$blockClass = $block->getComponentClass();
-					$configuration = ObjectRepository::getComponentConfiguration($blockClass);
 
-					if ( ! empty($configuration->cache)) {
-						$blockCache = $configuration->cache;
-					} else {
-						$blockCache = null;
-					}
+					$configuration = $this->getBlockCollection()->getConfiguration($blockClass);
 
-					if ($blockCache instanceof Configuration\BlockControllerCacheConfiguration) {
+					if ($configuration->getCache() instanceof CacheMapper) {
 
 						$blockId = $block->getId();
-						$blockCacheRequests[$blockId] = $blockCache;
+						$blockCacheRequests[$blockId] = $configuration->getCache();
 
 						$self->searchResponseCache($blockId, $localization, $block);
 					}
@@ -320,7 +316,9 @@ class PageController extends Controller
 						$context = $cachedResponse->getContext();
 						/* @var $context ResponseContext */
 
-						$context->flushToContext($responseContext);
+						if ($context) {
+							$context->flushToContext($responseContext);
+						}
 
 						return;
 					} else {
@@ -354,17 +352,16 @@ class PageController extends Controller
 		$blockCacheRequests = &$this->blockCacheRequests;
 
 		// Don't search for cache in CMS
-		if ( ! $request instanceof Request\PageRequestView) {
+		if ( ! $request instanceof PageRequestView) {
 			return;
 		}
 
-		$cacheGroupManager = new CacheGroupManager();
-		$response = $this->getResponse();
+		$response = $this->getPageResponse();
 		$context = $response->getContext();
 		$self = $this;
 
 		$cacheSearch = function(Block $block, BlockController &$blockController)
-				use ($self, $localization, $cacheGroupManager, $cache, &$blockContentCache, &$blockCacheRequests, $request, $context) {
+				use ($self, $localization, &$blockContentCache, &$blockCacheRequests, $request, $context) {
 
 					$blockId = $block->getId();
 
@@ -378,20 +375,21 @@ class PageController extends Controller
 	/**
 	 * Try searching the response cache
 	 * @param string $blockId
-	 * @param Entity\Abstraction\Localization $localization
-	 * @param Entity\Abstraction\Block $block
+	 * @param Localization $localization
+	 * @param Block $block
 	 * @param ResponseContext $context
 	 * @return boolean
 	 * @private
 	 */
-	protected function searchResponseCache($blockId, Entity\Abstraction\Localization $localization, Entity\Abstraction\Block $block, ResponseContext $context = null)
+	protected function searchResponseCache($blockId, Localization $localization, Block $block, ResponseContext $context = null)
 	{
 		if ( ! array_key_exists($blockId, $this->blockCacheRequests)) {
 			return false;
 		}
 
 		$blockCache = $this->blockCacheRequests[$blockId];
-		/* @var $blockCache Configuration\BlockControllerCacheConfiguration */
+
+		/* @var $blockCache CacheMapper */
 
 		$cacheKey = $blockCache->getCacheKey($localization, $block, $context);
 
@@ -405,9 +403,9 @@ class PageController extends Controller
 			return false;
 		}
 
-		$cache = ObjectRepository::getCacheAdapter($this);
+		$cache = $this->container->getCache();
 
-		$content = $cache->fetch($cacheKey);
+		$content = $cache->fetch('block_cache', $cacheKey);
 		$responseCache = null;
 
 		if ($content === false) {
@@ -415,17 +413,18 @@ class PageController extends Controller
 		}
 
 		$responseCache = unserialize($content);
-		/* @var $responseCache Response\HttpResponse */
 
-		if ( ! $responseCache instanceof Response\HttpResponse) {
+		/* @var $responseCache ResponsePart */
+
+		if ( ! $responseCache instanceof ResponsePart) {
 			return false;
 		}
 
-		$changed = $responseCache->hasResourceChanged();
+		//$changed = $responseCache->hasResourceChanged();
 
-		if ($changed) {
-			return false;
-		}
+		//if ($changed) {
+		//	return false;
+		//}
 
 		$this->blockContentCache[$blockId] = $responseCache;
 
@@ -433,14 +432,17 @@ class PageController extends Controller
 		unset($this->blockCacheRequests[$blockId]);
 
 		// Don't load properties
-		$this->request->skipBlockPropertyLoading($blockId);
+		$this->getPageRequest()->skipBlockPropertyLoading($blockId);
 
 		// Rewrite controller instance
 		$this->blockControllers[$blockId] = new CachedBlockController($this->blockContentCache[$blockId]);
 
 		$cachedContext = $responseCache->getContext();
-		$mainContext = $this->getResponse()->getContext();
-		$cachedContext->flushToContext($mainContext);
+		$mainContext = $this->getPageResponse()->getContext();
+
+		if ($cachedContext) {
+			$cachedContext->flushToContext($mainContext);
+		}
 
 		return true;
 	}
@@ -597,7 +599,7 @@ class PageController extends Controller
 
 						try {
 							$serializedResponse = serialize($response);
-							$cache->store($cacheKey, $serializedResponse, $lifetime);
+							$cache->fetch('block_cache', $cacheKey, $serializedResponse, time(), $lifetime);
 						} catch (\Exception $e) {
 							$blockName = $block->getComponentName();
 						//	$log->error("Could not serialize response of block $blockName: ", $e->__toString());
