@@ -33,6 +33,8 @@ class PageExtension extends \Twig_Extension
 	public function getFunctions()
 	{
 		return array(
+			// @TODO: collection()
+			// @TODO: set()
 			new \Twig_SimpleFunction('property', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyNode', 'is_safe' => array('html'))),
 			new \Twig_SimpleFunction('isPropertyEmpty', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyValueTestNode', 'is_safe' => array('html'))),
 			new \Twig_SimpleFunction('placeHolder', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\PlaceHolderNode', 'is_safe' => array('html'))),
@@ -55,9 +57,7 @@ class PageExtension extends \Twig_Extension
 	public function getGlobals()
 	{
 		return array(
-			'supraBlock' => $this,	// @TODO: remove?
-			'supraPage'	=> $this,	// @TODO: remove?
-			'supra'		=> $this,	// @TODO: leave? // @FIXME: conflicts with CMS extension
+			'supraPage'	=> $this
 		);
 	}
 
@@ -69,17 +69,24 @@ class PageExtension extends \Twig_Extension
 	public function getPropertyValue($name, array $options = array())
 	{
 		return $this->getBlockExecutionContext()
-				->controller->getPropertyValue($name, $options);
+				->controller->getPropertyViewValue($name, $options);
 	}
 
 	/**
+	 * Gets if specified property value is empty.
+	 * 
+	 * You cannot test the value directly in twig, since in CMS view mode,
+	 * properties with inline editable always will have additional wrappers.
+	 *
 	 * @param string $name
 	 * @return bool
 	 */
 	public function isPropertyValueEmpty($name)
 	{
-		return $this->getBlockExecutionContext()
-				->controller->isPropertyValueEmpty($name);
+		$value = $this->getBlockExecutionContext()
+				->controller->getProperty($name)->getValue();
+
+		return empty($value);
 	}
 
 	/**
@@ -117,6 +124,8 @@ class PageExtension extends \Twig_Extension
 	/**
 	 * @param HtmlTag $tag
 	 * @param array $attributes
+	 *
+	 * @return null|HtmlTag
 	 */
 	public function decorateHtmlTag($tag, array $attributes)
 	{
@@ -136,7 +145,7 @@ class PageExtension extends \Twig_Extension
 	 */
 	public function getPage()
 	{
-		return $this->getPageExecutionContext()->localization;
+		return $this->getPageExecutionContext()->request->getLocalization();
 	}
 
 	/**
