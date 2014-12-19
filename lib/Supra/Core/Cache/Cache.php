@@ -77,7 +77,7 @@ class Cache implements ContainerAware
 	 * @param $ttl
 	 * @return mixed
 	 */
-	protected function store($prefix, $key, $default, $timestamp, $ttl)
+	public function store($prefix, $key, $default, $timestamp, $ttl)
 	{
 		$value = $this->processDefault($default);
 
@@ -88,6 +88,29 @@ class Cache implements ContainerAware
 		$this->driver->set($prefix, $key, $value, $timestamp, $ttl);
 
 		return $value;
+	}
+
+	/**
+	 * Removes cache entry
+	 *
+	 * @param $prefix
+	 * @param $key
+	 * @return mixed
+	 */
+	public function delete($prefix, $key)
+	{
+		return $this->driver->delete($prefix, $key);
+	}
+
+	/**
+	 * Clears all the cache
+	 *
+	 * @param $prefix
+	 * @return mixed
+	 */
+	public function clear($prefix)
+	{
+		return $this->driver->clear($prefix);
 	}
 
 	/**

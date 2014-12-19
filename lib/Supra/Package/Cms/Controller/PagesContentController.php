@@ -182,6 +182,9 @@ class PagesContentController extends AbstractPagesController
 
 	public function publishAction()
 	{
+		//$this->container['cache.frontend']->flushAll();
+		$this->container->getCache()->clear('block_cache');
+
 		$auditReader = $this->getAuditReader();
 
 		$localization = $this->getPageLocalization();

@@ -34,7 +34,7 @@
         "monolog/monolog": "1.*",
         "nelmio/alice": "1.*",
         "myclabs/deep-copy": "*",
-        "simplethings/entity-audit-bundle": "dev-lazy_loading",
+        "simplethings/entity-audit-bundle": "dev-cache",
         "gedmo/doctrine-extensions": "v2.3.9"
     },
     "repositories": [

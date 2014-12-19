@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Supra\Core\Cache\DoctrineCacheWrapper;
 use Supra\Package\Cms\Entity\EditLock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
