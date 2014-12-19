@@ -2,8 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Layout\Processor;
 
-use Supra\Package\Cms\Pages\Request\PageRequest;
-use Supra\Package\Cms\Pages\Response\PageResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Layout processor interface
@@ -11,12 +10,13 @@ use Supra\Package\Cms\Pages\Response\PageResponse;
 interface ProcessorInterface
 {
 	/**
-	 * Process the layout
-	 * @param PageResponse $response
-	 * @param array $placeResponses
+	 * Process the layout.
+	 * 
 	 * @param string $layoutSrc
+	 * @param Response $response
+	 * @param array $placeResponses
 	 */
-	public function process(PageResponse $response, array $placeResponses, $layoutSrc);
+	public function process($layoutSrc, Response $response, array $placeResponses);
 
 	/**
 	 * Return list of place names inside the layout

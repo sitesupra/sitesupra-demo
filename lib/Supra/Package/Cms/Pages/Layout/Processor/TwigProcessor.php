@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Layout\Processor;
 
-use Supra\Package\Cms\Pages\Response\PageResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Supra\Package\Cms\Pages\Twig\PlaceHolderNodeCollector;
 
 /**
@@ -24,9 +24,9 @@ class TwigProcessor implements ProcessorInterface
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
-	public function process(PageResponse $response, array $placeResponses, $layoutSrc)
+	public function process($layoutSrc, Response $response, array $placeResponses)
 	{
 		if (! $this->twig->hasExtension('supraPage')) {
 			throw new \UnexpectedValueException('Missing for Supra Page extension.');
@@ -38,7 +38,7 @@ class TwigProcessor implements ProcessorInterface
 	}
 
 	/**
-	 * @inheritDoc
+	 * {@inheritDoc}
 	 */
 	public function getPlaces($layoutSrc)
 	{
