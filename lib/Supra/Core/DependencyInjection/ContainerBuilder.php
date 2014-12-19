@@ -5,6 +5,7 @@ namespace Supra\Core\DependencyInjection;
 use Doctrine\DBAL\Driver\PDOMySql;
 use Supra\Core\Application\ApplicationManager;
 use Supra\Core\Cache\Cache;
+use Supra\Core\Cache\DoctrineCacheWrapper;
 use Supra\Core\Cache\Driver\File;
 use Supra\Core\Console\Application;
 use Supra\Core\Event\TraceableEventDispatcher;
@@ -124,6 +125,13 @@ abstract class ContainerBuilder
 			$cache = new Cache();
 			$cache->setContainer($container);
 			$cache->setDriver($container['cache.driver']);
+
+			return $cache;
+		};
+		$container['cache.frontend'] = function (ContainerInterface $container) {
+			$cache = new DoctrineCacheWrapper();
+			$cache->setContainer($container);
+			$cache->setPrefix('frontend_cache');
 
 			return $cache;
 		};

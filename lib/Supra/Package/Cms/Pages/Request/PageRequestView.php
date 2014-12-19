@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Request;
 
+use Supra\Core\Cache\DoctrineCacheWrapper;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Cache\CacheGroupManager;
@@ -241,6 +242,8 @@ class PageRequestView extends PageRequest
 			$auditReader = $this->getAuditReader();
 			$localization = $this->getLocalization();
 
+			$auditReader->getCache()->setSuffix($localization->getPublishedRevision());
+
 			$entityManager = $this->getEntityManager();
 
 			foreach (parent::getPageSet() as $page) {
@@ -268,6 +271,7 @@ class PageRequestView extends PageRequest
 		if ($this->auditReader === null) {
 			$this->auditReader = $this->container['entity_audit.manager']
 				->createAuditReader($this->getEntityManager());
+			$this->auditReader->setCache($this->container['cache.frontend']);
 		}
 
 		return $this->auditReader;
