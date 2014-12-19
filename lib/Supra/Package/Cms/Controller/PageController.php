@@ -2,46 +2,31 @@
 
 namespace Supra\Package\Cms\Controller;
 
-use Doctrine\ORM\Query;
 use Supra\Core\Templating\TwigTemplating;
 use Supra\Package\Cms\Pages\Block\CachedBlockController;
 use Supra\Package\Cms\Pages\Block\Mapper\CacheMapper;
 use Supra\Package\Cms\Pages\PageExecutionContext;
 use Supra\Package\Cms\Pages\Response\ResponsePart;
-use Supra\Package\Cms\SQL\AuditWalker;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 use Supra\Core\Controller\Controller;
 use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
-use Supra\Package\Cms\Pages\Listener\BlockExecuteListener;
 use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Pages\Block\BlockCollection;
 use Supra\Package\Cms\Pages\Response\PageResponse;
 use Supra\Package\Cms\Pages\Response\PlaceHolderResponseView;
 use Supra\Package\Cms\Pages\Response\PlaceHolderResponseEdit;
-use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
 use Supra\Package\Cms\Pages\Response\ResponseContext;
 use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Request\PageRequestView;
 
-use Supra\Controller\Pages\Event\BlockEvents;
-use Supra\Controller\Pages\Event\BlockEventsArgs;
-use Supra\Cache\CacheGroupManager;
-use Supra\Controller\Exception\StopRequestException;
-
 class PageController extends Controller
 {
-	const EVENT_POST_PREPARE_CONTENT = 'postPrepareContent';
-	const EVENT_BLOCK_START = 'blockStartExecuteEvent';
-	const EVENT_BLOCK_END = 'blockEndExecuteEvent';
-	const CACHE_GROUP_NAME = 'Supra\Controller\Pages';
-
 	/**
 	 * @var PageResponse
 	 */
@@ -97,53 +82,30 @@ class PageController extends Controller
 		$this->pageRequest = $pageRequest;
 		$this->pageResponse = $this->createPageResponse();
 
-//		try {
-			$localization = $pageRequest->getLocalization();
+		$localization = $pageRequest->getLocalization();
 
-			if (! $localization instanceof Localization) {
-				throw new \UnexpectedValueException(sprintf(
-						'Expecting Localization object only [%s] received.',
-						get_class($localization)
-				));
-			}
-
-			// Check redirect for public calls
-			if ($pageRequest instanceof PageRequestView) {
-				if ($localization->hasRedirectTarget()) {
-
-					$this->checkForRedirectLoop($localization);
-
-					$redirectUrl = $localization->getRedirectTarget()
-							->getRedirectUrl();
-
-					if (! empty($redirectUrl)) {
-						return new RedirectResponse($redirectUrl);
-					}
-
-					throw new ResourceNotFoundException;
-				}
-			}
-			
-//		} catch (ResourceNotFoundException $e) {
-//			try {
-//				$this->getLocalizationByPath('404');
-//			} catch (ResourceNotFoundException $e404) {
-//				// re-throw original exception if 404 page does not exists.
-//				throw $e;
-//			}
-//		}
-
-		$templating = $this->container->getTemplating();
-
-		if ($templating instanceof TwigTemplating) {
-
-			$context = new PageExecutionContext($localization, $this, $this->pageRequest, $this->pageResponse);
-
-			$templating->getExtension('supraPage')
-					->setPageExecutionContext($context);
+		if (! $localization instanceof Localization) {
+			throw new \UnexpectedValueException(sprintf(
+					'Expecting Localization object only [%s] received.',
+					get_class($localization)
+			));
 		}
 
-		// Continue processing
+		if ($pageRequest instanceof PageRequestView) {
+			if ($localization->hasRedirectTarget()) {
+
+				$redirectUrl = $localization->getRedirectTarget()
+						->getRedirectUrl();
+
+				if (! empty($redirectUrl)) {
+					 //@TODO: check for redirect loops
+					return new RedirectResponse($redirectUrl);
+				}
+
+				throw new ResourceNotFoundException;
+			}
+		}
+
 		$layout = $pageRequest->getLayout();
 
 		if ($layout === null) {
@@ -153,104 +115,72 @@ class PageController extends Controller
 			));
 		}
 
-		$this->findBlockCache();
+		$templating = $this->container->getTemplating();
 
-		$this->findBlockControllers();
-
-		// Initialize block property set so no additional queries are registered
-		// for the first block which does it
-		$pageRequest->getBlockPropertySet();
-
-		$this->prepareBlockControllers();
-
-		// The cache might be context dependent
-		$this->findContextDependentBlockCache();
-
-		$this->executeBlockControllers();
-
-// @FIXME: move event from current ns
-//		$eventArgs = new Event\PostPrepareContentEventArgs($this);
-//		$eventArgs->request = $this->getRequest();
-//		$eventArgs->response = $this->getResponse();
-//
-//		$eventManager = ObjectRepository::getEventManager($this);
-//		$eventManager->fire(self::EVENT_POST_PREPARE_CONTENT, $eventArgs);
-
-		$response = $this->getPageResponse();
-
-		if (($blockId = $pageRequest->getBlockRequestId()) === null) {
-
-			$placeResponses = $this->getPlaceResponses($pageRequest);
-			$this->processLayout($layout, $placeResponses);
-			
-		} else {
-			$this->iterateBlocks(
-
-					function(Block $block, BlockController $blockController) use ($blockId) {
-
-						if ($block->getId() === $blockId || $block->getComponentClass() === $blockId) {
-							$blockController->execute();
-						}
-					},
-					BlockExecuteListener::ACTION_RESPONSE_COLLECT
-			);
+		if ($templating instanceof TwigTemplating) {
+			$templating->getExtension('supraPage')
+					->setPageExecutionContext(new PageExecutionContext($this->pageRequest, $this));
 		}
 
-		return $response;
+		// searching for blocks cache
+		$this->findBlockCache();
+
+		// searching and instantiating controllers
+		$this->findBlockControllers();
+
+		// prepare controllers
+		$this->prepareBlockControllers();
+
+		// some of the block cache may be context-dependent
+		// and as context may change after preparing we're searching for cache again
+		$this->findContextDependentBlockCache();
+
+		// execute controllers
+		$this->executeBlockControllers();
+
+		// stores cache
+		$this->cacheBlockResponses();
+
+		// create placeholder responses, process page layout
+		$this->getLayoutProcessor()->process(
+				$layout->getFilename(),
+				$this->pageResponse,
+				$this->createPlaceResponses()
+		);
+
+		return $this->pageResponse;
 	}
-	
+
 	/**
-	 * @param Entity\Theme\ThemeLayout $layout
-	 * @param array $blocks array of block responses
+	 * Searches for block response cache.
+	 *
+	 * @return void
 	 */
-	protected function processLayout(ThemeLayoutInterface $layout, array $placeResponses)
-	{
-		$layoutProcessor = $this->getLayoutProcessor();
-
-		$layoutSrc = $layout->getFilename();
-
-		$layoutProcessor->getPlaces($layoutSrc);
-
-		$response = $this->getPageResponse();
-
-		$layoutProcessor->process($response, $placeResponses, $layoutSrc);
-	}
-
 	protected function findBlockCache()
 	{
-		$request = $this->getPageRequest();
-
-		/* @var $request PageRequest */
-		$localization = $request->getLocalization();
-
-		$blockContentCache = &$this->blockContentCache;
-		$blockCacheRequests = &$this->blockCacheRequests;
-
 		// Don't search for cache in CMS
-		if ( ! $request instanceof PageRequestView) {
+		if (! $this->pageRequest instanceof PageRequestView) {
 			return;
 		}
 
+		$localization = $this->pageRequest->getLocalization();
+		$blockCacheRequests = &$this->blockCacheRequests;
 		$self = $this;
 
-		$cacheSearch = function(Block $block)
-				use ($self, $localization, &$blockContentCache, &$blockCacheRequests, $request) {
+		$this->iterateBlocks(function(Block $block)	use ($self, $localization, &$blockCacheRequests) {
 
-					$blockClass = $block->getComponentClass();
+				$blockClass = $block->getComponentClass();
 
-					$configuration = $this->getBlockCollection()->getConfiguration($blockClass);
+				$configuration = $self->getBlockCollection()->getConfiguration($blockClass);
 
-					if ($configuration->getCache() instanceof CacheMapper) {
+				if ($configuration->getCache() instanceof CacheMapper) {
 
-						$blockId = $block->getId();
-						$blockCacheRequests[$blockId] = $configuration->getCache();
+					$blockId = $block->getId();
+					$blockCacheRequests[$blockId] = $configuration->getCache();
 
-						$self->searchResponseCache($blockId, $localization, $block);
-					}
-				};
-
-		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($cacheSearch, BlockExecuteListener::ACTION_CACHE_SEARCH);
+					$self->loadResponseCache($block, $localization);
+				}
+		});
 	}
 
 	/**
@@ -258,28 +188,22 @@ class PageController extends Controller
 	 */
 	protected function findBlockControllers()
 	{
-		$request = $this->getPageRequest();
-		
 		$blockContentCache = &$this->blockContentCache;
 
 		$blockCollection = $this->getBlockCollection();
 
-		// function which adds controllers for the block
-		$controllerFactory = function(Block $block, &$blockController) use ($blockCollection, &$blockContentCache) {
-
-					// Skip controller creation if cache found
-					$blockId = $block->getId();
-					if (array_key_exists($blockId, $blockContentCache)) {
-						$blockController = new CachedBlockController($blockContentCache[$blockId]);
-
-						return;
-					}
-
-					$blockController = $blockCollection->createController($block);
-				};
-
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($controllerFactory, BlockExecuteListener::ACTION_CONTROLLER_SEARCH);
+		$this->iterateBlocks(function(Block $block, &$blockController) use ($blockCollection, &$blockContentCache) {
+			// Skip controller creation if cache found
+			$blockId = $block->getId();
+
+			if (array_key_exists($blockId, $blockContentCache)) {
+				$blockController = new CachedBlockController($blockContentCache[$blockId]);
+				return;
+			}
+
+			$blockController = $blockCollection->createController($block);
+		});
 	}
 
 	/**
@@ -287,144 +211,138 @@ class PageController extends Controller
 	 */
 	protected function prepareBlockControllers()
 	{
-		$responseContext = $this->getPageResponse()
-				->getContext();
+		$pageRequest = $this->pageRequest;
 
-// @FIXME: response context
-
-//		if ( ! $responseContext instanceof ResponseContext) {
-//			$responseContext = new ResponseContext();
-//
-//			$this->getResponse()
-//				->setContext($responseContext);
-//		}
-
-		$blockContentCache = $this->blockContentCache;
-		$blockCacheRequests = $this->blockCacheRequests;
-
-		$pageRequest = $this->getPageRequest();
-
-		// function which adds controllers for the block
-		$prepare = function(Block $block, BlockController $blockController) use ($pageRequest, $responseContext, &$blockContentCache, &$blockCacheRequests) {
-
-					$blockId = $block->getId();
-
-					// Cached response, need to merge local context
-					if (array_key_exists($blockId, $blockContentCache)) {
-						$cachedResponse = $blockContentCache[$blockId];
-						/* @var $cachedResponse Response\HttpResponse */
-						$context = $cachedResponse->getContext();
-						/* @var $context ResponseContext */
-
-						if ($context) {
-							$context->flushToContext($responseContext);
-						}
-
-						return;
-					} else {
-
-						$blockController->prepare($pageRequest);
-
-// @FIXME: local response context for cache;
-//						// Creates local context proxy if the response will be cached
-//						if (isset($blockCacheRequests[$blockId])) {
-//							$responseContext = new ResponseContextLocalProxy($responseContext);
-//						}
-//
-//						$block->prepareController($blockController, $request, $responseContext);
-					}
-				};
-
-		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($prepare, BlockExecuteListener::ACTION_CONTROLLER_PREPARE);
+		$this->iterateBlocks(function(Block $block, BlockController $blockController) use ($pageRequest) {
+				$blockController->prepare($pageRequest);
+		});
 	}
 
 	/**
-	 * Late cache check for blocks which cache key depends on response context values
+	 * Late cache check for blocks which cache key depends on response context values.
+	 *
+	 * @return void
 	 */
 	protected function findContextDependentBlockCache()
 	{
-		$request = $this->getPageRequest();
-
-		/* @var $request PageRequest */
-		$localization = $request->getLocalization();
-		$blockContentCache = &$this->blockContentCache;
-		$blockCacheRequests = &$this->blockCacheRequests;
-
 		// Don't search for cache in CMS
-		if ( ! $request instanceof PageRequestView) {
+		if (! $this->pageRequest instanceof PageRequestView) {
 			return;
 		}
-
-		$response = $this->getPageResponse();
-		$context = $response->getContext();
+		
+		$localization = $this->pageRequest->getLocalization();
+		$context = $this->pageResponse->getContext();
 		$self = $this;
 
-		$cacheSearch = function(Block $block, BlockController &$blockController)
-				use ($self, $localization, &$blockContentCache, &$blockCacheRequests, $request, $context) {
-
-					$blockId = $block->getId();
-
-					$self->searchResponseCache($blockId, $localization, $block, $context);
-				};
-
 		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($cacheSearch, BlockExecuteListener::ACTION_DEPENDENT_CACHE_SEARCH);
+		$this->iterateBlocks(function(Block $block) 
+				use ($self, $localization, $context) {
+						$self->loadResponseCache($block, $localization, $context);
+		});
 	}
 
 	/**
-	 * Try searching the response cache
-	 * @param string $blockId
-	 * @param Localization $localization
-	 * @param Block $block
-	 * @param ResponseContext $context
-	 * @return boolean
-	 * @private
+	 * Executes block controllers
 	 */
-	protected function searchResponseCache($blockId, Localization $localization, Block $block, ResponseContext $context = null)
+	protected function executeBlockControllers()
 	{
-		if ( ! array_key_exists($blockId, $this->blockCacheRequests)) {
-			return false;
+		$blockContentCache = $this->blockContentCache;
+
+		$this->iterateBlocks(function(Block $block, BlockController $controller) use (&$blockContentCache) {
+			// skip cached
+			if (! array_key_exists($block->getId(), $blockContentCache)) {
+				$controller->execute();
+			}
+		});
+	}
+
+	/**
+	 * Caches block responses
+	 */
+	protected function cacheBlockResponses()
+	{
+		$cacheRequests = $this->blockCacheRequests;
+		$localization = $this->pageRequest->getLocalization();
+		$logger = $this->container->getLogger();
+		$cache = $this->container->getCache();
+
+		$this->iterateBlocks(function(Block $block, BlockController $controller) 
+				use (&$cacheRequests, $localization, $cache, $logger) {
+
+			$blockId = $block->getId();
+
+			if (! isset($cacheRequests[$blockId])) {
+				return;
+			}
+			
+			$cacheConfig = $cacheRequests[$blockId];
+			
+			$response = $controller->getResponse();
+			$context = $response->getContext();
+			
+			try {
+				$cache->store(
+						'block_cache',
+						$cacheConfig->getCacheKey($localization, $block, $context),
+						serialize($response),
+						time(),
+						$cacheConfig->getLifetime()
+				);
+			} catch (\Exception $e) {
+				$logger->error(sprintf(
+						"Failed to store cache for [%s], got exception [%s]",
+						get_class($controller),
+						$e->getMessage()
+				));
+			}
+		});
+	}
+	
+	/**
+	 * @param Block $block
+	 * @param Localization $localization
+	 * @param ResponseContext $context
+	 * @return void
+	 */
+	private function loadResponseCache(
+			Block $block,
+			Localization $localization,
+			ResponseContext $context = null
+	) {
+
+		$blockId = $block->getId();
+
+		if (! array_key_exists($blockId, $this->blockCacheRequests)) {
+			return;
 		}
 
 		$blockCache = $this->blockCacheRequests[$blockId];
-
 		/* @var $blockCache CacheMapper */
 
 		$cacheKey = $blockCache->getCacheKey($localization, $block, $context);
 
-		if (is_null($cacheKey)) {
+		if (empty($cacheKey)) {
 			// Cache disabled, forget the request
 			unset($this->blockCacheRequests[$blockId]);
-			return false;
-		}
-
-		if (empty($cacheKey)) {
-			return false;
+			return;
 		}
 
 		$cache = $this->container->getCache();
 
 		$content = $cache->fetch('block_cache', $cacheKey);
-		$responseCache = null;
 
 		if ($content === false) {
-			return false;
+			return;
 		}
 
 		$responseCache = unserialize($content);
 
-		/* @var $responseCache ResponsePart */
-
-		if ( ! $responseCache instanceof ResponsePart) {
-			return false;
+		if (! $responseCache instanceof ResponsePart) {
+			return;
 		}
 
-		//$changed = $responseCache->hasResourceChanged();
+		/* @var $responseCache ResponsePart */
 
-		//if ($changed) {
-		//	return false;
-		//}
 
 		$this->blockContentCache[$blockId] = $responseCache;
 
@@ -432,212 +350,61 @@ class PageController extends Controller
 		unset($this->blockCacheRequests[$blockId]);
 
 		// Don't load properties
-		$this->getPageRequest()->skipBlockPropertyLoading($blockId);
+		$this->pageRequest->skipBlockPropertyLoading($blockId);
 
 		// Rewrite controller instance
 		$this->blockControllers[$blockId] = new CachedBlockController($this->blockContentCache[$blockId]);
 
 		$cachedContext = $responseCache->getContext();
-		$mainContext = $this->getPageResponse()->getContext();
 
-		if ($cachedContext) {
-			$cachedContext->flushToContext($mainContext);
+		if ($cachedContext !== null) {
+			$cachedContext->flushToContext($this->pageResponse->getContext());
 		}
-
-		return true;
 	}
 
 	/**
-	 * Execute block controllers
-	 */
-	protected function executeBlockControllers()
-	{
-		$blockContentCache = $this->blockContentCache;
-
-		// function which adds controllers for the block
-		$prepare = function(Block $block, BlockController $blockController) use (&$blockContentCache) {
-
-					if (array_key_exists($block->getId(), $blockContentCache)) {
-						return null;
-					}
-
-// @FIXME: the same is already done on controller creation.
-//					// It is important to prepare the twig helper for each block controller right before execution
-//					$blockController->prepareTwigEnvironment();
-
-					$blockController->execute();
-				};
-
-		// Iterates through all blocks and calls the function passed
-		$this->iterateBlocks($prepare, BlockExecuteListener::ACTION_CONTROLLER_EXECUTE);
-	}
-
-	/**
-	 * Creates place holder response object.
+	 * Creates placeholder response objects with collected block responses.
 	 * 
-	 * @param PlaceHolder $placeHolder
-	 * @return PlaceHolderResponse
+	 * @return PlaceHolderResponse[]
 	 */
-	protected function createPlaceResponse(PlaceHolder $placeHolder)
-	{
-		return $this->getPageRequest() instanceof PageRequestEdit
-				? new PlaceHolderResponseEdit($placeHolder)
-				: new PlaceHolderResponseView($placeHolder);
-
-//		$group = $placeHolder->getGroup();
-//
-//		if ( ! empty($group)) {
-//
-//			$groupName = $group->getName();
-//
-//			if (isset($this->placeHolderGroupResponses[$groupName])) {
-//				$groupResponse = $this->placeHolderGroupResponses[$groupName];
-//			} else {
-//
-//				if ($this->request instanceof namespace\Request\PageRequestEdit) {
-//					$groupResponse = new PlaceHolderGroup\PlaceHolderGroupResponseEdit();
-//				} else {
-//					$groupResponse = new PlaceHolderGroup\PlaceHolderGroupResponseView();
-//				}
-//
-//				$groupResponse->setGroupName($groupName);
-//
-//				$theme = $this->getRequest()
-//						->getLayout()
-//						->getTheme();
-//
-//				$groupLayoutName = $group->getGroupLayout();
-//
-//				$groupLayouts = $theme->getPlaceholderGroupLayouts();
-//
-//				if ( $groupLayouts && $groupLayouts->offsetExists($groupLayoutName)) {
-//					$groupResponse->setGroupLayout($groupLayouts->get($groupLayoutName));
-//				}
-//
-//				$this->placeHolderGroupResponses[$groupName] = $groupResponse;
-//			}
-//
-//			$groupResponse->addPlaceHolderResponse($response);
-//
-//			return $groupResponse;
-//		}
-//
-//		return $response;
-	}
-
-	/**
-	 * Iterates through blocks and returs array of place holder responses
-	 * @return array
-	 */
-	protected function getPlaceResponses()
+	protected function createPlaceResponses()
 	{
 		$placeResponses = array();
 		
-		$request = $this->getPageRequest();
+		$placeHolders = $this->pageRequest->getPlaceHolderSet();
 
-		$placeHolders = $request->getPlaceHolderSet();
-
-		$localization = $request->getLocalization();
-
-		$finalPlaceHolders = $placeHolders->getFinalPlaceHolders();
-
-		foreach ($finalPlaceHolders as $name => $placeHolder) {
+		foreach ($placeHolders->getFinalPlaceHolders() as $name => $placeHolder) {
 			$placeResponses[$name] = $this->createPlaceResponse($placeHolder);
 		}
 
-		$blockCacheRequests = &$this->blockCacheRequests;
+		$this->iterateBlocks(function(Block $block, BlockController $blockController) use (&$placeResponses) {
 
-		$cache = $this->container->getCache();
-
-		$collectResponses = function(Block $block, BlockController $blockController)
-
-				use (&$placeResponses, $localization, $request, $blockCacheRequests, $cache) {
-
-					$response = $blockController->getResponse();
-
-					$blockId = $block->getId();
-
-					$placeName = $block->getPlaceHolder()
+			$response = $blockController->getResponse();
+			$placeName = $block->getPlaceHolder()
 							->getName();
 
-					if ( ! isset($placeResponses[$placeName])) {
-						//TODO: what is the action on such case?
-						throw new Exception\LogicException("Logic problem – final place holder by name $placeName is not found");
-					}
+			if (! isset($placeResponses[$placeName])) {
+				throw new \LogicException("Logic problem – final place holder by name [$placeName] is not found.");
+			}
 
-					$placeResponse = $placeResponses[$placeName];
-
-					$placeResponse->output($response);
-
-
-//					//TODO: move to separate method
-//					if ($request instanceof Request\PageRequestEdit) {
-//						$blockName = $block->getComponentName();
-//
-//						if ($blockController instanceof BrokenBlockController) {
-//							$blockName = $blockController::BLOCK_NAME;
-//						}
-//
-//						$prefixContent = '<div id="content_' . $blockId
-//								. '" class="yui3-content yui3-content-' . $blockName
-//								. ' yui3-content-' . $blockName . '-' . $blockId . '">';
-//
-//						$placeHolderResponse->output($prefixContent);
-//					}
-
-//					$placeHolderResponse->output($response);
-//
-//					if ($request instanceof Request\PageRequestEdit) {
-//						$placeHolderResponse->output('</div>');
-//					}
-
-					if (isset($blockCacheRequests[$blockId])) {
-						$blockCache = $blockCacheRequests[$blockId];
-						$context = $response->getContext();
-						$cacheKey = $blockCache->getCacheKey($localization, $block, $context);
-						$lifetime = $blockCache->getLifetime();
-
-						try {
-							$serializedResponse = serialize($response);
-							$cache->fetch('block_cache', $cacheKey, $serializedResponse, time(), $lifetime);
-						} catch (\Exception $e) {
-							$blockName = $block->getComponentName();
-						//	$log->error("Could not serialize response of block $blockName: ", $e->__toString());
-						}
-					}
-				};
-
-		// Iterates through all blocks and collects placeholder responses
-		$this->iterateBlocks($collectResponses, BlockExecuteListener::ACTION_RESPONSE_COLLECT);
+			$placeResponses[$placeName]->output($response);
+		});
 
 		return $placeResponses;
 	}
 
-//	/**
-//	 * @FIXME
-//	 */
-//	public function returnPlaceResponses()
-//	{
-//		return $this->getPlaceResponses();
-//	}
-
 	/**
-	 * Iteration funciton for specific array of blocks
+	 * Iteration funciton for specific array of blocks.
+	 * 
 	 * @param \Closure $function
 	 * @return array
 	 */
-	protected function iterateBlocks(\Closure $function, $eventAction = null)
+	private function iterateBlocks(\Closure $function)
 	{
-		$blocks = $this->getPageRequest()
-				->getBlockSet();
-
-		$eventDispatcher = $this->container->getEventDispatcher();
-
 		$return = array();
-		$unsetBlocksByIndex = array();
 
-		/* @var $block Entity\Abstraction\Block */
-		foreach ($blocks as $index => $block) {
+		foreach ($this->pageRequest->getBlockSet() as $index => $block) {
+			/* @var $block Block */
 
 			$blockId = $block->getId();
 			/* @var $blockController BlockController */
@@ -648,260 +415,34 @@ class PageController extends Controller
 
 			$blockController = &$this->blockControllers[$blockId];
 
-			try {
+			$return[$index] = $function($block, $blockController);
 
-// @FIXME: events
-				$eventAction = null;
+			// NB! Block controller variable might be rewritten in the function
+			if ($blockController instanceof BlockController
+					&& $blockController->hadException()) {
 
-				if ( ! is_null($eventAction)) {
-					$eventArgs = new BlockEventsArgs($blockController);
-					$eventArgs->block = $block;
-					// Assigned by reference because "null" can change to object after closure execution
-					$eventArgs->blockController = &$blockController;
-					$eventArgs->actionType = $eventAction;
-					$eventArgs->request = $this->request;
-					$eventArgs->response = $this->response;
-					$eventArgs->blockRequest = ($this->getRequest()->getBlockRequestId() !== null);
+				$this->container->getLogger()->error(
+						$blockController->getException()->getMessage()
+				);
 
-// @FIXME: eventDispatcher
-//					$eventManager->fire(BlockEvents::blockStartExecuteEvent, $eventArgs);
-
-					$blockTimeStart = microtime(true);
-				}
-
-				$blockControllerName = $block->getComponentClass();
-				if ( ! empty($blockController)) {
-					$blockControllerName = get_class($blockController);
-				}
-
-				// Should not throw exceptions
-//				ObjectRepository::beginControllerContext($blockControllerName);
-
-				// NB! Block controller variable might be rewritten in the function
-				$e = null;
-
-				try {
-					$return[$index] = $function($block, $blockController);
-				} catch (\Exception $e) {
-					// exception raised while initializing the controller (e.g. while reading configuration)
-					// will throw after closing controller execution context
-				}
-
-//				ObjectRepository::endControllerContext($blockControllerName);
-
-				if ($e) {
-					throw $e;
-				}
-
-				if (
-						$blockController instanceof BlockController &&
-						$blockController->hadException()
-				) {
-
-					$exception = $blockController->hadException();
-
-					if ($exception instanceof StopRequestException) {
-
-						$response = $blockController->getResponse();
-
-						$response->cleanOutput();
-
-						$response->flushToResponse($this->getResponse());
-
-						throw $exception;
-					}
-
-					// Don't cache failed blocks
-					unset($this->blockCacheRequests[$blockId]);
-
-					// Add exception to blockEndExecute event.
-//					$eventArgs->exception = $exception;
-				}
-
-				if ( ! is_null($eventAction)) {
-
-					if ( ! is_null($blockController)) {
-						$eventArgs->setCaller($blockController);
-					}
-
-					$blockTimeEnd = microtime(true);
-					$blockExecutionTime = $blockTimeEnd - $blockTimeStart;
-					$eventArgs->duration = $blockExecutionTime;
-					$eventArgs->cached = isset($this->blockContentCache[$blockId]);
-					$eventDispatcher->fire(BlockEvents::blockEndExecuteEvent, $eventArgs);
-				}
-			} catch (Exception\SilentBlockSkipException $e) {
-				$unsetBlocksByIndex[] = $index;
-			} catch (Exception\InvalidBlockException $e) {
-
-				\Log::warn("Skipping block $block because of raised SkipBlockException: {$e->getMessage()}");
-
-				$unsetBlocksByIndex[] = $index;
+				// Don't cache failed blocks
+				unset($this->blockCacheRequests[$blockId]);
 			}
-		}
-
-		// unset afterwards, or else some blocks get prepared 2 times..
-		foreach ($unsetBlocksByIndex as $index) {
-			unset($blocks[$index]);
 		}
 
 		return $return;
 	}
 
-	protected function getLocalizationByPath($pathString)
+	/**
+	 * @return PageRequestView
+	 */
+	protected function createPageRequest(Request $request)
 	{
-		$request = $this->getPageRequest();
+		$pageRequest = new PageRequestView($request);
 
-		$request->clear();
-		
-		$request->attributes->set('path', $pathString);
+		$pageRequest->setContainer($this->container);
 
-		$request->getLocalization();
-	}
-
-	private function checkForRedirectLoop(PageLocalization $localization)
-	{
-		// @FIXME: implement me
-		throw new \Exception('Not implemented.');
-
-//		$redirectPageIds = $data = $parentData = array();
-//
-//		$linkElement = $pageLocalization->getRedirect();
-//		$em = $this->getEntityManager();
-//
-//		$redirect = false;
-//		$redirectLocalizationId = null;
-//
-//		if ( ! $linkElement instanceof LinkReferencedElement) {
-//			return array();
-//		}
-//
-//		do {
-//			$pageLocalizationId = $pageLocalization->getId();
-//
-//			// check if localization id is not in loop
-//			if (in_array($pageLocalizationId, $redirectPageIds)) {
-//
-//				$message = "Looks like page (#id: {$pageLocalizationId}, #title: \"{$pageLocalization->getTitle()}\") " .
-//						'is linking to another page which already was in redirect chain.';
-//
-//				\Log::error($message);
-//
-//				//			$this->writeAuditLog($message);
-//				return array();
-//			}
-//
-//
-//			$redirectPageIds[] = $pageLocalizationId;
-//
-//			$redirectPageId = $redirectLocalization = null;
-//			$resource = $linkElement->getResource();
-//
-//			$data = array();
-//
-//			switch ($resource) {
-//				// parse fixed redirect
-//				case LinkReferencedElement::RESOURCE_PAGE:
-//					// searching for redirect page
-//					$redirectPageId = $linkElement->getPageId();
-//					if (empty($redirectPageId)) {
-//						unset($linkElement);
-//						break;
-//					}
-//
-//					$redirectPage = $em->getRepository(Entity\Abstraction\AbstractPage::CN())
-//							->findOneById($redirectPageId);
-//
-//					if ( ! $redirectPage instanceof Entity\Abstraction\AbstractPage) {
-//						unset($linkElement);
-//						break;
-//					}
-//
-//					// redirect localization
-//					$redirectLocalization = $redirectPage->getLocalization($pageLocalization->getLocale());
-//
-//					if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
-//						unset($linkElement);
-//						break;
-//					}
-//
-//					$redirect = true;
-//					$redirectLocalizationId = $redirectLocalization->getId();
-//					$path = '/' . $redirectLocalization->getLocale()
-//							. $redirectLocalization->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
-//
-//					$data = array(
-//						'redirect' => $redirect,
-//						'redirect_page_id' => $redirectLocalizationId,
-//						'redirect_page_path' => $path,
-//					);
-//
-//					// checking if redirect localization has another redirect
-//					$linkElement = $redirectLocalization->getRedirect();
-//					$pageLocalization = $redirectLocalization;
-//					$parentData = $data;
-//
-//					break;
-//				// parse relative redirect
-//				case LinkReferencedElement::RESOURCE_RELATIVE_PAGE:
-//					/* @var $pageLocalization Entity\PageLocalization */
-//
-//					// getting children
-//					$pageLocalizationChildrenCollection = $pageLocalization->getChildren();
-//					if ( ! $pageLocalizationChildrenCollection instanceof \Doctrine\Common\Collections\Collection) {
-//						unset($linkElement);
-//						break;
-//					}
-//
-//					$pageLocalizationChildren = $pageLocalizationChildrenCollection->getValues();
-//
-//					// selecting first or last children
-//					if ($linkElement->getHref() == LinkReferencedElement::RELATIVE_FIRST
-//							&& ! empty($pageLocalizationChildren)) {
-//
-//						$redirectLocalization = array_shift($pageLocalizationChildren);
-//					} elseif ($linkElement->getHref() == LinkReferencedElement::RELATIVE_LAST
-//							&& ! empty($pageLocalizationChildren)) {
-//
-//						$redirectLocalization = array_pop($pageLocalizationChildren);
-//					} else {
-//						unset($linkElement);
-//						break;
-//					}
-//
-//					if ( ! $redirectLocalization instanceof Entity\PageLocalization) {
-//						unset($linkElement);
-//						break;
-//					}
-//
-//					$redirect = true;
-//					$redirectLocalizationId = $redirectLocalization->getId();
-//					$path = '/' . $redirectLocalization->getLocale() . $redirectLocalization->getFullPath(Path::FORMAT_BOTH_DELIMITERS);
-//
-//					$data = array(
-//						'redirect' => $redirect,
-//						'redirect_page_id' => $redirectLocalizationId,
-//						'redirect_page_path' => $path,
-//					);
-//
-//					// checking if redirect localization has another redirect
-//					$linkElement = $redirectLocalization->getRedirect();
-//					$pageLocalization = $redirectLocalization;
-//					$parentData = $data;
-//
-//					break;
-//
-//				default:
-//					unset($linkElement);
-//					break;
-//			}
-//		} while ($linkElement instanceof LinkReferencedElement);
-//
-//		if ( ! empty($data)) {
-//			return $data;
-//		} else {
-//			return $parentData;
-//		}
+		return $pageRequest;
 	}
 
 	/**
@@ -917,39 +458,16 @@ class PageController extends Controller
 	}
 
 	/**
-	 * @return PageResponse
+	 * Creates place holder response object.
+	 *
+	 * @param PlaceHolder $placeHolder
+	 * @return PlaceHolderResponse
 	 */
-	protected function getPageResponse()
+	protected function createPlaceResponse(PlaceHolder $placeHolder)
 	{
-		return $this->pageResponse;
-	}
-
-	/**
-	 * @return PageRequestView
-	 */
-	protected function createPageRequest(Request $request)
-	{
-		$pageRequest = new PageRequestView($request);
-		
-		$pageRequest->setContainer($this->container);
-
-		return $pageRequest;
-	}
-
-	/**
-	 * @return PageRequest
-	 */
-	protected function getPageRequest()
-	{
-		return $this->pageRequest;
-	}
-
-	/**
-	 * @param PageRequest $pageRequest
-	 */
-	protected function setPageRequest(PageRequest $pageRequest)
-	{
-		$this->pageRequest = $pageRequest;
+		return $this->pageRequest instanceof PageRequestEdit
+				? new PlaceHolderResponseEdit($placeHolder)
+				: new PlaceHolderResponseView($placeHolder);
 	}
 
 	/**
@@ -966,14 +484,5 @@ class PageController extends Controller
 	protected function getLayoutProcessor()
 	{
 		return $this->container['cms.pages.layout_processor'];
-	}
-
-	/**
-	 * @FIXME: remove from here.
-	 * @param BlockController $blockController
-	 */
-	public function prepareBlockController(BlockController $blockController, PageRequest $pageRequest)
-	{
-		$blockController->prepare($pageRequest);
 	}
 }

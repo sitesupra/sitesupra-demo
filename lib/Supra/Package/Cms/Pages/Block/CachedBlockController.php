@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Block;
 
+use Symfony\Component\HttpFoundation\Request;
 use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Pages\Response\ResponsePart;
 
@@ -10,17 +11,27 @@ use Supra\Package\Cms\Pages\Response\ResponsePart;
  */
 class CachedBlockController extends BlockController
 {
-	public function __construct(ResponsePart $response)
+	/**
+	 * @param ResponsePart $cachedResponse
+	 */
+	public function __construct(ResponsePart $cachedResponse)
 	{
-		$this->response = $response;
+		$this->response = $cachedResponse;
 	}
-	
-	public function doExecute()
+
+	/**
+	 * @throws \LogicException
+	 */
+	final public function doExecute()
 	{
-		
+		throw new \LogicException('Cached block controller should not be executed.');
 	}
-	
-	public function createResponse(RequestInterface $request)
+
+	/**
+	 * @param Request $request
+	 * @return ResponsePart
+	 */
+	public function createBlockResponse(Request $request)
 	{
 		return $this->response;
 	}

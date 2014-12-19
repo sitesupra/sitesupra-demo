@@ -2,12 +2,9 @@
 
 namespace Supra\Package\Cms\Pages\Layout\Processor;
 
-use Supra\Package\Cms\Pages\Request\PageRequest;
-use Supra\Package\Cms\Pages\Response\PageResponse;
-
-use Supra\Response\ResponseInterface;
-use Supra\Controller\Layout\Exception;
-use Supra\Request\RequestInterface;
+use Symfony\Component\HttpFoundation\Response;
+use Supra\Controller\Layout\Exception\RuntimeException;
+use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
 
 /**
  * Simple layout processor
@@ -49,38 +46,12 @@ class HtmlProcessor implements ProcessorInterface
 	protected $endDelimiter = '-->';
 
 	/**
-	 * @var RequestInterface
-	 */
-	protected $request;
-
-	/**
-	 * @var ResponseInterface
-	 */
-	protected $response;
-
-	/**
-	 * @param PageRequest $request
-	 */
-	public function setRequest(PageRequest $request)
-	{
-		$this->request = $request;
-	}
-
-	/**
-	 * @param PageResponse $response
-	 */
-	public function setResponse(PageResponse $response)
-	{
-		$this->response = $response;
-	}
-
-	/**
 	 * Process the layout
 	 * @param ResponseInterface $response
 	 * @param array $placeResponses
 	 * @param string $layoutSrc
 	 */
-	public function process(PageResponse $response, array $placeResponses, $layoutSrc)
+	public function process($layoutSrc, Response $response, array $placeResponses)
 	{
 		// Output CDATA
 		$cdataCallback = function($cdata) use ($response) {
@@ -93,7 +64,7 @@ class HtmlProcessor implements ProcessorInterface
 		$macroCallback = function($func, array $args, $self) use (&$response, &$placeResponses, $self) {
 					if ($func == HtmlProcessor::PLACE_HOLDER) {
 						if ( ! array_key_exists(0, $args) || $args[0] == '') {
-							throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in template ");
+							throw new RuntimeException("No placeholder name defined in the placeHolder macro in template ");
 						}
 
 						$place = $args[0];
@@ -125,7 +96,7 @@ class HtmlProcessor implements ProcessorInterface
 		$macroCallback = function($func, array $args) use (&$places, $layoutSrc) {
 					if ($func == HtmlProcessor::PLACE_HOLDER) {
 						if ( ! array_key_exists(0, $args) || $args[0] == '') {
-							throw new Exception\RuntimeException("No placeholder name defined in the placeHolder macro in file {$layoutSrc}");
+							throw new RuntimeException("No placeholder name defined in the placeHolder macro in file {$layoutSrc}");
 						}
 
 						// Normalize placeholder ID for case insensitive MySQL varchar field
@@ -142,16 +113,16 @@ class HtmlProcessor implements ProcessorInterface
 	 * Generates absolute filename
 	 * @param string $layoutSrc
 	 * @return string
-	 * @throws Exception\RuntimeException when file or security issue is raised
+	 * @throws RuntimeException when file or security issue is raised
 	 */
 	protected function getFileName($layoutSrc)
 	{
 		$filename = $this->getLayoutDir() . \DIRECTORY_SEPARATOR . $layoutSrc;
 		if ( ! is_file($filename)) {
-			throw new Exception\LayoutNotFoundException("File '$layoutSrc' was not found");
+			throw new LayoutNotFound("File '$layoutSrc' was not found");
 		}
 		if ( ! is_readable($filename)) {
-			throw new Exception\RuntimeException("File '$layoutSrc' is not readable");
+			throw new RuntimeException("File '$layoutSrc' is not readable");
 		}
 
 		// security stuff
@@ -163,7 +134,6 @@ class HtmlProcessor implements ProcessorInterface
 	/**
 	 * @param string $layoutSrc
 	 * @return string
-	 * @throws Exception\RuntimeException when file or security issue is raised
 	 */
 	protected function getContent($layoutSrc)
 	{
@@ -174,15 +144,15 @@ class HtmlProcessor implements ProcessorInterface
 
 	/**
 	 * @param string $filename
-	 * @throws Exception\RuntimeException if security issue is found
+	 * @throws RuntimeException if security issue is found
 	 */
 	protected function securityCheck($filename)
 	{
 		if (preg_match('!(^|/|\\\\)\.\.($|/|\\\\)!', $filename)) {
-			throw new Exception\RuntimeException("Security error for '$filename': Layout filename cannot contain '..' part");
+			throw new RuntimeException("Security error for '$filename': Layout filename cannot contain '..' part");
 		}
 		if (\filesize($filename) > self::FILE_SIZE_LIMIT) {
-			throw new Exception\RuntimeException("Security error for '$filename': Layout file size cannot exceed " . self::FILE_SIZE_LIMIT . ' bytes');
+			throw new RuntimeException("Security error for '$filename': Layout file size cannot exceed " . self::FILE_SIZE_LIMIT . ' bytes');
 		}
 	}
 
