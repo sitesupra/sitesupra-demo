@@ -198,7 +198,7 @@ class PageController extends Controller
 			$blockId = $block->getId();
 
 			if (array_key_exists($blockId, $blockContentCache)) {
-				$blockController = new CachedBlockController($blockContentCache[$blockId]);
+				$blockController = new CachedBlockController($blockContentCache[$blockId], $block);
 				return;
 			}
 
@@ -353,7 +353,7 @@ class PageController extends Controller
 		$this->pageRequest->skipBlockPropertyLoading($blockId);
 
 		// Rewrite controller instance
-		$this->blockControllers[$blockId] = new CachedBlockController($this->blockContentCache[$blockId]);
+		$this->blockControllers[$blockId] = new CachedBlockController($this->blockContentCache[$blockId], $block);
 
 		$cachedContext = $responseCache->getContext();
 

@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Block;
 
+use Supra\Package\Cms\Entity\Abstraction\Block;
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Package\Cms\Pages\BlockController;
 use Supra\Package\Cms\Pages\Response\ResponsePart;
@@ -14,9 +15,10 @@ class CachedBlockController extends BlockController
 	/**
 	 * @param ResponsePart $cachedResponse
 	 */
-	public function __construct(ResponsePart $cachedResponse)
+	public function __construct(ResponsePart $cachedResponse, Block $block)
 	{
 		$this->response = $cachedResponse;
+		$this->block = $block;
 	}
 
 	/**
