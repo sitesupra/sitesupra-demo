@@ -6,6 +6,7 @@ use Supra\Package\Cms\Pages\Twig\BlockPropertyNodeVisitor;
 use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\CacheMapper;
+use Supra\Package\Cms\Pages\Block\Config\AbstractProperty;
 
 /**
  * Block configuration abstraction.
@@ -35,7 +36,7 @@ abstract class BlockConfiguration
 	protected $autoDiscoverProperties = false;
 
 	/**
-	 * @var BlockPropertyConfiguration[]
+	 * @var AbstractProperty[]
 	 */
 	protected $properties = array();
 
@@ -155,10 +156,14 @@ abstract class BlockConfiguration
 	}
 
 	/**
+	 * @TODO: implement
+	 *
 	 * @param bool $unique
 	 */
 	public function setUnique($unique)
 	{
+		throw new \BadMethodCallException('Not supported.');
+
 		$this->unique = $unique;
 	}
 
@@ -239,24 +244,22 @@ abstract class BlockConfiguration
 	}
 
 	/**
-	 * @param BlockPropertyConfiguration $property
+	 * @param AbstractProperty $property
 	 * @throws \LogicException
 	 */
-	public function addProperty(BlockPropertyConfiguration $property)
+	public function addProperty(AbstractProperty $property)
 	{
 		$this->validate();
 
-		$name = $property->getName();
-
-		if ($this->hasProperty($name)) {
-			throw new \LogicException("Property [{$name}] is already in collection.");
+		if ($this->hasProperty($property->name)) {
+			throw new \LogicException("Property [{$property->name}] is already in collection.");
 		}
 		
-		$this->properties[$name] = $property;
+		$this->properties[$property->name] = $property;
 	}
 
 	/**
-	 * @return BlockPropertyConfiguration[]
+	 * @return AbstractProperty[]
 	 */
 	public function getProperties()
 	{
@@ -278,15 +281,38 @@ abstract class BlockConfiguration
 
 	/**
 	 * @param string $name
-	 * @return BlockPropertyConfiguration
+	 * @return AbstractProperty
 	 */
 	public function getProperty($name)
 	{
 		$this->validate();
 
-		if ($this->hasProperty($name)) {
-			return $this->properties[$name];
+		if (($pos = strrpos($name, '.')) !== false) {
+
+			$parent = $this->getProperty(substr($name, 0, $pos));
+
+			if ($parent instanceof Config\PropertySet) {
+				return $parent->getSetItem(substr($name, $pos + 1));
+
+			} elseif ($parent instanceof Config\PropertyCollection) {
+				return $parent->getCollectionItem();
+
+			} else {
+				throw new \UnexpectedValueException(sprintf(
+						'Only sets and collections can have sub-properties, [%s] received.',
+						get_class($parent)
+				));
+			}
 		}
+
+		if (! isset($this->properties[$name])) {
+			throw new \RuntimeException(sprintf(
+					'Property [%s] is not defined.',
+					$name
+			));
+		}
+
+		return $this->properties[$name];
 	}
 
 	/**

@@ -4,19 +4,19 @@ namespace Supra\Package\Cms\Entity;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\PersistentCollection;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 
-use Supra\Controller\Pages\Exception;
-
 /**
- * Block property class.
- * 
  * @Entity
- * //HasLifecycleCallbacks
+ * @InheritanceType("SINGLE_TABLE")
+ * @DiscriminatorColumn(name="discr", type="string")
+ * @DiscriminatorMap({
+ * 		"property"		= "Supra\Package\Cms\Entity\BlockProperty",
+ * 		"collection"	= "Supra\Package\Cms\Entity\BlockPropertyCollection",
+ * })
+ * @HasLifecycleCallbacks
  */
 class BlockProperty extends Abstraction\Entity
 {
@@ -35,8 +35,8 @@ class BlockProperty extends Abstraction\Entity
 	protected $block;
 
 	/**
-	 * Content type (class name of Supra\Editable\EditableInterface class)
-	 * @Column(type="string")
+	 * Content type (class name of Editable class)
+	 * @Column(type="string", nullable=true)
 	 * @var string
 	 */
 	protected $type;
@@ -48,11 +48,23 @@ class BlockProperty extends Abstraction\Entity
 	protected $name;
 
 	/**
+	 * @Column(type="string")
+	 * @var string
+	 */
+	protected $hierarchicalName;
+
+	/**
 	 * @Column(type="text", nullable=true)
 	 * @var string
 	 */
 	protected $value;
 	
+	/**
+	 * @ManyToOne(targetEntity="BlockPropertyCollection", inversedBy="properties", cascade={"persist"})
+	 * @var BlockPropertyCollection
+	 */
+	protected $collection;
+
 	/**
 	 * Value additional data about links, images
 	 * 
@@ -75,30 +87,14 @@ class BlockProperty extends Abstraction\Entity
 	{
 		parent::__construct();
 
-		$this->name = $name;
+		$this->name = (string) $name;
 		$this->metadata = new ArrayCollection();
 	}
-	
-//	/**
-//	 * @PostLoad
-//	 */
-//	public function initializeEditable()
-//	{
-//		$this->setValue($this->value);
-//	}
 
 	/**
 	 * @return Localization
 	 */
 	public function getLocalization()
-	{
-		return $this->localization;
-	}
-
-	/**
-	 * @return Localization
-	 */
-	public function getOriginalLocalization()
 	{
 		return $this->localization;
 	}
@@ -160,25 +156,6 @@ class BlockProperty extends Abstraction\Entity
 	}
 	
 	/**
-	 * @deprecated use getEditableClass instead.
-	 * @return string
-	 */
-	public function getType()
-	{
-		return $this->getEditableClass();
-	}
-
-	/**
-	 * Set content type
-	 * @param string $type 
-	 */
-	public function setType($type)
-	{
-		throw new \RuntimeException("Should not be used anymore");
-		//$this->type = $type;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getName()
@@ -195,10 +172,7 @@ class BlockProperty extends Abstraction\Entity
 	}
 
 	/**
-	 * @TODO: should we validate the value?
-	 * @TODO: should we serialize arrays passed?
-	 * 
-	 * @param string $value
+	 * @param null|string $value
 	 */
 	public function setValue($value)
 	{
@@ -212,32 +186,21 @@ class BlockProperty extends Abstraction\Entity
 		$this->value = $value;
 	}
 	
-//	/**
-//	 * @return EditableInterface
-//	 */
-//	public function getEditable()
-//	{
-//		return $this->editable;
-//	}
-
-	/**
-	 * @param EditableInterface $editable
-	 */
-	public function setEditable(EditableInterface $editable)
-	{
-//		$editable->setContent($this->value);
-//		$this->value = $editable->getStorableContent();
-//		$this->editable = $editable;
-
-		$this->type = get_class($editable);
-	}
-
 	/**
 	 * @return string
 	 */
 	public function getEditableClass()
 	{
 		return $this->type;
+	}
+
+	/**
+	 * @TODO: just keep editable ID?
+	 * @param string $class
+	 */
+	public function setEditableClass($class)
+	{
+		$this->type = $class;
 	}
 
 	/**
@@ -250,25 +213,11 @@ class BlockProperty extends Abstraction\Entity
 			try {
 				// do not-strict match (allows page data with template block)
 				$this->localization->matchDiscriminator($this->block);
-			} catch (Exception\PagesControllerException $e) {
+			} catch (\Exception $e) {
 				$object = null;
 				throw $e;
 			}
 		}
-	}
-	
-	/**
-	 * @inheritDoc
-	 */
-	public function getVersionedParent()
-	{
-		// If the owner block belongs to the owner localization, return block,
-		// localization otherwise.
-		if ($this->localization->equals($this->block->getPlaceHolder()->getMaster())) {
-			return $this->block;
-		}
-		
-		return $this->localization;
 	}
 
 	public function __clone()
@@ -291,15 +240,36 @@ class BlockProperty extends Abstraction\Entity
 	}
 
 	/**
-	 * Helper for the publishing process.
-	 * Initializes proxy associations because not initialized proxies aren't merged by Doctrine.
-	 *
-	 * @return void
+	 * @param BlockPropertyCollection $collection
 	 */
-	public function initializeProxyAssociations()
+	public function setCollection(BlockPropertyCollection $collection = null)
 	{
-		if ($this->metadata instanceof PersistentCollection) {
-			$this->metadata->initialize();
+		$this->collection = $collection;
+	}
+
+	/**
+	 * @internal
+	 * @return string
+	 */
+	public function getHierarchicalName()
+	{
+		if ($this->collection === null) {
+			return $this->name;
 		}
+
+		return $this->collection->getHierarchicalName() . '.' . $this->name;
+	}
+
+	/**
+	 * To use in DQL queries.
+	 *
+	 * @internal
+	 *
+	 * @preUpdate
+	 * @prePersist
+	 */
+	public function composeHierarchicalName()
+	{
+		$this->hierarchicalName = $this->getHierarchicalName();
 	}
 }

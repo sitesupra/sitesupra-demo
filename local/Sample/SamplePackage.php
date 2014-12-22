@@ -23,6 +23,8 @@ class SamplePackage extends AbstractSupraCmsPackage
 			new Blocks\ContactForm(),
 			new Blocks\Menu(),
 			new Blocks\SocialLinks(),
+			
+			new Blocks\CollectionGallery(),
 		);
 	}
 

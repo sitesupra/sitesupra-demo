@@ -63,7 +63,6 @@ class BlockCollection implements ContainerAware
 	 */
 	public function addConfiguration(BlockConfiguration $configuration)
 	{
-//		$className = $configuration->getControllerClass();
 		$className = get_class($configuration);
 
 		if (isset($this->blockConfigurations[$className])) {
@@ -205,34 +204,6 @@ class BlockCollection implements ContainerAware
 	{
 		$this->container = $container;
 	}
-
-//	/**
-//	 * @param string $blockId
-//	 * @return BlockController
-//	 */
-//	public function createBlockController($blockId)
-//	{
-////		$configuration = ObjectRepository::getComponentConfiguration($blockId);
-//
-//		$configuration = $this->getControllerConfiguration($blockId);
-//
-//		if ( ! Loader::classExists($configuration->class)) {
-//
-//			$configuration = $this->configuration['blocks'][BrokenBlockController::BLOCK_NAME];
-//
-//			if (is_null($configuration)) {
-//				throw new Exception\ConfigurationException("The broken block controller is not configured.");
-//			}
-//		}
-//
-//		if ( ! $configuration instanceof BlockControllerConfiguration) {
-//			throw new Exception\ConfigurationException("Configuration for block ID '$blockId' name must be block controller configuration");
-//		}
-//
-//		$controller = $configuration->createBlockController();
-//
-//		return $controller;
-//	}
 
 	/**
 	 * @TODO: should have some BlockBuilder? BlockConfigurationBuilder? instead

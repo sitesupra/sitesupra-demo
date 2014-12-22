@@ -6,58 +6,28 @@ use Symfony\Component\HttpFoundation\Request;
 use Supra\Core\Controller\Controller;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Package\Cms\Entity\Abstraction\Block;
-use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Entity\BlockPropertyCollection;
 use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
-use Supra\Package\Cms\Pages\Set\BlockPropertySet;
 use Supra\Package\Cms\Pages\Block\BlockConfiguration;
+use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
 use Supra\Package\Cms\Pages\Response\BlockResponse;
 use Supra\Package\Cms\Pages\Response\BlockResponseView;
 use Supra\Package\Cms\Pages\Response\BlockResponseEdit;
-use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Editable;
 use Supra\Package\Cms\Pages\Editable\Filter;
+use Supra\Package\Cms\Pages\Editable\Transformer;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
-use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
-
-use Supra\Controller\Pages\Twig\TwigSupraBlockGlobal;
-
-use Supra\Controller\Pages\Configuration\BlockControllerConfiguration;
-use Supra\Controller\Pages\Exception;
-//use Supra\Controller\Exception\StopRequestException;
+use Supra\Package\Cms\Pages\Block\Config;
+use Supra\Package\Cms\Pages\Set\BlockPropertySet;
+use Supra\Package\Cms\Pages\Block\BlockPropertyCollectionValue;
 
 /**
  * Block controller abstraction
  */
 abstract class BlockController extends Controller
 {
-	/**
-	 * @var BlockPropertySet
-	 */
-	protected $properties = array();
-
-	/**
-	 * @var Block
-	 */
-	protected $block;
-
-	/**
-	 * @var AbstractPage
-	 */
-	protected $page;
-
-	/**
-	 * @var BlockConfiguration
-	 */
-	protected $configuration;
-
-	/**
-	 * Stores ID values of configured block properties
-	 * @var array
-	 */
-	protected $configuredBlockProperties = array();
-
 	/**
 	 * @var Request
 	 */
@@ -67,6 +37,27 @@ abstract class BlockController extends Controller
 	 * @var ResponsePart
 	 */
 	protected $response;
+
+	/**
+	 * @var Block
+	 */
+	protected $block;
+
+	/**
+	 * @var BlockConfiguration
+	 */
+	protected $configuration;
+
+	/**
+	 * @var BlockPropertySet
+	 */
+	protected $properties;
+
+	/**
+	 * Stores ID values of configured block properties
+	 * @var array
+	 */
+	protected $configuredBlockProperties = array();
 
 	/**
 	 * Exception ocurred on prepare/execute.
@@ -79,12 +70,18 @@ abstract class BlockController extends Controller
 	 * @param Block $block
 	 * @param BlockConfiguration $configuration
 	 */
-	public function __construct(
-			Block $block,
-			BlockConfiguration $configuration
-	) {
+	public function __construct(Block $block, BlockConfiguration $configuration)
+	{
 		$this->block = $block;
 		$this->configuration = $configuration;
+	}
+
+	/**
+	 * @return BlockConfiguration
+	 */
+	public function getConfiguration()
+	{
+		return $this->configuration;
 	}
 
 	/**
@@ -96,6 +93,30 @@ abstract class BlockController extends Controller
 	}
 
 	/**
+	 * @return \Exception
+	 */
+	public function getException()
+	{
+		return $this->exception;
+	}
+
+	/**
+	 * @return BlockResponse
+	 */
+	public function getResponse()
+	{
+		return $this->response;
+	}
+
+	/**
+	 * @return PageRequest
+	 */
+	protected function getRequest()
+	{
+		return $this->request;
+	}
+
+	/**
 	 * Prepares controller for execution.
 	 *
 	 * This method is final, use doPrepare for defining actions in prepare step.
@@ -104,44 +125,25 @@ abstract class BlockController extends Controller
 	 */
 	final public function prepare(PageRequest $request)
 	{
-		$this->properties = $request->getBlockPropertySet()
-				->getBlockPropertySet($this->block);
-
 		$this->request = $request;
 		$this->response = $this->createBlockResponse($request);
-
-		$page = $request->getPage();
-		$this->setPage($page);
+		
+		$this->properties = $request->getBlockPropertySet()
+				->getBlockPropertySet($this->block);
 
 		try {
 			$this->doPrepare();
 		} catch (\Exception $e) {
 			$this->exception = $e;
 		}
+	}
 
-// @FIXME: allow PageController to handle this.
-//			$blockClass = $this->getBlock()->getComponentClass();
-//
-//			$configuration = ObjectRepository::getComponentConfiguration($blockClass);
-//
-//			if ( ! empty($configuration)) {
-//
-//				if ($configuration->unique) {
-//					// check for uniqness
-//					$blockOutputCount = $this->increaseBlockOutputCount();
-//
-//					if ($blockOutputCount > 1) {
-//						$pageTitle = null;
-//
-//						if ($request instanceof PageRequest) {
-//							$pageTitle = $request->getLocalization()
-//									->getTitle();
-//						}
-//
-//						throw new Exception\RuntimeException("Only one unique block '{$configuration->title}' can exist on a page '$pageTitle'");
-//					}
-//				}
-//			}
+	/**
+	 * Method used by block controllers to implement things to do in this step
+	 */
+	protected function doPrepare()
+	{
+
 	}
 
 	/**
@@ -156,100 +158,26 @@ abstract class BlockController extends Controller
 			return null;
 		}
 
-		// @TODO: implement similar functionality?
-//		$className = get_class($this);
-//		$file = Loader::getInstance()->findClassPath($className);
-//		$this->getResponse()->addResourceFile($file);
+		$this->container->getTemplating()
+				->getExtension('supraPage')
+				->setBlockExecutionContext(new BlockExecutionContext($this, $this->request));
 
 		try {
-			$this->container->getTemplating()
-					->getExtension('supraPage')
-					->setBlockExecutionContext(new BlockExecutionContext($this, $this->request));
-
 			$this->doExecute();
-			
 		} catch (\Exception $e) {
-
-			$this->container->getLogger()->error($e);
 			$this->exception = $e;
-
 			$this->setExceptionResponse($e);
 		}
 	}
 
 	/**
-	 * @return AbstractPage
+	 * Method used by block controllers to implement actual controlling
 	 */
-	public function getPage()
-	{
-		return $this->page;
-	}
+	abstract protected function doExecute();
 
 	/**
-	 * @param AbstractPage $page
-	 */
-	public function setPage(AbstractPage $page)
-	{
-		$this->page = $page;
-	}
-
-	/**
-	 * @return PageRequest
-	 */
-	protected function getRequest()
-	{
-		return $this->request;
-	}
-
-	/**
-	 * @return BlockResponse
-	 */
-	public function getResponse()
-	{
-		return $this->response;
-	}
-
-	/**
-	 * Assigns supra helper to the twig as global helper
-	 */
-	public function prepareTwigEnvironment()
-	{
-// @FIXME: implement if needed.
-//		$request = $this->getRequest();
-//
-//		$response = $this->getResponse();
-//
-//		if ($response instanceof Response\TwigResponse) {
-//
-//			$twig = $response->getTwigEnvironment();
-//
-//			$helper = new Twig\TwigSupraPageGlobal();
-//			$helper->setRequest($this->request);
-//
-//			$theme = $request->getLayout()->getTheme();
-//
-//			$helper->setTheme($theme);
-//			$helper->setResponseContext($response->getContext());
-//
-//			ObjectRepository::setCallerParent($helper, $this);
-//			$twig->addGlobal('supra', $helper);
-//
-//			$blockHelper = new Twig\TwigSupraBlockGlobal($this);
-//			ObjectRepository::setCallerParent($blockHelper, $this);
-//			$twig->addGlobal('supraBlock', $blockHelper);
-//		}
-	}
-
-	/**
-	 * @param Set\BlockPropertySet $blockPropertySet
-	 */
-	public function setBlockPropertySet(Set\BlockPropertySet $blockPropertySet)
-	{
-		$this->properties = $blockPropertySet;
-	}
-
-	/**
-	 * Checks if property exists
+	 * Checks if property is known.
+	 * 
 	 * @param string $name
 	 * @return boolean
 	 */
@@ -264,144 +192,204 @@ abstract class BlockController extends Controller
 	 */
 	public function getProperty($name)
 	{
-		if (! $this->hasProperty($name)) {
-			throw new Exception\RuntimeException(sprintf(
-					'Property [%s] is not defined for block [%s]',
-					$name,
-					get_called_class()
-			));
-		}
-
-		$configuration = $this->configuration->getProperty($name);
-
-		$editable = $configuration->getEditable();
-		$editableClass = get_class($configuration->getEditable());
+		$config = $this->configuration->getProperty($name);
 
 		$property = null;
-		foreach ($this->properties as $possibleProperty) {
-			if ($possibleProperty->getName() === $name
-					&& $possibleProperty->getEditableClass() === $editableClass) {
 
-				$property = $possibleProperty;
+		foreach ($this->properties as $candidate) {
+			if ($config->isMatchingProperty($candidate)
+					&& $name === $candidate->getHierarchicalName()) {
+				
+				$property = $candidate;
 				break;
 			}
 		}
 
-		// if property were not found, we will create new one.
 		if ($property === null) {
 
-			$property = new BlockProperty($name);
+			if ($config->hasParent()) {
+				$name = substr($name, strrpos($name, '.') + 1);
+			}
 
-			$property->setEditable($editable);
+			$property = $config->createBlockProperty($name);
 
-			$property->setBlock($this->getBlock());
-
-			$request = $this->getRequest();
+			$property->setBlock($this->block);
 
 			$property->setLocalization(
-					$request->getLocalization()
+					$this->getRequest()->getLocalization()
 			);
 
-			$defaultValue = null;
-//			$defaultValue = $configuration->getDefaultValue($request->getLocale());
+			if ($config->hasParent()) {
+				$parent = $this->getProperty($config->getParent()->getHierarchicalName());
 
-			$property->setValue($defaultValue);
+				if (! $parent instanceof BlockPropertyCollection) {
+					throw new \LogicException('Expecting parent to be property collection.');
+				}
+
+				$parent->addProperty($property);
+			}
+
+			$this->properties->append($property);
 		}
-
-
-//		// Find editable by name
-//		$propertyDefinition = $this->configuration->getProperty($name);
-//
-//			$editable = $propertyDefinition->editableInstance;
-//
-//			if ( ! $editable instanceof EditableInterface) {
-//				throw new Exception\RuntimeException("Definition of property must be an instance of editable");
-//			}
-//
-//			// Find property by name
-//			$property = null;
-//			$expectedType = get_class($editable);
-//
-//			foreach ($this->properties as $propertyCheck) {
-//				/* @var $propertyCheck BlockProperty */
-//				/* @var $property BlockProperty */
-//				if ($propertyCheck->getName() === $name) {
-//
-//					if ($propertyCheck->getType() === $expectedType) {
-//						$property = $propertyCheck;
-////						$property->setEditable($editable);
-////						$property->setValue($editable->getDefaultValue());
-//						break;
-//					}
-//				}
-//			}
-//
-//			/*
-//			 * Must create new property here
-//			 */
-//			if (empty($property)) {
-//
-//				$property = new Entity\BlockProperty($name);
-//				$property->setEditable($editable);
-//
-//				$request = $this->getRequest();
-//				$localeId = null;
-//
-//				if ($request instanceof PageRequest) {
-//					$localeId = $request->getLocale();
-//				}
-//
-//				/* @var $request Request\HttpRequest */
-//
-//				$defaultValue = array();
-//				if ( ! empty($propertyDefinition->properties) && ! $editable instanceof Editable\Gallery) {
-//					foreach ($propertyDefinition->properties as $subProperty) {
-//						$defaultValue[$subProperty->name] = $subProperty->editableInstance->getDefaultValue();
-//					}
-//					$defaultValue = array($defaultValue);
-//				} else {
-//
-//					$defaultValue = $editable->getDefaultValue($localeId);
-//				}
-//
-//				$property->setValue($defaultValue);
-//				$property->setBlock($this->getBlock());
-//
-//				// Must set some DATA object. Where to get this? And why data is set to property not block?
-//				//FIXME: should do somehow easier than that
-//				if ($request instanceof PageRequest) {
-//					$property->setLocalization($request->getLocalization());
-//				}
-//			}
-//			//		else {
-//			//			//TODO: should we overwrite editable content parameters from the block controller config?
-//			//			$property->setEditable($editable);
-//			//		}
-//		}
-//
-//		$editable = $property->getEditable();
 
 		return $property;
 	}
 
 	/**
-	 * Add additional filters for the property
-	 * @param Entity\BlockProperty $property
-	 * @param EditableInterface $editable
+	 * Get property value, uses default if not found, throws exception if
+	 * property not declared
+	 * 
+	 * @param string $name
+	 * @param array $options
+	 * @return mixed
 	 */
-	protected function configureContentFilters(BlockProperty $property, EditableInterface $editable)
+	public function getPropertyViewValue($name, array $options = array())
+	{
+		$property = $this->getProperty($name);
+
+		if ($property instanceof BlockPropertyCollection) {
+			return new BlockPropertyCollectionValue($property, $this, $options);
+		}
+
+		$editable = $this->configuration
+				->getProperty($name)
+				->getEditable()
+				->getInstance();
+
+		$this->configureViewFilters($editable, $property);
+
+		return $editable->toViewValue($property->getValue(), $options);
+	}
+
+	/**
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getPropertyEditorValue($name)
+	{
+		$property = $this->getProperty($name);
+		
+		if ($property instanceof BlockPropertyCollection) {
+			$value = array();
+			
+			foreach ($property as $subProperty) {
+				$value[$subProperty->getName()] = $this->getPropertyEditorValue($subProperty->getHierarchicalName());
+			}
+
+			return $value;
+		}
+
+		$propertyConfig = $this->configuration->getProperty($name);
+		$editable = $propertyConfig->getEditable()
+				->getInstance();
+
+		$this->configureValueTransformers($editable, $property);
+
+		return $editable->toEditorValue($property->getValue());
+	}
+
+	/**
+	 * @TODO: must separate manager related code from block controller.
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 */
+	public function savePropertyValue($name, $value)
+	{
+		$config = $this->configuration->getProperty($name);
+
+		if ($config instanceof Config\PropertyCollection
+				|| $config instanceof Config\PropertySet) {
+
+			if (! is_array($value)) {
+				throw new \UnexpectedValueException('Expecting property collection value to be array.');
+			}
+
+			foreach ($value as $subName => $subValue) {
+				$this->savePropertyValue($name . '.' . $subName, $subValue);
+			}
+
+			return;
+		}
+
+		$property = $this->getProperty($name);
+
+		$editable = $config->getEditable()->getInstance();
+
+		$this->configureValueTransformers($editable, $property);
+
+		$this->container->getDoctrine()
+				->getManager()
+				->persist($property);
+
+		$property->setValue($editable->fromEditorValue($value));
+	}
+
+	/**
+	 * @param \Exception $exception
+	 */
+	protected function setExceptionResponse(\Exception $exception)
+	{
+		if (! $this->getRequest() instanceof PageRequestEdit) {
+			return;
+		}
+
+		$response = $this->getResponse();
+
+		if ($response instanceof BlockResponse) {
+			$response->cleanOutput();
+
+			// @TODO: use something like BlockExceptionResponse instead to avoid templateName override.
+			$response->assign('blockName', $this->getConfiguration()->getTitle())
+					->setTemplateName('Cms:block/exception.html.twig')
+					->render();
+		}
+	}
+
+	/**
+	 * @param Request $request
+	 * @return BlockResponse
+	 */
+	protected function createBlockResponse(Request $request)
+	{
+		$templating = $this->container->getTemplating();
+
+		$templateName = $this->configuration->getTemplateName();
+
+		return $request instanceof PageRequestEdit
+				? new BlockResponseEdit($this->block, $templateName, $templating)
+				: new BlockResponseView($this->block, $templateName, $templating);
+	}
+
+	/**
+	 * @throws \BadMethodCallException
+	 */
+	final public function renderResponse($template, $parameters = array())
+	{
+		throw new \BadMethodCallException('Use BlockController::getResponse()->render() instead.');
+	}
+
+	/**
+	 * @throws \BadMethodCallException
+	 */
+	final public function render($template, $parameters)
+	{
+		throw new \BadMethodCallException('Use BlockController::getResponse()->render() instead.');
+	}
+
+	/**
+	 * @TODO: this should be moved to editable configuration.
+	 *
+	 * @param Entity\BlockProperty $property
+	 * @param Editable\Editable $editable
+	 */
+	protected function configureViewFilters(Editable\Editable $editable, BlockProperty $property)
 	{
 		$propertyId = $property->getId();
 
 		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
 			return;
 		}
-
-		$entityManager = $this->container->getDoctrine()->getManager();
-
-		$currentLocale = $this->container
-				->getLocaleManager()
-				->getCurrentLocale();
 
 		// Html content filters
 		if ($editable instanceof Editable\Html) {
@@ -423,7 +411,7 @@ abstract class BlockController extends Controller
 
 			if ($this->request instanceof PageRequestEdit
 					&& $editable instanceof Editable\InlineTextarea) {
-				
+
 				$filters[] = new Filter\EditableInlineTextareaFilter();
 			}
 		}
@@ -446,55 +434,6 @@ abstract class BlockController extends Controller
 				$filters[] = new Filter\EditableInlineMapFilter();
 			}
 		}
-		
-//		else if ($editable instanceof Editable\Gallery) {
-//			$filter = new Filter\GalleryFilter();
-////			ObjectRepository::setCallerParent($filter, $this);
-//			$filter->property = $property;
-//			$filter->request = $this->request;
-//			$editable->addFilter($filter);
-//		}
-//
-//		else if ($editable instanceof Editable\Video) {
-//			$filter = new Filter\VideoFilter();
-////			ObjectRepository::setCallerParent($filter, $this);
-//			$filter->property = $property;
-//			$editable->addFilter($filter);
-//		}
-//
-////		else if ($editable instanceof Editable\InlineMap) {
-////			$filter = new Filter\InlineMapFilter();
-////			ObjectRepository::setCallerParent($filter, $this);
-////			$filter->property = $property;
-////			$editable->addFilter($filter);
-////		}
-//
-//		else if ($editable instanceof Editable\Slideshow) {
-//			$filter = new Filter\SlideshowFilter();
-////			ObjectRepository::setCallerParent($filter, $this);
-//			$filter->property = $property;
-//			$editable->addFilter($filter);
-//		}
-//
-//		else if ($editable instanceof Editable\MediaGallery) {
-//			$filter = new Filter\MediaGalleryFilter();
-////			ObjectRepository::setCallerParent($filter, $this);
-//			$filter->property = $property;
-//			$editable->addFilter($filter);
-//		}
-//
-//		else if ($editable instanceof Editable\InlineMedia) {
-////			if ($this->page->isBlockPropertyEditable($property) && ($this->request instanceof PageRequestEdit)) {
-//			if ($this->request instanceof PageRequestEdit) {
-//				$filter = new Filter\EditableInlineMedia();
-//			} else {
-//				$filter = new Filter\InlineMediaFilter();
-//			}
-//
-////			ObjectRepository::setCallerParent($filter, $this);
-//			$filter->property = $property;
-//			$editable->addFilter($filter);
-//		}
 
 		foreach ($filters as $filter) {
 
@@ -513,188 +452,36 @@ abstract class BlockController extends Controller
 	}
 
 	/**
-	 * Get property value, uses default if not found, throws exception if
-	 * property not declared
-	 * @param string $name
-	 * @param array $options
-	 * @return mixed
+	 * @TODO: this should be moved to editable configuration.
+	 *
+	 * @param Editable\Editable $editable
+	 * @param BlockProperty $property
 	 */
-	public function getPropertyValue($name, array $options = array())
+	protected function configureValueTransformers(Editable\Editable $editable, BlockProperty $property)
 	{
-		$property = $this->getProperty($name);
+		$transformers = array();
 
-		$config = $this->getConfiguration()
-				->getProperty($name);
-
-		$editable = $config->getEditable()->getInstance();
-
-		$this->configureContentFilters($property, $editable);
-
-		return $editable->toViewValue($property->getValue(), $options);
-	}
-
-	/**
-	 * @param string $name
-	 * @return bool
-	 */
-	public function isPropertyValueEmpty($name)
-	{
-		$value = $this->getProperty($name)
-				->getValue();
-
-		return empty($value);
-	}
-
-//	/**
-//	 * Set the block which called the controller.
-//	 *
-//	 * @param Block $block
-//	 */
-//	public function setBlock(Block $block)
-//	{
-//		$this->block = $block;
-//	}
-
-	/**
-	 * Get the block which created the controller.
-	 * 
-	 * @return Block
-	 */
-	public function getBlock()
-	{
-		return $this->block;
-	}
-//
-//	/**
-//	 * @param BlockControllerConfiguration $configuration
-//	 */
-//	public function setConfiguration(BlockControllerConfiguration $configuration)
-//	{
-//		$this->configuration = $configuration;
-//	}
-
-	/**
-	 * @return BlockConfiguration
-	 */
-	public function getConfiguration()
-	{
-		return $this->configuration;
-	}
-
-	/**
-	 * @return string
-	 */
-	protected function getExceptionResponseTemplateFilename()
-	{
-		return 'Cms:block/exception.html.twig';
-	}
-	
-	/**
-	 * @param \Exception $exception
-	 */
-	protected function setExceptionResponse(\Exception $exception)
-	{
-		if (! $this->getRequest() instanceof PageRequestEdit) {
-			return;
+		if ($editable instanceof Editable\Html) {
+			$transformers[] = new Transformer\HtmlEditorValueTransformer();
+		} elseif ($editable instanceof Editable\Link) {
+			$transformers[] = new Transformer\LinkEditorValueTransformer();
+		} else if ($editable instanceof Editable\Image) {
+			$transformers[] = new Transformer\ImageEditorValueTransformer();
+		} else if ($editable instanceof Editable\Gallery) {
+			$transformers[] = new Transformer\GalleryEditorValueTransformer();
+		} else if ($editable instanceof Editable\InlineMap) {
+			$transformers[] = new Transformer\ArrayValueTransformer();
 		}
 
-		$response = $this->getResponse();
+		foreach ($transformers as $transformer) {
+			if ($transformer instanceof ContainerAware) {
+				$transformer->setContainer($this->container);
+			}
+			if ($transformer instanceof BlockPropertyAware) {
+				$transformer->setBlockProperty($property);
+			}
 
-		if ($response instanceof BlockResponse) {
-			
-			$response->cleanOutput();
-
-			// @TODO: use something like BlockExceptionResponse instead to avoid templateName override.
-			$response->assign('blockName', $this->getConfiguration()->getTitle())
-					->setTemplateName($this->getExceptionResponseTemplateFilename())
-					->render();
+			$editable->addEditorValueTransformer($transformer);
 		}
 	}
-
-//	/**
-//	 * Block controller local counter. Usually might be used to count the number
-//	 * of the block instances in the page.
-//	 *
-//	 * @return integer
-//	 */
-//	private function increaseBlockOutputCount()
-//	{
-//		$blockClassName = get_class($this);
-//		$offset = 'BLOCK_COUNTER_' . $blockClassName;
-//		$response = $this->getResponse();
-//
-//		if ( ! $response instanceof Response\HttpResponse) {
-//			return null;
-//		}
-//
-//		$count = 0;
-//		$context = $response->getContext();
-//
-//		if (isset($context[$offset])) {
-//			$count = max((int) $context[$offset], 0);
-//		}
-//
-//		$count ++;
-//		$context[$offset] = $count;
-//
-//		return $count;
-//	}
-
-	/**
-	 * Method used by block controllers to implement things to do in this step
-	 */
-	protected function doPrepare()
-	{
-
-	}
-
-	/**
-	 * Method used by block controllers to implement actual controlling
-	 */
-	protected function doExecute()
-	{
-
-	}
-
-	/**
-	 * @throws \LogicException
-	 */
-	final public function renderResponse($template, $parameters = array())
-	{
-		throw new \LogicException('Use BlockController::getResponse()->render() instead.');
-	}
-
-	/**
-	 * @throws \LogicException
-	 */
-	final public function render($template, $parameters)
-	{
-		throw new \LogicException('Use BlockController::getResponse()->render() instead.');
-	}
-
-	/**
-	 * @param Request $request
-	 * @return BlockResponse
-	 */
-	protected function createBlockResponse(Request $request)
-	{
-		$templating = $this->container->getTemplating();
-
-//		$pageTwigGlobal = new TwigSupraPageGlobal();
-//		$pageTwigGlobal->setContainer($this->container);
-//		$pageTwigGlobal->setRequest($request);
-//		// @FIXME: need real response context here!
-//		$pageTwigGlobal->setResponseContext(new Response\ResponseContext());
-//
-//		$templating->addGlobal('supra', $pageTwigGlobal);
-//
-		$templateName = $this->configuration->getTemplateName();
-
-		$templating->addGlobal('supraBlock', new TwigSupraBlockGlobal($this));
-
-		return $request instanceof PageRequestEdit
-				? new BlockResponseEdit($this->block, $templateName, $templating)
-				: new BlockResponseView($this->block, $templateName, $templating);
-	}
-	
 }

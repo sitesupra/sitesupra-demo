@@ -7,8 +7,6 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Package\Cms\Entity\PageBlock;
 use Supra\Package\Cms\Entity\TemplateBlock;
 
-use Supra\Controller\Pages\Exception;
-
 /**
  * Block entity abstraction
  * 

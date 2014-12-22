@@ -18,15 +18,12 @@ use Supra\Package\Cms\Entity\PageRevisionData;
 use Supra\Package\Cms\Entity\Page;
 use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\Template;
-use Supra\Package\Cms\Entity\LockData;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\ApplicationLocalization;
 use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
-use Supra\Package\Cms\Editable;
-use Supra\Package\Cms\Editable\EditableInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Pages\BlockController;
@@ -42,7 +39,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 {
 	protected $application = 'content-manager';
 
-	const GOOGLEAPIS_FONTS_URI = 'https://www.googleapis.com/webfonts/v1/webfonts';
+//	const GOOGLEAPIS_FONTS_URI = 'https://www.googleapis.com/webfonts/v1/webfonts';
 
 	const INITIAL_PAGE_ID_COOKIE = 'cms_content_manager_initial_page_id';
 
@@ -217,15 +214,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 			$pageId = $this->getRequestParameter('page_id');
 			throw new CmsException('sitemap.error.page_not_found', "Page data for page {$pageId} not found");
 		}
-
-		$localizationId = $this->pageData->getId();
-
-		$pageEventArgs = new \Supra\Controller\Pages\Event\PageEventArgs();
-		$pageEventArgs->setProperty('referenceId', $localizationId);
-
-// @FIXME: audit events
-//		$this->entityManager->getEventManager()
-//				->dispatchEvent(\Supra\Controller\Pages\Event\AuditEvents::pagePreEditEvent, $pageEventArgs);
 
 		/**
 		 * Set the system current locale if differs from 'locale' parameter received.
@@ -447,25 +435,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 		return $nodeData;
 	}
 
-//	/**
-//	 * Will publish page currently inside pageData property or found by page_id
-//	 * and locale query parameters
-//	 */
-//	protected function publish()
-//	{
-//		$publicEm = $this->getPublicEntityManager();
-//
-//		$pageRequest = $this->getPageRequest();
-//
-//		$copyContent = function() use ($pageRequest) {
-//					$pageRequest->publish();
-//				};
-//
-//		$publicEm->transactional($copyContent);
-//
-//		$this->triggerPageCmsEvent(Event\PageCmsEvents::pagePostPublish);
-//	}
-
 	/**
 	 * Page delete action
 	 */
@@ -474,117 +443,23 @@ abstract class AbstractPagesController extends AbstractCmsController
 		$page = $this->getPageLocalization()
 				->getMaster();
 
-		$pageId = $page->getId();
+		$entityManager = $this->getEntityManager();
 
 		if ($page instanceof Entity\Template) {
 
-			$localizationEntity = Entity\PageLocalization::CN();
-
-			$dql = "SELECT COUNT(p.id) FROM $localizationEntity p
-	                WHERE p.template = ?0";
-
-			$count = $this->getEntityManager()->createQuery($dql)
-					->setParameters(array($pageId))
+			$count = (int) $entityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.template = ?0'))
+					->setParameters(array($page->getId()))
 					->getSingleScalarResult();
 
-			if ((int) $count > 0) {
-				throw new CmsException(null, "Cannot remove template as there are {$count} pages using it.");
-			}
-
-			$count = $this->getEntityManager()->createQuery($dql)
-					->setParameter(0, $pageId)
-					->getSingleScalarResult();
-
-			if ((int) $count > 0) {
-				throw new CmsException(null, "There are {$count} published pages that uses this template! <br/>Un-publish them or publish new version before removing template");
+			if ($count > 0) {
+				throw new CmsException(null, "Cannot remove template, [{$count}] pages still uses it.");
 			}
 		}
 
-		// 1. remove any published version first
-		$this->unPublish();
+		$entityManager->remove($page);
+		$entityManager->flush();
 
-		// 2. fire pageDeleteEvent which will cause EntityAuditListener to
-		// catch all entity deletions and store them under single revision
-		$em = $this->getEntityManager();
-
-		$localization = $this->getPageLocalization();
-		$masterId = $localization->getMaster()
-			->getId();
-
-		// 3. remove master from draft.
-		// all related entites will be removed by cascade removal
-		$removePage = function() use ($em, $masterId) {
-
-			$master = $em->find(AbstractPage::CN(), $masterId);
-
-			if ( ! is_null($master)) {
-				$em->remove($master);
-			}
-		};
-
-		$em->transactional($removePage);
-
-		// Respond with success
 		return new SupraJsonResponse();
-	}
-
-	/**
-	 * Deletes all page published localizations from public schema
-	 */
-	public function unPublish()
-	{
-		//todo: STUB
-		return;
-		$publicEm = ObjectRepository::getEntityManager('#public');
-		$publicEm->getConnection()->beginTransaction();
-
-		try {
-
-			$page = $this->getPageLocalization()
-				->getMaster();
-
-			$page = $publicEm->find(AbstractPage::CN(), $page->getId());
-
-			$localizationSet = $page->getLocalizations();
-
-			foreach($localizationSet as $localization) {
-
-				$localization = $publicEm->find(Entity\Abstraction\Localization::CN(), $localization->getId());
-
-				$blocks = $this->getBlocksInPage($publicEm, $localization);
-				foreach($blocks as $block) {
-					$publicEm->remove($block);
-				}
-
-				$properties = $this->getPageBlockProperties($publicEm, $localization);
-				foreach ($properties as $property) {
-					$publicEm->remove($property);
-				}
-
-				$publicEm->remove($localization);
-			}
-
-			// Remove published placeholders
-			/*$placeHolders = $page->getPlaceHolders();*/
-			$placeHolders = $this->getPlaceHolders($publicEm);
-			foreach($placeHolders as $placeHolder) {
-				$publicEm->remove($placeHolder);
-			}
-
-			$placeHolderGroups = $this->getPlaceHolderGroups($publicEm);
-			foreach($placeHolderGroups as $placeHolderGroup) {
-				$publicEm->remove($placeHolderGroup);
-			}
-
-			$publicEm->flush();
-
-		} catch (\Exception $e) {
-
-			$publicEm->getConnection()->rollBack();
-			throw $e;
-		}
-
-		$publicEm->getConnection()->commit();
 	}
 
 	/**
@@ -877,93 +752,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 		$entityManager->flush();
 
 		return $lock;
-	}
-
-	/**
-	 * Duplicate the page
-	 */
-	protected function duplicate(Localization $pageLocalization)
-	{
-		$request = $this->getPageRequest($pageLocalization);
-		$em = $this->entityManager;
-
-		$page = $pageLocalization->getMaster();
-
-		if ($page instanceof Page && $page->isRoot()) {
-			throw new CmsException(null, 'Not allowed to duplicate the root page');
-		}
-
-		$clonePage = function() use ($request, $em, $page) {
-					/* @var $request PageRequestEdit */
-					/* @var $em EntityManager */
-					/* @var $page AbstractPage */
-					/* @var $pageLocalization Localization */
-
-					$em->getEventManager()
-							->dispatchEvent(AuditEvents::pagePreDuplicateEvent);
-
-					$newPage = $request->recursiveClone($page);
-
-					$eventArgs = new LifecycleEventArgs($newPage, $em);
-					$em->getEventManager()
-							->dispatchEvent(PagePathGenerator::postPageClone, $eventArgs);
-
-					// not needed in fact..
-//					// page indexes in sitemap tree
-//					$newPage->setLeftValue(0);
-//					$newPage->setRightValue(0);
-//					$newPage->setLevel(1);
-
-					if ($newPage instanceof Template) {
-						$repositoryCn = Template::CN();
-					} else {
-						$repositoryCn = AbstractPage::CN();
-					}
-
-					$em->getRepository($repositoryCn)
-							->getNestedSetRepository()
-							->add($newPage);
-
-					$newPage->moveAsNextSiblingOf($page);
-
-					$eventArgs = new PageEventArgs();
-					$eventArgs->setEntityManager($em);
-
-					$localizations = $newPage->getLocalizations();
-
-					foreach ($localizations as $newLocalization) {
-						$eventArgs->setProperty('referenceId', $newLocalization->getId());
-
-						$em->getEventManager()
-								->dispatchEvent(AuditEvents::pagePostDuplicateEvent, $eventArgs);
-					}
-
-					return $newPage;
-				};
-
-		$newPage = $em->transactional($clonePage);
-
-		// Refresh all data
-		$newPageId = $newPage->getId();
-		$em->clear();
-
-		$newPageRefreshed = $em->find(AbstractPage::CN(), $newPageId);
-
-		$newLocalizations = $newPageRefreshed->getLocalizations();
-		foreach ($newLocalizations as $newLocalization) {
-			if ($newLocalization instanceof Entity\TemplateLocalization) {
-				$this->pageData = $newLocalization;
-				$this->publish();
-			}
-		}
-
-		$currentLocale = $this->getLocale()
-				->getId();
-
-		$response = $this->convertPageToArray($newPageRefreshed, $currentLocale);
-
-		$this->getResponse()
-				->setResponseData($response);
 	}
 
 	protected function createLocalization()
@@ -1682,39 +1470,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @FIXME: do this someway better.
-	 *		Value transformers (and filters too) must be described or somewhere in configuration,
-	 *		or autodiscovered, or defined somewhere inside each editable.
-	 */
-	protected function configureEditableValueTransformers(EditableInterface $editable, BlockProperty $property)
-	{
-		$transformers = array();
-
-		if ($editable instanceof Editable\Html) {
-			$transformers[] = new Transformer\HtmlEditorValueTransformer();
-		} elseif ($editable instanceof Editable\Link) {
-			$transformers[] = new Transformer\LinkEditorValueTransformer();
-		} else if ($editable instanceof Editable\Image) {
-			$transformers[] = new Transformer\ImageEditorValueTransformer();
-		} else if ($editable instanceof Editable\Gallery) {
-			$transformers[] = new Transformer\GalleryEditorValueTransformer();
-		} else if ($editable instanceof Editable\InlineMap) {
-			$transformers[] = new Transformer\ArrayValueTransformer();
-		}
-
-		foreach ($transformers as $transformer) {
-			if ($transformer instanceof ContainerAware) {
-				$transformer->setContainer($this->container);
-			}
-			if ($transformer instanceof BlockPropertyAware) {
-				$transformer->setBlockProperty($property);
-			}
-
-			$editable->addEditorValueTransformer($transformer);
-		}
-	}
-
-	/**
 	 * @param null|Localization $localization
 	 * @return PageRequestEdit
 	 */
@@ -1746,11 +1501,9 @@ abstract class AbstractPagesController extends AbstractCmsController
 		$blockController = $this->getBlockCollection()
 				->createController($block);
 
-		$pageController = $this->getPageController();
-
 		$pageRequest = $this->createPageRequest();
 
-		$pageController->prepareBlockController($blockController, $pageRequest);
+		$blockController->prepare($pageRequest);
 
 		$blockData = array(
 			'id'			=> $block->getId(),
@@ -1853,8 +1606,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @TODO: Move to page content controller abstraction.
-	 *
 	 * @param BlockController $blockController
 	 * @return array
 	 */
@@ -1864,20 +1615,12 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 		$configuration = $blockController->getConfiguration();
 
-		foreach ($configuration->getProperties() as $propertyConfiguration) {
-
-			// @TODO: do it someway better.
-
-			$name = $propertyConfiguration->getName();
-
-			$editable = clone $propertyConfiguration->getEditable();
-
-			$property = $blockController->getProperty($name);
-
-			$this->configureEditableValueTransformers($editable, $property);
-
-			$propertyData[$name] = array(
-				'value' => $editable->toEditorValue($property->getValue()),
+		foreach ($configuration->getProperties() as $config) {
+			$propertyData[$config->name] = array(
+				'value' => $blockController->getPropertyEditorValue(
+					$config->name,
+					$blockController
+				)
 			);
 		}
 

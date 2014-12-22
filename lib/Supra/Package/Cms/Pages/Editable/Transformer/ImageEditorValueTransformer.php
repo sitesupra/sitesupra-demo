@@ -51,9 +51,7 @@ class ImageEditorValueTransformer implements ValueTransformerInterface, BlockPro
 		$element = new ImageReferencedElement();
 
 		// @TODO: some data validation must happen here.
-		$element->fillArray(array(
-			'image' => $value,
-		));
+		$element->fillArray($value);
 
 		$metaItem->setReferencedElement($element);
 

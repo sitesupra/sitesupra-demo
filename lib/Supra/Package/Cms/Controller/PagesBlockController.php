@@ -3,7 +3,7 @@
 namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\HttpFoundation\SupraJsonResponse;
-use Supra\Package\Cms\Pages\Block\BlockConfiguration;
+use Supra\Package\Cms\Pages\Block\Config;
 
 class PagesBlockController extends AbstractPagesController
 {
@@ -38,6 +38,12 @@ class PagesBlockController extends AbstractPagesController
 				$groupName = $defaultGroup->getName();
 			}
 
+			$propertyConfigData = array();
+
+			foreach ($configuration->getProperties() as $propertyConfig) {
+				$propertyConfigData[] = $this->getPropertyData($propertyConfig);
+			}
+
 			$blockData[] = array(
 				'id'			=> $configuration->getName(),
 				'title'			=> $configuration->getTitle(),
@@ -47,7 +53,7 @@ class PagesBlockController extends AbstractPagesController
 				'group'			=> $groupName,
 				'insertable'	=> $configuration->isInsertable(),
 				'icon'			=> $this->resolveWebPath($configuration->getIcon()),
-				'properties'	=> $this->getBlockPropertyConfigurationData($configuration),
+				'properties'	=> $propertyConfigData,
 				'property_groups'			=> array(), // @TODO
 				'preferred_property_group'	=> array(), // @TODO
 				// @TODO: sub-array with options for frontend?
@@ -62,32 +68,48 @@ class PagesBlockController extends AbstractPagesController
 	}
 
 	/**
-	 * @param BlockConfiguration $blockConfiguration
+	 * @param Config\AbstractProperty $property
 	 * @return array
 	 */
-	private function getBlockPropertyConfigurationData(BlockConfiguration $blockConfiguration)
+	private function getPropertyData(Config\AbstractProperty $property)
 	{
-		$propertyData = array();
+		if ($property instanceof Config\PropertySet) {
 
-		foreach ($blockConfiguration->getProperties() as $configuration) {
+			$setData = array();
 
-			$editable = $configuration->getEditable();
+			foreach ($property as $subProperty) {
+				$setData[] = $this->getPropertyData($subProperty);
+			}
 
-			$propertyData[] = array(
-				'id'	=> $configuration->getName(),
-				// Editable information
+			return array(
+				'id'		=> $property->name,
+				'type'		=> 'set',
+				'properties'	=> $setData,
+			);
+
+		} elseif ($property instanceof Config\PropertyCollection) {
+
+			return array(
+				'id'			=> $property->name,
+				'type'			=> 'collection',
+				'properties'	=> $this->getPropertyData($property->getCollectionItem()),
+			);
+
+		} elseif ($property instanceof Config\Property) {
+
+			$editable = $property->getEditable();
+
+			return array(
+				'id'			=> $property->name,
 				'value'			=> $editable->getDefaultValue(),
 				'type'			=> $editable->getEditorType(),
 				'label'			=> $editable->getLabel(),
 				'description'	=> $editable->getDescription(),
 
-// @FIXME: block property configuration option
-//				// @TODO: check if this feature from portal. remove if it is.
-//				'group'			=> $editable->getGroupId(),
-				
 			) + $editable->getAdditionalParameters();
+		} else {
+			
+			throw new \UnexpectedValueException(sprintf('Don\'t know what do to with [%s].', get_class($property)));
 		}
-
-		return $propertyData;
 	}
 }
