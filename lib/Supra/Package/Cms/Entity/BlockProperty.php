@@ -10,15 +10,9 @@ use Supra\Package\Cms\Entity\Abstraction\Localization;
 
 /**
  * @Entity
- * @InheritanceType("SINGLE_TABLE")
- * @DiscriminatorColumn(name="discr", type="string")
- * @DiscriminatorMap({
- * 		"property"		= "Supra\Package\Cms\Entity\BlockProperty",
- * 		"collection"	= "Supra\Package\Cms\Entity\BlockPropertyCollection",
- * })
  * @HasLifecycleCallbacks
  */
-class BlockProperty extends Abstraction\Entity
+class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")
@@ -60,10 +54,16 @@ class BlockProperty extends Abstraction\Entity
 	protected $value;
 	
 	/**
-	 * @ManyToOne(targetEntity="BlockPropertyCollection", inversedBy="properties", cascade={"persist"})
-	 * @var BlockPropertyCollection
+	 * @OneToMany(targetEntity="BlockProperty", mappedBy="parent", cascade={"persist", "remove"})
+	 * @var Collection
 	 */
-	protected $collection;
+	protected $properties;
+
+	/**
+	 * @ManyToOne(targetEntity="BlockProperty", inversedBy="properties", cascade={"persist"})
+	 * @var BlockProperty
+	 */
+	protected $parent;
 
 	/**
 	 * Value additional data about links, images
@@ -89,6 +89,7 @@ class BlockProperty extends Abstraction\Entity
 
 		$this->name = (string) $name;
 		$this->metadata = new ArrayCollection();
+		$this->properties = new ArrayCollection();
 	}
 
 	/**
@@ -240,11 +241,48 @@ class BlockProperty extends Abstraction\Entity
 	}
 
 	/**
-	 * @param BlockPropertyCollection $collection
+	 * @param BlockProperty $parent
 	 */
-	public function setCollection(BlockPropertyCollection $collection = null)
+	public function setParent(BlockProperty $parent)
 	{
-		$this->collection = $collection;
+		$this->parent = $parent;
+	}
+
+	/**
+	 * @return BlockProperty
+	 */
+	public function getParent()
+	{
+		return $this->parent;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function hasParent()
+	{
+		return $this->parent !== null;
+	}
+	
+	/**
+	 * @return Collections\Collection
+	 */
+	public function getProperties()
+	{
+		return $this->properties;
+	}
+
+	/**
+	 * @param BlockProperty $property
+	 * @throws \LogicException
+	 */
+	public function addProperty(BlockProperty $property)
+	{
+		if ($this->properties->contains($property)) {
+			throw new \LogicException("Property [{$property->getName()}] is already in set.");
+		}
+
+		$this->properties->add($property);
 	}
 
 	/**
@@ -253,11 +291,11 @@ class BlockProperty extends Abstraction\Entity
 	 */
 	public function getHierarchicalName()
 	{
-		if ($this->collection === null) {
+		if ($this->parent === null) {
 			return $this->name;
 		}
 
-		return $this->collection->getHierarchicalName() . '.' . $this->name;
+		return $this->parent->getHierarchicalName() . '.' . $this->name;
 	}
 
 	/**
@@ -271,5 +309,15 @@ class BlockProperty extends Abstraction\Entity
 	public function composeHierarchicalName()
 	{
 		$this->hierarchicalName = $this->getHierarchicalName();
+	}
+
+	/**
+	 * Allows to iterate over sub properties.
+	 *
+	 * @return \ArrayIterator
+	 */
+	public function getIterator()
+	{
+		return $this->properties->getIterator();
 	}
 }

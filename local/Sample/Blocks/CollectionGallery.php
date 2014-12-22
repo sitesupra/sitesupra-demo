@@ -19,9 +19,9 @@ class CollectionGallery extends BlockConfiguration
 
 	protected function configureProperties(PropertyMapper $mapper)
 	{
-		$mapper->addCollection('images', $mapper->createProperty('image', 'image'));
+		$mapper->addList('images', $mapper->createProperty('image', 'image'));
 
-		$mapper->addCollection('tabs',
+		$mapper->addList('tabs',
 				$mapper->createPropertySet('tab', array(
 					$mapper->createProperty('title', 'string'),
 					$mapper->createProperty('content', 'html')

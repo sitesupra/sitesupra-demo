@@ -5,7 +5,7 @@ namespace Supra\Package\Cms\Pages\Block\Config;
 use Supra\Package\Cms\Editable\Editable;
 use Supra\Package\Cms\Entity\BlockProperty;
 
-class Property extends AbstractProperty
+class PropertyConfig extends AbstractPropertyConfig
 {
 	/**
 	 * @var Editable
@@ -46,11 +46,7 @@ class Property extends AbstractProperty
 	 */
 	public function isMatchingProperty(BlockProperty $property)
 	{
-		if ($this->parent instanceof PropertyCollection) {
-
-			$name = $property->getHierarchicalName();
-			$name2 = $this->parent->getHierarchicalName() . '.' . $property->getName();
-
+		if ($this->parent instanceof PropertyCollectionConfig) {
 			return $property->getHierarchicalName() === $this->parent->getHierarchicalName() . '.' . $property->getName()
 					&& $property->getEditableClass() === get_class($this->editable);
 		}

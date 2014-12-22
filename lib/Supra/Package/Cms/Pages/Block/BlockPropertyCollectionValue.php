@@ -2,15 +2,15 @@
 
 namespace Supra\Package\Cms\Pages\Block;
 
+use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Pages\BlockController;
-use Supra\Package\Cms\Entity\BlockPropertyCollection;
 
 class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \IteratorAggregate
 {
 	/**
-	 * @var BlockPropertyCollection 
+	 * @var BlockProperty
 	 */
-	private $collection;
+	private $collectionProperty;
 
 	/**
 	 * @var BlockController
@@ -28,16 +28,16 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	private $values;
 
 	/**
-	 * @param BlockPropertyCollection $collection
+	 * @param BlockProperty $collectionProperty
 	 * @param BlockController $controller
 	 * @param array $options
 	 */
 	public function __construct(
-			BlockPropertyCollection $collection,
+			BlockProperty $collectionProperty,
 			BlockController $controller,
 			array $options
 	) {
-		$this->collection = $collection;
+		$this->collectionProperty = $collectionProperty;
 		$this->controller = $controller;
 		$this->options = $options;
 	}
@@ -53,7 +53,7 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 		}
 
 		return $this->controller->getPropertyViewValue(
-				$this->collection->getName() . '.' . $name
+				$this->collectionProperty->getName() . '.' . $name
 		);
 	}
 	
@@ -62,7 +62,9 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	 */
 	public function offsetExists($offset)
 	{
-		return $this->collection->offsetExists($offset);
+		return $this->collectionProperty
+				->getProperties()
+				->offsetExists($offset);
 	}
 
 	/**
@@ -94,7 +96,9 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	 */
 	public function count()
 	{
-		return $this->collection->count();
+		return $this->collectionProperty
+				->getProperties()
+				->count();
 	}
 
 	/**
@@ -114,7 +118,7 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 
 			$this->values = array();
 
-			foreach ($this->collection as $property) {
+			foreach ($this->collectionProperty as $property) {
 
 				$value = $this->controller->getPropertyViewValue(
 						$property->getHierarchicalName(),

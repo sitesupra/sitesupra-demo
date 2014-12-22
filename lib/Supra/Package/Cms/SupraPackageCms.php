@@ -75,7 +75,6 @@ class SupraPackageCms extends AbstractSupraPackage
 				'Supra\Package\Cms\Entity\PageBlock',
 				'Supra\Package\Cms\Entity\TemplateBlock',
 				'Supra\Package\Cms\Entity\BlockProperty',
-				'Supra\Package\Cms\Entity\BlockPropertyCollection',
 				'Supra\Package\Cms\Entity\BlockPropertyMetadata',
 				'Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement',
 				'Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement',

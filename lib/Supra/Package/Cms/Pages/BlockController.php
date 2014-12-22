@@ -15,12 +15,12 @@ use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
 use Supra\Package\Cms\Pages\Response\BlockResponse;
 use Supra\Package\Cms\Pages\Response\BlockResponseView;
 use Supra\Package\Cms\Pages\Response\BlockResponseEdit;
+use Supra\Package\Cms\Pages\Set\BlockPropertySet;
 use Supra\Package\Cms\Editable;
 use Supra\Package\Cms\Pages\Editable\Filter;
 use Supra\Package\Cms\Pages\Editable\Transformer;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 use Supra\Package\Cms\Pages\Block\Config;
-use Supra\Package\Cms\Pages\Set\BlockPropertySet;
 use Supra\Package\Cms\Pages\Block\BlockPropertyCollectionValue;
 
 /**
@@ -46,7 +46,7 @@ abstract class BlockController extends Controller
 	/**
 	 * @var BlockConfiguration
 	 */
-	protected $configuration;
+	protected $config;
 
 	/**
 	 * @var BlockPropertySet
@@ -73,7 +73,7 @@ abstract class BlockController extends Controller
 	public function __construct(Block $block, BlockConfiguration $configuration)
 	{
 		$this->block = $block;
-		$this->configuration = $configuration;
+		$this->config = $configuration;
 	}
 
 	/**
@@ -81,7 +81,7 @@ abstract class BlockController extends Controller
 	 */
 	public function getConfiguration()
 	{
-		return $this->configuration;
+		return $this->config;
 	}
 
 	/**
@@ -183,7 +183,7 @@ abstract class BlockController extends Controller
 	 */
 	public function hasProperty($name)
 	{
-		return $this->configuration->getProperty($name) !== null;
+		return $this->config->getProperty($name) !== null;
 	}
 
 	/**
@@ -192,12 +192,12 @@ abstract class BlockController extends Controller
 	 */
 	public function getProperty($name)
 	{
-		$config = $this->configuration->getProperty($name);
+		$propertyConfig = $this->config->getProperty($name);
 
 		$property = null;
 
 		foreach ($this->properties as $candidate) {
-			if ($config->isMatchingProperty($candidate)
+			if ($propertyConfig->isMatchingProperty($candidate)
 					&& $name === $candidate->getHierarchicalName()) {
 				
 				$property = $candidate;
@@ -207,11 +207,15 @@ abstract class BlockController extends Controller
 
 		if ($property === null) {
 
-			if ($config->hasParent()) {
+			if ($propertyConfig->hasParent()) {
 				$name = substr($name, strrpos($name, '.') + 1);
 			}
 
-			$property = $config->createBlockProperty($name);
+			$property = new BlockProperty($name);
+
+			if ($propertyConfig instanceof Config\PropertyConfig) {
+				$property->setEditableClass(get_class($propertyConfig->getEditable()));
+			}
 
 			$property->setBlock($this->block);
 
@@ -219,13 +223,8 @@ abstract class BlockController extends Controller
 					$this->getRequest()->getLocalization()
 			);
 
-			if ($config->hasParent()) {
-				$parent = $this->getProperty($config->getParent()->getHierarchicalName());
-
-				if (! $parent instanceof BlockPropertyCollection) {
-					throw new \LogicException('Expecting parent to be property collection.');
-				}
-
+			if ($propertyConfig->hasParent()) {
+				$parent = $this->getProperty($propertyConfig->getParent()->getHierarchicalName());
 				$parent->addProperty($property);
 			}
 
@@ -246,15 +245,13 @@ abstract class BlockController extends Controller
 	public function getPropertyViewValue($name, array $options = array())
 	{
 		$property = $this->getProperty($name);
+		$propertyConfig = $this->config->getProperty($name);
 
-		if ($property instanceof BlockPropertyCollection) {
+		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
 			return new BlockPropertyCollectionValue($property, $this, $options);
 		}
 
-		$editable = $this->configuration
-				->getProperty($name)
-				->getEditable()
-				->getInstance();
+		$editable = $propertyConfig->getEditable()->getInstance();
 
 		$this->configureViewFilters($editable, $property);
 
@@ -268,8 +265,10 @@ abstract class BlockController extends Controller
 	public function getPropertyEditorValue($name)
 	{
 		$property = $this->getProperty($name);
-		
-		if ($property instanceof BlockPropertyCollection) {
+		$propertyConfig = $this->config->getProperty($name);
+
+		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
+
 			$value = array();
 			
 			foreach ($property as $subProperty) {
@@ -279,9 +278,7 @@ abstract class BlockController extends Controller
 			return $value;
 		}
 
-		$propertyConfig = $this->configuration->getProperty($name);
-		$editable = $propertyConfig->getEditable()
-				->getInstance();
+		$editable = $propertyConfig->getEditable()->getInstance();
 
 		$this->configureValueTransformers($editable, $property);
 
@@ -293,13 +290,13 @@ abstract class BlockController extends Controller
 	 *
 	 * @param string $name
 	 * @param mixed $value
+	 * @return void
 	 */
 	public function savePropertyValue($name, $value)
 	{
-		$config = $this->configuration->getProperty($name);
+		$propertyConfig = $this->config->getProperty($name);
 
-		if ($config instanceof Config\PropertyCollection
-				|| $config instanceof Config\PropertySet) {
+		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
 
 			if (! is_array($value)) {
 				throw new \UnexpectedValueException('Expecting property collection value to be array.');
@@ -314,7 +311,7 @@ abstract class BlockController extends Controller
 
 		$property = $this->getProperty($name);
 
-		$editable = $config->getEditable()->getInstance();
+		$editable = $propertyConfig->getEditable()->getInstance();
 
 		$this->configureValueTransformers($editable, $property);
 
@@ -354,7 +351,7 @@ abstract class BlockController extends Controller
 	{
 		$templating = $this->container->getTemplating();
 
-		$templateName = $this->configuration->getTemplateName();
+		$templateName = $this->config->getTemplateName();
 
 		return $request instanceof PageRequestEdit
 				? new BlockResponseEdit($this->block, $templateName, $templating)

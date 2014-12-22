@@ -68,12 +68,12 @@ class PagesBlockController extends AbstractPagesController
 	}
 
 	/**
-	 * @param Config\AbstractProperty $property
+	 * @param Config\AbstractPropertyConfig $property
 	 * @return array
 	 */
-	private function getPropertyData(Config\AbstractProperty $property)
+	private function getPropertyData(Config\AbstractPropertyConfig $property)
 	{
-		if ($property instanceof Config\PropertySet) {
+		if ($property instanceof Config\PropertySetConfig) {
 
 			$setData = array();
 
@@ -87,15 +87,15 @@ class PagesBlockController extends AbstractPagesController
 				'properties'	=> $setData,
 			);
 
-		} elseif ($property instanceof Config\PropertyCollection) {
+		} elseif ($property instanceof Config\PropertyListConfig) {
 
 			return array(
 				'id'			=> $property->name,
 				'type'			=> 'collection',
-				'properties'	=> $this->getPropertyData($property->getCollectionItem()),
+				'properties'	=> $this->getPropertyData($property->getListItem()),
 			);
 
-		} elseif ($property instanceof Config\Property) {
+		} elseif ($property instanceof Config\PropertyConfig) {
 
 			$editable = $property->getEditable();
 

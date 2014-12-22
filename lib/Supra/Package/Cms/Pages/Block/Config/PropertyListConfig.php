@@ -2,39 +2,30 @@
 
 namespace Supra\Package\Cms\Pages\Block\Config;
 
-use Supra\Package\Cms\Entity\BlockPropertyCollection;
 use Supra\Package\Cms\Entity\BlockProperty;
 
-class PropertyCollection extends AbstractProperty
+class PropertyListConfig extends AbstractPropertyConfig implements PropertyCollectionConfig
 {
 	/**
-	 * @var AbstractProperty
+	 * @var AbstractPropertyConfig
 	 */
 	protected $item;
 
 	/**
-	 * @param AbstractProperty $item
+	 * @param AbstractPropertyConfig $item
 	 */
-	public function setCollectionItem(AbstractProperty $item)
+	public function setListItem(AbstractPropertyConfig $item)
 	{
 		$item->setParent($this);
 		$this->item = $item;
 	}
 
 	/**
-	 * @return AbstractProperty
+	 * @return AbstractPropertyConfig
 	 */
-	public function getCollectionItem()
+	public function getListItem()
 	{
 		return $this->item;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function createBlockProperty($name)
-	{
-		return new BlockPropertyCollection($name);
 	}
 
 	/**

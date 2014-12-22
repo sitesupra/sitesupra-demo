@@ -5,9 +5,8 @@ namespace Supra\Package\Cms\Entity;
 use Doctrine\Common\Collections;
 
 /**
- * @Entity
  */
-class BlockPropertyCollection extends BlockProperty implements \IteratorAggregate, \Countable, \ArrayAccess
+class BlockPropertyCollection implements \IteratorAggregate, \Countable, \ArrayAccess
 {
 	/**
 	 * @OneToMany(targetEntity="BlockProperty", mappedBy="collection")

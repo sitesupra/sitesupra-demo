@@ -4,7 +4,7 @@ namespace Supra\Package\Cms\Pages\Block\Config;
 
 use Supra\Package\Cms\Entity\BlockProperty;
 
-abstract class AbstractProperty
+abstract class AbstractPropertyConfig
 {
 	/**
 	 * @var string
@@ -12,7 +12,7 @@ abstract class AbstractProperty
 	public $name;
 
 	/**
-	 * @var AbstractProperty
+	 * @var AbstractPropertyConfig
 	 */
 	protected $parent;
 
@@ -29,9 +29,9 @@ abstract class AbstractProperty
 	}
 
 	/**
-	 * @param AbstractProperty $parent
+	 * @param AbstractPropertyConfig $parent
 	 */
-	public function setParent(AbstractProperty $parent)
+	public function setParent(AbstractPropertyConfig $parent)
 	{
 		$this->parent = $parent;
 	}
@@ -45,7 +45,7 @@ abstract class AbstractProperty
 	}
 
 	/**
-	 * @return AbstractProperty
+	 * @return AbstractPropertyConfig
 	 */
 	public function getParent()
 	{
@@ -63,11 +63,6 @@ abstract class AbstractProperty
 
 		return $this->parent->getHierarchicalName() . '.' . $this->name;
 	}
-
-	/**
-	 * @return BlockProperty
-	 */
-	abstract public function createBlockProperty($name);
 
 	/**
 	 * @param BlockProperty $property

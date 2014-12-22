@@ -43,10 +43,10 @@ class PropertyMapper extends Mapper
 	 * @param Config\AbstractProperty
 	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
 	 */
-	public function addCollection($name, Config\AbstractProperty $item)
+	public function addList($name, Config\AbstractPropertyConfig $item)
 	{
 		$this->configuration->addProperty(
-				$this->createPropertyCollection($name, $item)
+				$this->createPropertyList($name, $item)
 		);
 
 		return $this;
@@ -69,21 +69,21 @@ class PropertyMapper extends Mapper
 	 * @param string $name
 	 * @param string $editableName
 	 * @param array $editableOptions
-	 * @return Config\Property
+	 * @return Config\PropertyConfig
 	 */
 	public function createProperty($name, $editableName, array $editableOptions = array())
 	{
-		return new Config\Property($name, $this->createEditable($editableName, $editableOptions));
+		return new Config\PropertyConfig($name, $this->createEditable($editableName, $editableOptions));
 	}
 
 	/**
 	 * @param string $name
 	 * @param array $setItems
-	 * @return Config\PropertySet
+	 * @return Config\PropertySetConfig
 	 */
 	public function createPropertySet($name, array $setItems)
 	{
-		$set = new Config\PropertySet($name);
+		$set = new Config\PropertySetConfig($name);
 
 		foreach ($setItems as $item) {
 			$set->addSetItem($item);
@@ -94,16 +94,16 @@ class PropertyMapper extends Mapper
 
 	/**
 	 * @param string $name
-	 * @param Config\AbstractProperty $collectionItem
-	 * @return Config\PropertyCollection
+	 * @param Config\AbstractPropertyConfig $collectionItem
+	 * @return Config\PropertyListConfig
 	 */
-	public function createPropertyCollection($name, Config\AbstractProperty $collectionItem)
+	public function createPropertyList($name, Config\AbstractPropertyConfig $listItem)
 	{
-		$collection = new Config\PropertyCollection($name);
+		$list = new Config\PropertyListConfig($name);
 
-		$collection->setCollectionItem($collectionItem);
+		$list->setListItem($listItem);
 
-		return $collection;
+		return $list;
 	}
 
 	/**

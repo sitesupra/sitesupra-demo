@@ -6,7 +6,7 @@ use Supra\Package\Cms\Pages\Twig\BlockPropertyNodeVisitor;
 use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\CacheMapper;
-use Supra\Package\Cms\Pages\Block\Config\AbstractProperty;
+use Supra\Package\Cms\Pages\Block\Config\AbstractPropertyConfig;
 
 /**
  * Block configuration abstraction.
@@ -36,7 +36,7 @@ abstract class BlockConfiguration
 	protected $autoDiscoverProperties = false;
 
 	/**
-	 * @var AbstractProperty[]
+	 * @var AbstractPropertyConfig[]
 	 */
 	protected $properties = array();
 
@@ -244,10 +244,10 @@ abstract class BlockConfiguration
 	}
 
 	/**
-	 * @param AbstractProperty $property
+	 * @param AbstractPropertyConfig $property
 	 * @throws \LogicException
 	 */
-	public function addProperty(AbstractProperty $property)
+	public function addProperty(AbstractPropertyConfig $property)
 	{
 		$this->validate();
 
@@ -259,7 +259,7 @@ abstract class BlockConfiguration
 	}
 
 	/**
-	 * @return AbstractProperty[]
+	 * @return AbstractPropertyConfig[]
 	 */
 	public function getProperties()
 	{
@@ -281,7 +281,7 @@ abstract class BlockConfiguration
 
 	/**
 	 * @param string $name
-	 * @return AbstractProperty
+	 * @return AbstractPropertyConfig
 	 */
 	public function getProperty($name)
 	{
