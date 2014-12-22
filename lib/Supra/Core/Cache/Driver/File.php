@@ -96,7 +96,9 @@ class File implements DriverInterface
 	public function clear($prefix = null)
 	{
 		if ($prefix) {
-			$this->removeDirectory($this->prefix.DIRECTORY_SEPARATOR.$prefix);
+			if (is_dir($this->prefix.DIRECTORY_SEPARATOR . $prefix)) {
+				$this->removeDirectory($this->prefix.DIRECTORY_SEPARATOR . $prefix);
+			}
 		} else {
 			foreach (glob($this->prefix.DIRECTORY_SEPARATOR.'*') as $directory) {
 				if (is_dir($directory)) {
