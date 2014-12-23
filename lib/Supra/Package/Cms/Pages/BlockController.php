@@ -187,7 +187,7 @@ abstract class BlockController extends Controller
 
 	/**
 	 * @param string $name
-	 * @return Entity\BlockProperty
+	 * @return BlockProperty
 	 */
 	public function getProperty($name)
 	{
@@ -368,7 +368,7 @@ abstract class BlockController extends Controller
 	/**
 	 * @TODO: this should be moved to editable configuration.
 	 *
-	 * @param Entity\BlockProperty $property
+	 * @param BlockProperty $property
 	 * @param Editable\Editable $editable
 	 */
 	protected function configureViewFilters(Editable\Editable $editable, BlockProperty $property)

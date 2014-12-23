@@ -28,15 +28,13 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  *		@UniqueConstraint(name="locale_master_idx", columns={"locale", "master_id"})
  * })
  */
-abstract class Localization extends Entity implements
-		TitleTrackingItemInterface,
-		LocalizationInterface
+abstract class Localization extends Entity implements LocalizationInterface
 {
 
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
 	const CHANGE_FREQUENCY_DAILY = 'daily';
 	const CHANGE_FREQUENCY_WEEKLY = 'weekly';
-	const CHANGE_FREQUENCY_MONTHY = 'monthly';
+	const CHANGE_FREQUENCY_MONTHLY = 'monthly';
 	const CHANGE_FREQUENCY_YEARLY = 'yearly';
 	const CHANGE_FREQUENCY_ALWAYS = 'always';
 	const CHANGE_FREQUENCY_NEVER = 'never';
@@ -269,11 +267,6 @@ abstract class Localization extends Entity implements
 	 */
 	public function setTitle($title)
 	{
-		// track only first title change
-		if (is_null($this->originalTitle) && ! is_null($this->title) && ($this->title != $title)) {
-			$this->originalTitle = $this->title;
-		}
-
 		$this->title = $title;
 	}
 
@@ -710,7 +703,7 @@ abstract class Localization extends Entity implements
 			self::CHANGE_FREQUENCY_HOURLY,
 			self::CHANGE_FREQUENCY_DAILY,
 			self::CHANGE_FREQUENCY_WEEKLY,
-			self::CHANGE_FREQUENCY_MONTHY,
+			self::CHANGE_FREQUENCY_MONTHLY,
 			self::CHANGE_FREQUENCY_YEARLY,
 			self::CHANGE_FREQUENCY_ALWAYS,
 			self::CHANGE_FREQUENCY_NEVER,
@@ -754,14 +747,6 @@ abstract class Localization extends Entity implements
 		}
 
 		$this->pagePriority = $pagePriority;
-	}
-
-	/**
-	 * Used to improve audit log readability
-	 */
-	public function getOriginalTitle()
-	{
-		return $this->originalTitle;
 	}
 
 	/**

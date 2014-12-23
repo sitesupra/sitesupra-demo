@@ -3,9 +3,12 @@
 namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Templating\TwigTemplating;
+use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Pages\Block\CachedBlockController;
 use Supra\Package\Cms\Pages\Block\Mapper\CacheMapper;
+use Supra\Package\Cms\Pages\Layout\Processor\ProcessorInterface;
 use Supra\Package\Cms\Pages\PageExecutionContext;
+use Supra\Package\Cms\Pages\Response\PlaceHolderResponse;
 use Supra\Package\Cms\Pages\Response\ResponsePart;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -60,6 +63,7 @@ class PageController extends Controller
 	 * Creates PageRequestView object, then runs main execute action.
 	 *
 	 * @param Request $request
+	 * @return Request
 	 */
 	public function indexAction(Request $request)
 	{
@@ -91,19 +95,19 @@ class PageController extends Controller
 			));
 		}
 
-		if ($pageRequest instanceof PageRequestView) {
-			if ($localization->hasRedirectTarget()) {
+		if ($pageRequest instanceof PageRequestView
+				&& $localization instanceof PageLocalization
+				&& $localization->hasRedirectTarget()) {
 
-				$redirectUrl = $localization->getRedirectTarget()
-						->getRedirectUrl();
+			$redirectUrl = $localization->getRedirectTarget()
+					->getRedirectUrl();
 
-				if (! empty($redirectUrl)) {
-					 //@TODO: check for redirect loops
-					return new RedirectResponse($redirectUrl);
-				}
-
-				throw new ResourceNotFoundException;
+			if (! empty($redirectUrl)) {
+				//@TODO: check for redirect loops
+				return new RedirectResponse($redirectUrl);
 			}
+
+			throw new ResourceNotFoundException();
 		}
 
 		$layout = $pageRequest->getLayout();
@@ -378,6 +382,7 @@ class PageController extends Controller
 		}
 
 		$this->iterateBlocks(function(Block $block, BlockController $blockController) use (&$placeResponses) {
+			/* @var $placeResponses PlaceHolderResponse[] */
 
 			$response = $blockController->getResponse();
 			$placeName = $block->getPlaceHolder()
@@ -394,7 +399,7 @@ class PageController extends Controller
 	}
 
 	/**
-	 * Iteration funciton for specific array of blocks.
+	 * Iteration function for specific array of blocks.
 	 * 
 	 * @param \Closure $function
 	 * @return array
@@ -435,6 +440,7 @@ class PageController extends Controller
 	}
 
 	/**
+	 * @param Request $request
 	 * @return PageRequestView
 	 */
 	protected function createPageRequest(Request $request)
