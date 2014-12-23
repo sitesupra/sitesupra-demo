@@ -16,6 +16,7 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")
+	 * @JoinColumn(nullable=false)
 	 * @var Localization
 	 */
 	protected $localization;
