@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
+use Doctrine\Common\Collections\Collection;
 use Supra\Package\Cms\Entity\TemplateBlock;
 use Supra\Package\Cms\Entity\PageLocalization;
 
