@@ -2,7 +2,6 @@
 
 namespace Supra\Package\Cms\Controller;
 
-use Doctrine\ORM\EntityManager;
 use Symfony\Component\HttpFoundation\Response;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
@@ -330,8 +329,6 @@ class PagesContentController extends AbstractPagesController
 
 		$entityManager->flush();
 
-//		$this->savePostTrigger();
-
 		return new SupraJsonResponse($this->getBlockData($block, true));
 	}
 
@@ -357,8 +354,6 @@ class PagesContentController extends AbstractPagesController
 
 		$entityManager->flush();
 		
-//		$this->savePostTrigger();
-
 		return new SupraJsonResponse();
 	}
 
@@ -480,8 +475,6 @@ class PagesContentController extends AbstractPagesController
 
 		$this->getEntityManager()
 				->flush();
-
-//		$this->savePostTrigger();
 
 		return new SupraJsonResponse();
 	}

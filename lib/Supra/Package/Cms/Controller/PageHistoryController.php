@@ -3,7 +3,6 @@
 
 namespace Supra\Package\Cms\Controller;
 
-use SimpleThings\EntityAudit\AuditReader;
 use Symfony\Component\HttpFoundation\Request;
 
 class PageHistoryController extends AbstractCmsController

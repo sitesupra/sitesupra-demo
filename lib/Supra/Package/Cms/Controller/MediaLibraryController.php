@@ -63,11 +63,8 @@ class MediaLibraryController extends AbstractCmsController
 				->findOneById($parentId);
 		}
 
-		if (is_null($file)) {
-			$response = new SupraJsonResponse();
-			$response->setErrorMessage('File doesn\'t exist anymore');
-
-			return $response;
+		if ($file === null) {
+			throw new CmsException(null, 'File doesn\'t exist anymore');
 		}
 
 		// try to move
@@ -112,8 +109,6 @@ class MediaLibraryController extends AbstractCmsController
 			if (trim($fileName) == '') {
 				throw new CmsException(null, 'Empty filename not allowed');
 			}
-
-			$originalFileInfo = pathinfo($file->getFileName());
 
 			$newFileInfo = pathinfo($fileName);
 

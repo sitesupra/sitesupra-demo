@@ -4,7 +4,6 @@ namespace Supra\Package\Cms\Controller;
 
 use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class DashboardController extends Controller
 {
@@ -23,7 +22,7 @@ class DashboardController extends Controller
 
 		foreach ($applications as $application) {
 			//unroutable or private apps do not fit here
-			if (!$application->getRoute() || !$application->isPublic()) {
+			if (! $application->getRoute() || ! $application->isPublic()) {
 				continue;
 			}
 

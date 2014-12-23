@@ -208,10 +208,6 @@ class PagesPageController extends AbstractPagesController
 
 		if (! $template->equals($localization->getTemplate())) {
 			$localization->setTemplate($template);
-			//@FIXME: copy template blocks should happen' here.
-			// Or somewhere inside PageRequestEdit::getBlockSet()
-//			$request = $this->getPageRequest();
-//			$request->createMissingPlaceHolders(true);
 		}
 
 		$localization->setActive($input->filter('active', null, false, FILTER_VALIDATE_BOOLEAN));

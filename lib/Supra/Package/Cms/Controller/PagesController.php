@@ -3,8 +3,8 @@
 namespace Supra\Package\Cms\Controller;
 
 use Symfony\Component\HttpFoundation\Request;
-use Supra\Core\Controller\Controller;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Core\Controller\Controller;
 
 class PagesController extends Controller
 {

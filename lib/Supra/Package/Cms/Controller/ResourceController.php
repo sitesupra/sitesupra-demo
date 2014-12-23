@@ -5,8 +5,6 @@ namespace Supra\Package\Cms\Controller;
 use Assetic\Asset\AssetCollection;
 use Assetic\Asset\FileAsset;
 use Assetic\Filter\CssRewriteFilter;
-use Assetic\Filter\JSMinFilter;
-use Assetic\Filter\LessFilter;
 use Assetic\Filter\LessphpFilter;
 use Supra\Core\Controller\Controller;
 use Symfony\Component\HttpFoundation\Response;

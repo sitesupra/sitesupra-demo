@@ -110,21 +110,6 @@ class PagesSitemapController extends AbstractPagesController
 
 		$this->unlockNestedSet($page);
 
-// @FIXME: it is not correct to fire publish event while only move happened.
-// need to check why this was here and do it right.
-		// If all went well, fire the post-publish events for published page localizations.
-//		$eventManager = ObjectRepository::getEventManager($this);
-//
-//		foreach ($page->getLocalizations() as $localization) {
-//
-//			$eventArgs = new Event\PageCmsEventArgs();
-//
-//			$eventArgs->user = $this->getUser();
-//			$eventArgs->localization = $localization;
-//
-//			$eventManager->fire(Event\PageCmsEvents::pagePostPublish, $eventArgs);
-//		}
-
 		return new SupraJsonResponse();
 	}
 	
@@ -287,10 +272,8 @@ class PagesSitemapController extends AbstractPagesController
 
 			$response = array();
 
-			$pages = iterator_to_array($paginator);
-
 			// Prepend the filter folders
-			$pages = array_merge($filterFolders, $pages);
+			$pages = array_merge($filterFolders, iterator_to_array($paginator));
 
 			if ( ! is_null($levels)) {
 				$levels --;

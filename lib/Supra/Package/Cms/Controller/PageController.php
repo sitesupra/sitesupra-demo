@@ -421,10 +421,11 @@ class PageController extends Controller
 			if ($blockController instanceof BlockController
 					&& $blockController->hadException()) {
 
-				$this->container->getLogger()->error(
+				$this->container->getLogger()->error(sprintf(
+						'Block controller throwed an exception [%s].',
 						$blockController->getException()->getMessage()
-				);
-
+				));
+				
 				// Don't cache failed blocks
 				unset($this->blockCacheRequests[$blockId]);
 			}
