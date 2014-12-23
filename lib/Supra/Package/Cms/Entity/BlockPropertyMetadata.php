@@ -27,6 +27,7 @@ class BlockPropertyMetadata extends Entity
 	/**
 	 * @OneToOne(
 	 *		targetEntity="Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract",
+	 *		orphanRemoval=true,
 	 *		cascade={"persist", "remove"}
 	 * )
 	 *
