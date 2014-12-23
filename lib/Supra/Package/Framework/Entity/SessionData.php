@@ -38,8 +38,6 @@ class SessionData
 	public function __construct()
 	{
 		$this->timestamp = time();
-
-		parent::__construct();
 	}
 
 	/**
