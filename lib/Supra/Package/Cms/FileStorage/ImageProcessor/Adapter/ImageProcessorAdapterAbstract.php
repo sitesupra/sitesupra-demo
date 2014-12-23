@@ -4,10 +4,31 @@ namespace Supra\Package\Cms\FileStorage\ImageProcessor\Adapter;
 
 use Supra\Package\Cms\FileStorage\Exception\ImageProcessorException;
 use Supra\Package\Cms\FileStorage\ImageInfo;
+use Supra\Package\Cms\FileStorage\FileStorage;
 
 abstract class ImageProcessorAdapterAbstract implements ImageProcessorAdapterInterface
 {
-	
+	/**
+	 * @var FileStorage
+	 */
+	protected $fileStorage;
+
+	/**
+	 * @param FileStorage $fileStorage
+	 */
+	public function setFileStorage(FileStorage $fileStorage)
+	{
+		$this->fileStorage = $fileStorage;
+	}
+
+	/**
+	 * @return FileStorage
+	 */
+	public function getFileStorage()
+	{
+		return $this->fileStorage;
+	}
+
 	/**
 	 * @param string $fileName
 	 * @return ImageInfo
