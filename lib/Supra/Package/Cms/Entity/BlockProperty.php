@@ -16,7 +16,6 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="blockProperties")
-	 * @JoinColumn(nullable=false)
 	 * @var Localization
 	 */
 	protected $localization;
@@ -118,16 +117,6 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 		return $this->metadata;
 	}
 	
-	public function resetBlock()
-	{
-		$this->block = null;
-	}
-	
-	public function resetLocalization()
-	{
-		$this->localization = null;
-	}
-	
 	/**
 	 * @param BlockPropertyMetadata $metadata
 	 */
@@ -206,7 +195,9 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 
 	/**
 	 * Checks if associations scopes are matching
+	 *
 	 * @param Entity $object
+	 * @throws \Exception rethrows caught exception
 	 */
 	private function checkScope(Entity &$object)
 	{
@@ -265,7 +256,7 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 	}
 	
 	/**
-	 * @return Collections\Collection
+	 * @return Collection
 	 */
 	public function getProperties()
 	{
