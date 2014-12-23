@@ -4,6 +4,8 @@ namespace Supra\Package\Cms\Pages\Request;
 
 use Doctrine\ORM\Query;
 use Symfony\Component\HttpFoundation\Request;
+use Supra\Package\Cms\Pages\Layout\Processor\ProcessorInterface;
+use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\TemplateLayout;
@@ -43,17 +45,12 @@ abstract class PageRequest extends Request implements ContainerAware
 	private $media = TemplateLayout::MEDIA_SCREEN;
 
 	/**
-	 * @var User
-	 */
-	private $user;
-
-	/**
 	 * @var Set\PageSet
 	 */
 	private $pageSet;
 
 	/**
-	 * @var Entity\Theme\ThemeLayout
+	 * @var ThemeLayoutInterface
 	 */
 	private $layout;
 
@@ -68,7 +65,7 @@ abstract class PageRequest extends Request implements ContainerAware
 	protected $blockSet;
 
 	/**
-	 * @var BlockPropertySet
+	 * @var Set\BlockPropertySet
 	 */
 	protected $blockPropertySet;
 
@@ -101,11 +98,13 @@ abstract class PageRequest extends Request implements ContainerAware
 
 		$this->media = $media;
 	}
-	
+
 	/**
 	 * Will return true if the resource data should be acquired from the local
 	 * object not from the database. Used by history actions.
-	 * @param Entity\Abstraction\Entity $entity
+	 *
+	 * @param Entity $entity
+	 * @return bool
 	 */
 	protected function isLocalResource(Entity $entity)
 	{
@@ -149,22 +148,6 @@ abstract class PageRequest extends Request implements ContainerAware
 	}
 
 	/**
-	 * @param User $user 
-	 */
-	public function setUser($user)
-	{
-		$this->user = $user;
-	}
-
-	/**
-	 * @return User
-	 */
-	public function getUser()
-	{
-		return $this->user;
-	}
-
-	/**
 	 * @return string
 	 */
 	public function getMedia()
@@ -182,7 +165,7 @@ abstract class PageRequest extends Request implements ContainerAware
 
 	/**
 	 * Helper method to get requested page entity
-	 * @return Entity\Abstraction\AbstractPage
+	 * @return AbstractPage
 	 */
 	public function getPage()
 	{
@@ -247,7 +230,7 @@ abstract class PageRequest extends Request implements ContainerAware
 	}
 	
 	/**
-	 * @param Entity\Template $template
+	 * @param Template $template
 	 * @return Set\PageSet
 	 */
 	protected function getTemplateTemplateHierarchy(Template $template)
@@ -271,7 +254,7 @@ abstract class PageRequest extends Request implements ContainerAware
 	}
 
 	/**
-	 * @return Entity\Template
+	 * @return Template
 	 */
 	public function getRootTemplate()
 	{
@@ -345,17 +328,6 @@ abstract class PageRequest extends Request implements ContainerAware
 
 		return $this->getLayoutProcessor()
 				->getPlaces($layout->getFileName());
-	}
-	
-	public function getLayoutPlaceHolders()
-	{
-		$layout = $this->getLayout();
-		
-		if (is_null($layout)) {
-			return null;
-		}
-		
-		return $layout->getPlaceholders();
 	}
 
 	/**
@@ -516,7 +488,7 @@ abstract class PageRequest extends Request implements ContainerAware
 		
 		// Add blocks from locally managed placeholders
 		foreach ($localFinalPlaceHolders as $placeHolder) {
-			/* @var $placeHolder Entity\Abstraction\PlaceHolder */
+			/* @var $placeHolder PlaceHolder */
 			$additionalBlocks = $placeHolder->getBlocks()->getValues();
 			$blocks = array_merge($blocks, $additionalBlocks);
 		}
@@ -545,7 +517,7 @@ abstract class PageRequest extends Request implements ContainerAware
 		 */
 		foreach ($placeHolderSet as $placeHolder) {
 			foreach ($blocks as $key => $block) {
-			/* @var $block Entity\Abstraction\Block */
+			/* @var $block Block */
 
 				if ($block->getLocked() && $block->getPlaceHolder()->equals($placeHolder)) {
 					if ( ! $placeHolder->getLocked()) {
@@ -557,7 +529,7 @@ abstract class PageRequest extends Request implements ContainerAware
 		}
 
 		// Collect all unlocked blocks
-		/* @var $block Entity\Abstraction\Block */
+		/* @var $block Block */
 		foreach ($blocks as $block) {
 			$this->blockSet[] = $block;
 		}
@@ -604,7 +576,7 @@ abstract class PageRequest extends Request implements ContainerAware
 
 		// Loop generates condition for property getter
 		foreach ($blockSet as $block) {
-			/* @var $block Entity\Abstraction\Block */
+			/* @var $block Block */
 
 			$blockId = $block->getId();
 
@@ -656,218 +628,16 @@ abstract class PageRequest extends Request implements ContainerAware
 		
 		// Now merge local resource block properties
 		foreach ($localResourceLocalizations as $localization) {
-			/* @var $localization Entity\Abstraction\Localization */
+			/* @var $localization Localization */
 			$localProperties = $localization->getBlockProperties()
 					->getValues();
 			$result = array_merge($result, $localProperties);
 		}
 		
 		$this->blockPropertySet->exchangeArray($result);
-		
-		// Overwrite some properties with shared data
-		//$sharedPropertyFinder->replaceInPropertySet($this->blockPropertySet);
-
-		// Preload blockPropertyMetadata using single query for public requests to increase performance
-// @FIXME: check, refactor
-//		if ($this instanceof PageRequestView) {
-//			$this->preLoadPropertyMetadata();
-//		}
 
 		return $this->blockPropertySet;
 	}
-
-	/**
-	 * @FIXME: refactor this
-	 *
-	 * Technically, this should optimize blockPropertyMetadata collections loading
-	 * by doing it in single query
-	 */
-	protected function preLoadPropertyMetadata()
-	{
-		$em = $this->getDoctrineEntityManager();
-		$blockPropertyIds = $this->blockPropertySet->collectIds();
-
-		if ( ! empty($blockPropertyIds)) {
-			// 3 stages to preload block property metadata
-			// stage 1: collect referenced elements IDs
-			$metadataEntity = Entity\BlockPropertyMetadata::CN();
-			$qb = $em->createQueryBuilder();
-			$qb->from($metadataEntity, 'm')
-					->join('m.referencedElement', 'el')
-					->select('m, el')
-					->where($qb->expr()->in('m.blockProperty', $blockPropertyIds));
-
-			$query = $qb->getQuery();
-			$this->prepareQueryResultCache($query);
-			$metadataArray = $query->getResult();
-
-			// stage 2: load referenced elements with DQL, so they will be stored in doctrine cache
-			$referencedElements = array();
-			foreach ($metadataArray as $metadata) {
-				/* @var $metadata Entity\BlockPropertyMetadata */
-				$referencedElement = $metadata->getReferencedElement();
-				$referencedElementId = $referencedElement->getId();
-				$referencedElements[$referencedElementId] = $referencedElement;
-			}
-
-			$elementPageIds = array();
-			foreach ($referencedElements as $element) {
-				if ($element instanceof Entity\ReferencedElement\LinkReferencedElement) {
-					$pageId = $element->getPageId();
-					if ( ! empty($pageId)) {
-						$elementPageIds[] = $element->getPageId();
-					}
-				}
-			}
-
-			if ( ! empty($elementPageIds)) {
-				$qb = $em->createQueryBuilder();
-				$qb->from(Entity\PageLocalization::CN(), 'l')
-						->join('l.master', 'm')
-						->join('l.path', 'p')
-						->select('l, m, p')
-						->where($qb->expr()->in('l.master', $elementPageIds))
-						->andWhere('l.locale = :locale')
-						->setParameter('locale', $this->getLocale());
-
-				$query = $qb->getQuery();
-				$this->prepareQueryResultCache($query);
-				$localizations = $query->getResult();
-				
-				if (empty($localizations)) {
-					$localizations = array();
-				}
-
-				$localizationIds = array();
-
-				foreach ($localizations as $pageLocalization) {
-					$entityData = $em->getUnitOfWork()
-							->getOriginalEntityData($pageLocalization);
-
-					$localizationIds[] = $entityData['master_id'];
-				}
-
-				if ( ! empty($localizationIds) && ! empty($localizations)) {
-					$localizations = array_combine($localizationIds, $localizations);
-				}
-
-				foreach ($referencedElements as $element) {
-					if ($element instanceof Entity\ReferencedElement\LinkReferencedElement) {
-						$pageId = $element->getPageId();
-						if (isset($localizations[$pageId])) {
-							$element->setPageLocalization($localizations[$pageId]);
-						}
-					}
-				}
-			}
-
-			// stage 3: load metadata
-			foreach ($this->blockPropertySet as $blockProperty) {
-				/* @var $blockProperty BlockProperty */
-				$blockProperty->initializeOverridenMetadata();
-			}
-
-			foreach ($metadataArray as $propertyMetadata) {
-				/* @var $propertyMetadata BlockPropertyMetadata */
-				$property = $propertyMetadata->getBlockProperty();
-				$propertyId = $property->getId();
-
-				$propertyData = $em->getUnitOfWork()
-						->getOriginalEntityData($propertyMetadata);
-
-				if (isset($propertyData['referencedElement_id'])) {
-
-					$elementId = $propertyData['referencedElement_id'];
-					if (isset($referencedElements[$elementId])) {
-						$propertyMetadata->setOverridenReferencedElement($referencedElements[$elementId]);
-					}
-				}
-				
-				// Can't add for $property because of shared property feature
-				$this->blockPropertySet->addOverridenMetadata($propertyId, $propertyMetadata);
-			}
-		}
-	}
-
-//	protected function createMissingBlockProperties()
-//	{
-//		$entityManager = $this->getDoctrineEntityManager();
-//		$blocks = $this->getBlockSet();
-//
-//		$pageSet = $this->getPageSet();
-//		$length = $pageSet->count();
-//
-//		if ($length <= 1) {
-//			return;
-//		}
-//
-//		$template = $pageSet->offsetGet($length - 2);
-//
-//		/* @var $template Entity\Template */
-//
-//		if (empty($template)) {
-//			return;
-//		}
-//
-//		$localization = $this->getLocalization();
-//
-//		foreach ($blocks as $block) {
-//			/* @var $block \Supra\Controller\Pages\Entity\Abstraction\Block */
-//
-//			if ($block->getLocked()) {
-//				continue;
-//			}
-//
-//			$placeHolder = $block->getPlaceHolder();
-//			/* @var $placeHolder \Supra\Controller\Pages\Entity\Abstraction\PlaceHolder */
-//
-//			if ( ! $placeHolder->getLocked()) {
-//				continue;
-//			}
-//
-//			$templateId = $template->getId();
-//			$blockId = $block->getId();
-//			$localeId = $this->getLocale();
-//
-//			//TODO: Move after loop
-//			$blockPropertiesToCopy = $entityManager->createQueryBuilder()
-//					->select('bp')
-//					->from(BlockProperty::CN(), 'bp')
-//					->join('bp.localization', 'l')
-//					->andWhere('l.locale = :locale')
-//					->andWhere('l.master = :template')
-//					->andWhere('bp.block = :block')
-//					->setParameter('template', $templateId)
-//					->setParameter('block', $blockId)
-//					->setParameter('locale', $localeId)
-//					->getQuery()
-//					->getResult();
-//
-//			foreach ($blockPropertiesToCopy as $blockProperty) {
-//				/* @var $blockProperty BlockProperty */
-//
-//				$metadataCollection = $blockProperty->getMetadata();
-//
-//				$blockProperty = clone($blockProperty);
-//				$blockProperty->resetLocalization();
-//				$blockProperty->setLocalization($localization);
-//
-//				$entityManager->persist($blockProperty);
-//
-//				foreach ($metadataCollection as $metadata) {
-//					/* @var $metadata \Supra\Controller\Pages\Entity\BlockPropertyMetadata */
-//					$metadata = clone($metadata);
-//					$metadata->setBlockProperty($blockProperty);
-//					$entityManager->persist($metadata);
-//				}
-//			}
-//		}
-//
-//		// Flush only for draft connection with ID generation
-//		if ($this instanceof PageRequestEdit && $this->allowFlushing) {
-//			$entityManager->flush();
-//		}
-//	}
 
 	public function getLocale()
 	{

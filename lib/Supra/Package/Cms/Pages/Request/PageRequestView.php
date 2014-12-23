@@ -2,11 +2,11 @@
 
 namespace Supra\Package\Cms\Pages\Request;
 
-use Supra\Core\Cache\DoctrineCacheWrapper;
-use Symfony\Component\Routing\Exception\ResourceNotFoundException;
-use Supra\Package\Cms\Entity\PageLocalization;
-use Supra\Cache\CacheGroupManager;
 use Doctrine\ORM\Query;
+use Symfony\Component\Routing\Exception\ResourceNotFoundException;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Pages\Set\PageSet;
 use Supra\Package\Cms\Pages\Set\PlaceHolderSet;
 use Supra\Package\Cms\Pages\Set\BlockSet;
@@ -26,21 +26,8 @@ class PageRequestView extends PageRequest
 	private $auditReader;
 
 	/**
-	 * {@inheritdoc}
-	 * @param Query $query
-	 */
-	protected function prepareQueryResultCache(Query $query)
-	{
-		// @FIXME
-		return null;
-
- 		$cacheGroupManager = new CacheGroupManager();
-		$cacheGroupManager->configureQueryResultCache($query, PageController::CACHE_GROUP_NAME);
-	}
-	
-	/**
 	 * Overriden with page detection from URL
-	 * @return Entity\Abstraction\Localization
+	 * @return Localization
 	 */
 	public function getLocalization()
 	{
@@ -76,8 +63,6 @@ class PageRequestView extends PageRequest
 					'path' => $pathString
 				));
 
-		$this->prepareQueryResultCache($query);
-		
 		$pageLocalization = $query->getOneOrNullResult();
 		/* @var $pageData PageLocalization */
 
@@ -194,7 +179,14 @@ class PageRequestView extends PageRequest
 						continue;
 					}
 
-					$blocks = array_merge($blocks, $placeHolder->getBlocks()->toArray());
+					$placeHolderBlocks = $placeHolder->getBlocks()->toArray();
+
+					uasort($placeHolderBlocks, function(Block $a, Block $b) {
+						return $a->getPosition() === $b->getPosition() ? 0
+							: (($a->getPosition() < $b->getPosition()) ? -1 : 1);
+					});
+
+					$blocks = array_merge($blocks, $placeHolderBlocks);
 
 					$visitedNames[] = $name;
 				}
@@ -245,6 +237,8 @@ class PageRequestView extends PageRequest
 			$auditReader->getCache()->setSuffix($localization->getPublishedRevision());
 
 			$entityManager = $this->getEntityManager();
+
+			$pages = array();
 
 			foreach (parent::getPageSet() as $page) {
 
