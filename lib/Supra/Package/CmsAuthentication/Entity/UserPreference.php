@@ -2,8 +2,7 @@
 
 namespace Supra\Package\CmsAuthentication\Entity;
 
-use Supra\Database\Entity;
-use Supra\User\Exception;
+use Supra\Package\Cms\Entity\Abstraction\Entity;
 
 /**
  * Single user preference item
@@ -11,7 +10,6 @@ use Supra\User\Exception;
  */
 class UserPreference extends Entity
 {
-
 	/**
 	 * @Column(type="string")
 	 * @var string

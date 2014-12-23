@@ -1,19 +1,19 @@
 <?php
 
 namespace Supra\Package\Framework\Entity;
-use Supra\Database\Entity;
 
 /**
  * Session data persistency layer. Data is base64_encoded since e.g. Postgres hates null's
  *
  * @Entity
  */
-class SessionData extends Entity
+class SessionData
 {
 	/**
 	 * @Id
-	 * @Column(type="supraId20")
-	 * @var string
+	 * @GeneratedValue(strategy="AUTO")
+	 * @Column(type="integer")
+	 * @var int
 	 */
 	protected $id;
 
@@ -75,7 +75,7 @@ class SessionData extends Entity
 	}
 
 	/**
-	 * @return string
+	 * @return int
 	 */
 	public function getId()
 	{

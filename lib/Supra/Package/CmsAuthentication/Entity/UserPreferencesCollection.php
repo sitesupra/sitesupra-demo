@@ -2,7 +2,7 @@
 
 namespace Supra\Package\CmsAuthentication\Entity;
 
-use Supra\Database\Entity;
+use Supra\Package\Cms\Entity\Abstraction\Entity;
 use Doctrine\Common\Collections;
 
 /**

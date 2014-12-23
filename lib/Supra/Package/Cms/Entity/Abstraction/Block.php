@@ -194,62 +194,6 @@ abstract class Block extends Entity
 				true
 		);
 	}
-//
-//	/**
-//	 * Factory of the block controller
-//	 * @return BlockController
-//	 */
-//	public function createController()
-//	{
-//// @FIXME: create controller
-////		if ( ! Loader\Loader::classExists($componentClass)) {
-////			$this->log()->warn("Block component $componentClass was not found for block $this");
-////		}
-////
-////		$blockControllerCollection = BlockControllerCollection::getInstance();
-////		$blockController = $blockControllerCollection->createBlockController($componentClass);
-////		$blockController->setBlock($this);
-////
-////		return $blockController;
-//	}
-
-//	/**
-//	 * @FIXME: move to PageController?
-//	 *
-//	 * Prepares controller
-//	 * @param BlockController $controller
-//	 * @param PageRequest $request
-//	 * @param ArrayCollection $responseAdditionalData
-//	 */
-//	public function prepareController(BlockController $controller, PageRequest $request, ResponseContext $responseContext = null)
-//	{
-//		// Set properties for controller
-//		$blockPropertySet = $request->getBlockPropertySet();
-//		$blockPropertySubset = $blockPropertySet->getBlockPropertySet($this);
-//		$controller->setBlockPropertySet($blockPropertySubset);
-//
-//		// Create response
-//		$response = $controller->createResponse($request);
-//
-//		if ( ! is_null($responseContext)) {
-//			$response->setContext($responseContext);
-//		}
-//
-//		// Prepare
-//		$controller->prepare($request, $response);
-//
-//		$controller->prepareTwigEnvironment();
-//	}
-//
-//	/**
-//	 * Executes the controller of the block
-//	 * @param BlockController $controller
-//	 */
-//	public function executeController(BlockController $controller)
-//	{
-//		// Execute
-//		$controller->execute();
-//	}
 
 	/**
 	 * Creates new instance based on the discriminator of the base entity.
