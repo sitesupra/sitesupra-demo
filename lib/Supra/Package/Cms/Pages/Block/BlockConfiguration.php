@@ -291,11 +291,11 @@ abstract class BlockConfiguration
 
 			$parent = $this->getProperty(substr($name, 0, $pos));
 
-			if ($parent instanceof Config\PropertySet) {
+			if ($parent instanceof Config\PropertySetConfig) {
 				return $parent->getSetItem(substr($name, $pos + 1));
 
-			} elseif ($parent instanceof Config\PropertyCollection) {
-				return $parent->getCollectionItem();
+			} elseif ($parent instanceof Config\PropertyListConfig) {
+				return $parent->getListItem();
 
 			} else {
 				throw new \UnexpectedValueException(sprintf(
