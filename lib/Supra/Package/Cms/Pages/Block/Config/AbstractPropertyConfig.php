@@ -69,4 +69,10 @@ abstract class AbstractPropertyConfig
 	 * @return bool
 	 */
 	abstract public function isMatchingProperty(BlockProperty $property);
+
+	/**
+	 * @param string $name
+	 * @return BlockProperty
+	 */
+	abstract public function createProperty($name);
 }

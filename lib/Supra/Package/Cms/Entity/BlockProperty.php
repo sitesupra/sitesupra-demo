@@ -282,6 +282,7 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 			throw new \LogicException("Property [{$property->getName()}] is already in set.");
 		}
 
+		$property->setParent($this);
 		$this->properties->add($property);
 	}
 

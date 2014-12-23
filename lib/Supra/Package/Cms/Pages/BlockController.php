@@ -7,7 +7,6 @@ use Supra\Core\Controller\Controller;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\BlockProperty;
-use Supra\Package\Cms\Entity\BlockPropertyCollection;
 use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Block\BlockConfiguration;
@@ -207,15 +206,7 @@ abstract class BlockController extends Controller
 
 		if ($property === null) {
 
-			if ($propertyConfig->hasParent()) {
-				$name = substr($name, strrpos($name, '.') + 1);
-			}
-
-			$property = new BlockProperty($name);
-
-			if ($propertyConfig instanceof Config\PropertyConfig) {
-				$property->setEditableClass(get_class($propertyConfig->getEditable()));
-			}
+			$property = $propertyConfig->createProperty($name);
 
 			$property->setBlock($this->block);
 

@@ -1,9 +1,9 @@
 <div class="block gallery">
 	{% set images = property('images') %}
 	<h3>There are <strong>{{ images | length }}</strong> image(s).</h3>
-	<ul>
+	<ul style="text-align: center" class="clearfix">
 	{% for image in images %}
-		<li>{{ image.setWidth(300) | raw }}</li>
+		<li style="float:left; margin-right: 10px">{{ image.setWidth(350).setHeight(200).setCrop(true) | raw }}</li>
 	{% endfor %}
 	</ul>
 </div>

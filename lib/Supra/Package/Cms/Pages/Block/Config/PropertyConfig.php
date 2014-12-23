@@ -46,12 +46,27 @@ class PropertyConfig extends AbstractPropertyConfig
 	 */
 	public function isMatchingProperty(BlockProperty $property)
 	{
-		if ($this->parent instanceof PropertyCollectionConfig) {
+		if ($this->parent instanceof PropertyListConfig) {
 			return $property->getHierarchicalName() === $this->parent->getHierarchicalName() . '.' . $property->getName()
 					&& $property->getEditableClass() === get_class($this->editable);
 		}
 
 		return $property->getHierarchicalName() === $this->getHierarchicalName()
 				&& $property->getEditableClass() === get_class($this->editable);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function createProperty($name)
+	{
+		if ($this->parent instanceof PropertyListConfig) {
+			$name = (int) substr($name, strrpos($name, '.') + 1);
+		}
+
+		$property = new BlockProperty($name);
+		$property->setEditableClass(get_class($this->editable));
+
+		return $property;
 	}
 }
