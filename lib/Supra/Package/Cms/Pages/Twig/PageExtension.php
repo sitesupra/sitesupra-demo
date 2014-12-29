@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Twig;
 
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
 use Supra\Package\Cms\Pages\PageExecutionContext;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
@@ -104,7 +105,6 @@ class PageExtension extends \Twig_Extension
 	}
 
 	/**
-	 * @internal
 	 * @param BlockExecutionContext $context
 	 */
 	public function setBlockExecutionContext(BlockExecutionContext $context)
@@ -113,7 +113,6 @@ class PageExtension extends \Twig_Extension
 	}
 
 	/**
-	 * @internal
 	 * @param PageExecutionContext $context
 	 */
 	public function setPageExecutionContext(PageExecutionContext $context)

@@ -43,4 +43,13 @@ class PropertyListConfig extends AbstractPropertyConfig implements PropertyColle
 	{
 		return new BlockProperty($name);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 * @throws \LogicException
+	 */
+	public function getEditable()
+	{
+		throw new \LogicException('Collections have no editables.');
+	}
 }

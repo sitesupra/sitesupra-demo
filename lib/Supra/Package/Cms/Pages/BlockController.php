@@ -2,11 +2,13 @@
 
 namespace Supra\Package\Cms\Pages;
 
+use Supra\Package\Cms\Pages\Twig\PageExtension;
 use Symfony\Component\HttpFoundation\Request;
 use Supra\Core\Controller\Controller;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Pages\Response\ResponsePart;
 use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
 use Supra\Package\Cms\Pages\Block\BlockConfiguration;
@@ -59,7 +61,7 @@ abstract class BlockController extends Controller
 	protected $configuredBlockProperties = array();
 
 	/**
-	 * Exception ocurred on prepare/execute.
+	 * Exception occurred on prepare/execute.
 	 * 
 	 * @var \Exception
 	 */
@@ -157,9 +159,9 @@ abstract class BlockController extends Controller
 			return null;
 		}
 
-		$this->container->getTemplating()
-				->getExtension('supraPage')
-				->setBlockExecutionContext(new BlockExecutionContext($this, $this->request));
+		$pageExtension = $this->container->getTemplating()->getExtension('supraPage');
+		/* @var $pageExtension PageExtension */
+		$pageExtension->setBlockExecutionContext(new BlockExecutionContext($this, $this->request));
 
 		try {
 			$this->doExecute();
@@ -263,6 +265,7 @@ abstract class BlockController extends Controller
 			$value = array();
 			
 			foreach ($property as $subProperty) {
+				/* @var $subProperty BlockProperty */
 				$value[$subProperty->getName()] = $this->getPropertyEditorValue($subProperty->getHierarchicalName());
 			}
 
@@ -329,6 +332,7 @@ abstract class BlockController extends Controller
 
 			// @TODO: use something like BlockExceptionResponse instead to avoid templateName override.
 			$response->assign('blockName', $this->getConfiguration()->getTitle())
+					->assign('exception', $exception)
 					->setTemplateName('Cms:block/exception.html.twig')
 					->render();
 		}
@@ -340,16 +344,13 @@ abstract class BlockController extends Controller
 	 */
 	protected function createBlockResponse(Request $request)
 	{
-		$templating = $this->container->getTemplating();
-
-		$templateName = $this->config->getTemplateName();
-
 		return $request instanceof PageRequestEdit
-				? new BlockResponseEdit($this->block, $templateName, $templating)
-				: new BlockResponseView($this->block, $templateName, $templating);
+				? new BlockResponseEdit($this->block, $this->config->getTemplateName(), $this->container->getTemplating())
+				: new BlockResponseView($this->block, $this->config->getTemplateName(), $this->container->getTemplating());
 	}
 
 	/**
+	 * {@inheritDoc}
 	 * @throws \BadMethodCallException
 	 */
 	final public function renderResponse($template, $parameters = array())
@@ -358,6 +359,7 @@ abstract class BlockController extends Controller
 	}
 
 	/**
+	 * {@inheritDoc}
 	 * @throws \BadMethodCallException
 	 */
 	final public function render($template, $parameters)
@@ -378,6 +380,8 @@ abstract class BlockController extends Controller
 		if (array_key_exists($propertyId, $this->configuredBlockProperties)) {
 			return;
 		}
+
+		$filters = array();
 
 		// Html content filters
 		if ($editable instanceof Editable\Html) {

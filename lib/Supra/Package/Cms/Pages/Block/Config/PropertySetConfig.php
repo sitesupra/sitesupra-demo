@@ -60,6 +60,15 @@ class PropertySetConfig extends AbstractPropertyConfig implements PropertyCollec
 
 	/**
 	 * {@inheritDoc}
+	 * @throws \LogicException
+	 */
+	public function getEditable()
+	{
+		throw new \LogicException('Collections have no editables.');
+	}
+
+	/**
+	 * {@inheritDoc}
 	 */
 	public function getIterator()
 	{

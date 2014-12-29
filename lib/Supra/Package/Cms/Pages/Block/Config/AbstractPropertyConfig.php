@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Block\Config;
 
+use Supra\Package\Cms\Editable\Editable;
 use Supra\Package\Cms\Entity\BlockProperty;
 
 abstract class AbstractPropertyConfig
@@ -75,4 +76,9 @@ abstract class AbstractPropertyConfig
 	 * @return BlockProperty
 	 */
 	abstract public function createProperty($name);
+
+	/**
+	 * @return Editable
+	 */
+	abstract public function getEditable();
 }

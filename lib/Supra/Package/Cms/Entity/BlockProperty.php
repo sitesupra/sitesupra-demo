@@ -279,7 +279,6 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 	}
 
 	/**
-	 * @internal
 	 * @return string
 	 */
 	public function getHierarchicalName()
