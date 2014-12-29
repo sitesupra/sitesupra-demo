@@ -4,7 +4,6 @@ namespace Supra\Package\Cms\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Supra\Controller\Pages\Exception;
 use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
 
 /**
@@ -48,10 +47,6 @@ class Template extends Abstraction\AbstractPage
 	 */
 	public function addTemplateLayout(TemplateLayout $templateLayout)
 	{
-		// Not true anymore
-//		if ($this->hasParent()) {
-//			throw new Exception\RuntimeException("Template layout can be set to root template only");
-//		}
 		if ($this->lock('templateLayouts')) {
 
 			$media = $templateLayout->getMedia();
@@ -82,7 +77,7 @@ class Template extends Abstraction\AbstractPage
 	public function addLayout($media, ThemeLayoutInterface $layout)
 	{
 		$templateLayout = new TemplateLayout($media);
-		$templateLayout->setLayout($layout);
+		$templateLayout->setLayoutName($layout->getName());
 		$templateLayout->setTemplate($this);
 
 		return $templateLayout;
@@ -99,27 +94,6 @@ class Template extends Abstraction\AbstractPage
 
 		return $has;
 	}
-
-//	/**
-//	 * Get layout object by
-//	 * @param string $media
-//	 * @return ThemeLayout
-//	 */
-//	public function getLayout($media = TemplateLayout::MEDIA_SCREEN)
-//	{
-//		throw new \Exception("Don't use me.");
-//
-//		$templateLayouts = $this->getTemplateLayouts();
-//
-//		if ($templateLayouts->offsetExists($media)) {
-//			$templateLayout = $templateLayouts->offsetGet($media);
-//			/* @var $templateLayout TemplateLayout */
-//
-//			return $templateLayout->getLayout();
-//		}
-//
-//		throw new Exception\RuntimeException("No layout found for template #{$this->getId()} media '{$media}'");
-//	}
 
 	/**
 	 * Get layout name for specified media type.
@@ -138,7 +112,7 @@ class Template extends Abstraction\AbstractPage
 			return $templateLayout->getLayoutName();
 		}
 
-		throw new Exception\RuntimeException(sprintf(
+		throw new \RuntimeException(sprintf(
 				'Template [%s] has no layout for media [%s]',
 				$this->getId(),
 				$media

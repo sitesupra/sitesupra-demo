@@ -46,15 +46,16 @@ class PageManager implements ContainerAware
 	 * @return Localization
 	 */
 	public function copyLocalization(
-			EntityManager $entityManager,
 			Localization $source,
 			LocaleInterface $targetLocale
 	) {
 		$deepCopy = new DeepCopy();
 
+		$entityManager = $this->container->getDoctrine()->getManagerForClass(get_class($source));
+
 		// Matches Localization::$master.
 		// Prevents AbstractPage to be cloned.
-		$deepCopy->addFilter(new KeepFilter(), new PropertyMatcher(Localization::CN(), 'master'));
+		$deepCopy->addFilter(new KeepFilter(), new PropertyMatcher(get_class($source), 'master'));
 
 		$this->addDeepCopyCommonFilters($deepCopy, $entityManager);
 
@@ -68,33 +69,34 @@ class PageManager implements ContainerAware
 	}
 
 	/**
-	 * @param EntityManager $entityManager
 	 * @param Template $source
 	 * @return Template
 	 */
-	public function copyTemplate(EntityManager $entityManager, Template $source)
+	public function copyTemplate(Template $source)
 	{
-		return $this->copyAbstractPage($entityManager, $source);
+		return $this->copyAbstractPage($source);
 	}
 
 	/**
-	 * @param EntityManager $entityManager
 	 * @param Page $source
 	 * @return Page
 	 */
-	public function copyPage(EntityManager $entityManager, Page $source)
+	public function copyPage(Page $source)
 	{
-		return $this->copyAbstractPage($entityManager, $source);
+		return $this->copyAbstractPage($source);
 	}
 
 	/**
-	 * @param EntityManager $entityManager
 	 * @param AbstractPage $source
 	 * @return AbstractPage
 	 */
-	public function copyAbstractPage(EntityManager $entityManager, AbstractPage $source)
+	public function copyAbstractPage(AbstractPage $source)
 	{
 		$deepCopy = new DeepCopy();
+
+		$entityManager = $this->container->getDoctrine()->getManagerForClass(get_class($source));
+
+		$deepCopy->addFilter(new KeepFilter(), new PropertyMatcher(AbstractPage::CN(), 'nestedSetNode'));
 
 		$this->addDeepCopyCommonFilters($deepCopy, $entityManager);
 
@@ -106,13 +108,14 @@ class PageManager implements ContainerAware
 	}
 
 	/**
-	 * @param DeepCopy
+	 * @param DeepCopy $deepCopy
 	 * @param EntityManager $entityManager
 	 * @return DeepCopy
 	 */
 	private function addDeepCopyCommonFilters(DeepCopy $deepCopy, EntityManager $entityManager)
 	{
 		$keepFilter = new KeepFilter();
+		$nullifyFilter = new SetNullFilter();
 
 		// Matches RedirectTargetPage::$page property.
 		// Keeps the $page property redirect target is referencing to.
@@ -136,8 +139,20 @@ class PageManager implements ContainerAware
 		// Matches Localization::$lock.
 		// Nullifies editing lock entity.
 		$deepCopy->addFilter(
-				new SetNullFilter(),
+				$nullifyFilter,
 				new PropertyMatcher(Localization::CN(), 'lock')
+		);
+
+		// Matches Localization::$publishedRevision.
+		$deepCopy->addFilter(
+			$nullifyFilter,
+			new PropertyMatcher(Localization::CN(), 'publishedRevision')
+		);
+
+		// Matches Localization::$publishTime.
+		$deepCopy->addFilter(
+			$nullifyFilter,
+			new PropertyMatcher(Localization::CN(), 'publishTime')
 		);
 
 		// Matches Entity Collection.

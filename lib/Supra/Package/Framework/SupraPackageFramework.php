@@ -320,7 +320,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 				$managers,
 				$doctrineConfig['default_connection'],
 				$doctrineConfig['default_entity_manager'],
-				'foobar'
+				'Doctrine\ORM\Proxy\Proxy'
 			);
 		};
 

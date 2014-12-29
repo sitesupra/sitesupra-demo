@@ -2,14 +2,11 @@
 
 namespace Supra\Package\Cms\Entity;
 
-use Supra\ObjectRepository\ObjectRepository;
-use Supra\Package\Cms\Pages\Layout\Theme\ThemeLayoutInterface;
-
 /**
  * Page controller template-layout class
  * @Entity
  */
-class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
+class TemplateLayout extends Abstraction\Entity
 {
 	const DISCRIMINATOR = self::TEMPLATE_DISCR;
 
@@ -77,31 +74,6 @@ class TemplateLayout extends Abstraction\Entity // implements AuditedEntity
 	public function setLayoutName($layoutName)
 	{
 		$this->layoutName = $layoutName;
-	}
-
-	/**
-	 * @param ThemeLayoutInterface $layout
-	 */
-	public function setLayout(ThemeLayoutInterface $layout)
-	{
-		$this->layoutName = $layout->getName();
-	}
-
-	/**
-	 * @return ThemeLayout
-	 */
-	public function getLayout()
-	{
-		throw new \Exception('Don\'t use me bro.');
-		//if (empty($this->layout)) {
-
-		$template = $this->getTemplate();
-
-		$themeProvider = ObjectRepository::getThemeProvider($this);
-
-		return $themeProvider->getCurrentThemeLayoutForTemplate($template, $this->getMedia());
-		//}
-		//return $this->layout;
 	}
 
 	/**

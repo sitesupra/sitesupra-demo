@@ -395,7 +395,7 @@ abstract class AbstractPage extends Entity implements NestedSet\Node\EntityNodeI
     {
 		parent::__clone();
 
-        if ( ! empty($this->id)) {
+        if (! empty($this->id)) {
 			$this->nestedSetNode = $this->left
 					= $this->right
 					= $this->level

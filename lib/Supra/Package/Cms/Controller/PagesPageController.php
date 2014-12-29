@@ -43,8 +43,6 @@ class PagesPageController extends AbstractPagesController
 		$page = $this->getPageLocalization()
 			->getMaster();
 
-		$this->checkActionPermission($page, Entity::PERMISSION_NAME_SUPERVISE_PAGE);
-
 		if ($page->hasChildren()) {
 			throw new CmsException(null, "Cannot remove page with children");
 		}
@@ -324,7 +322,7 @@ class PagesPageController extends AbstractPagesController
 
 	/**
 	 * @throws \InvalidArgumentException
-	 * @throws \LogicExcepiton
+	 * @throws \LogicException
 	 * @throws \UnexpectedValueException
 	 * @throws CmsException
 	 */
@@ -350,7 +348,7 @@ class PagesPageController extends AbstractPagesController
 		}
 
 		if ($sourceLocaleId === $targetLocaleId) {
-			throw new \LogicExcepiton('Source and target locales are identical.');
+			throw new \LogicException('Source and target locales are identical.');
 		}
 
 		$localization = $page->getLocalization($sourceLocaleId);
@@ -412,11 +410,7 @@ class PagesPageController extends AbstractPagesController
 						$input
 				) {
 
-			$copiedLocalization = $pageManager->copyLocalization(
-					$entityManager,
-					$localization,
-					$targetLocale
-			);
+			$copiedLocalization = $pageManager->copyLocalization($localization,	$targetLocale);
 
 			$title = trim($input->get('title'));
 
@@ -474,7 +468,7 @@ class PagesPageController extends AbstractPagesController
 
 		$copiedPage = $entityManager->transactional(function (EntityManager $entityManager) use ($pageManager, $page) {
 
-			$copiedPage = $pageManager->copyPage($entityManager, $page);
+			$copiedPage = $pageManager->copyPage($page);
 
 			$copiedPage->moveAsNextSiblingOf($page);
 

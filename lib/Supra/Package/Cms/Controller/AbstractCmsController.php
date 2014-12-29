@@ -34,7 +34,7 @@ abstract class AbstractCmsController extends Controller
 	}
 
 	/**
-	 * @return Supra\Core\Locale\LocaleManager
+	 * @return \Supra\Core\Locale\LocaleManager
 	 */
 	protected function getLocaleManager()
 	{
@@ -42,7 +42,7 @@ abstract class AbstractCmsController extends Controller
 	}
 
 	/**
-	 * @return Supra\Core\Locale\Locale
+	 * @return \Supra\Core\Locale\Locale
 	 */
 	protected function getCurrentLocale()
 	{

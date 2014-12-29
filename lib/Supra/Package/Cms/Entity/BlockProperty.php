@@ -101,13 +101,12 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 	}
 
 	/**
-	 * @param Localization $data
+	 * @param Localization $localization
 	 */
-	public function setLocalization(Localization $data)
+	public function setLocalization(Localization $localization)
 	{
-		if ($this->writeOnce($this->localization, $data)) {
-			$this->checkScope($this->localization);
-		}
+		$this->localization = $localization;
+		$this->checkScope($this->localization);
 	}
 
 	/**
@@ -141,9 +140,7 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 	public function setBlock(Block $block)
 	{
 		$this->block = $block;
-		//if ($this->writeOnce($this->block, $block)) {
-			$this->checkScope($this->block);
-		//}
+		$this->checkScope($this->block);
 	}
 	
 	/**
@@ -210,25 +207,6 @@ class BlockProperty extends Abstraction\Entity implements \IteratorAggregate
 				$object = null;
 				throw $e;
 			}
-		}
-	}
-
-	public function __clone()
-	{
-		parent::__clone();
-
-		if (! empty($this->id)) {
-
-			$this->block = null;
-			$this->localization = null;
-//
-//			$clonedMetadata = array();
-//
-//			foreach ($this->metadata as $metaItem) {
-//				$clonedMetadata[] = clone $metaItem;
-//			}
-//
-//			$this->metadata = new ArrayCollection($clonedMetadata);
 		}
 	}
 

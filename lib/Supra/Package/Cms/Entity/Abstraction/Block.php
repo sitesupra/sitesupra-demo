@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\PageBlock;
 use Supra\Package\Cms\Entity\TemplateBlock;
 
@@ -222,9 +223,10 @@ abstract class Block extends Entity
 			$block->setPosition($source->getPosition());
 
 			foreach ($source->getBlockProperties() as $blockProperty) {
-				
+				/* @var $blockProperty BlockProperty */
+
 				$newBlockProperty = clone $blockProperty;
-				
+
 				$newBlockProperty->setLocalization($base);
 				$newBlockProperty->setBlock($block);
 

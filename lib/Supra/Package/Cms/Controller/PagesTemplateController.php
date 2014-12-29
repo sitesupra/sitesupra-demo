@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Controller;
 
 use Doctrine\ORM\EntityManager;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Entity\TemplateLayout;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\TemplateLocalization;
@@ -213,9 +214,9 @@ class PagesTemplateController extends AbstractPagesController
 		return new SupraJsonResponse();
 	}
 
-		/**
+	/**
 	 * @throws \InvalidArgumentException
-	 * @throws \LogicExcepiton
+	 * @throws \LogicException
 	 * @throws \UnexpectedValueException
 	 * @throws CmsException
 	 */
@@ -241,7 +242,7 @@ class PagesTemplateController extends AbstractPagesController
 		}
 
 		if ($sourceLocaleId === $targetLocaleId) {
-			throw new \LogicExcepiton('Source and target locales are identical.');
+			throw new \LogicException('Source and target locales are identical.');
 		}
 
 		$localization = $page->getLocalization($sourceLocaleId);
@@ -269,7 +270,6 @@ class PagesTemplateController extends AbstractPagesController
 				) {
 
 			$copiedLocalization = $pageManager->copyLocalization(
-					$entityManager,
 					$localization,
 					$targetLocale
 			);
@@ -288,5 +288,45 @@ class PagesTemplateController extends AbstractPagesController
 		return new SupraJsonResponse(array(
 				'id' => $copiedLocalization->getId()
 		));
+	}
+
+	/**
+	 * @return SupraJsonResponse
+	 */
+	public function copyAction()
+	{
+		$this->isPostRequest();
+
+		$template = $this->getPage();
+
+		if (! $template instanceof Template) {
+			throw new \UnexpectedValueException(sprintf(
+				'Expecting Template instance, [%s] received',
+				get_class($template)
+			));
+		}
+
+		$entityManager = $this->getEntityManager();
+
+		$pageManager = $this->getPageManager();
+
+		$this->lockNestedSet($template);
+
+		$copiedTemplate = $entityManager->transactional(function (EntityManager $entityManager) use ($pageManager, $template) {
+
+			$copiedTemplate = $pageManager->copyTemplate($template);
+
+			$copiedTemplate->moveAsNextSiblingOf($template);
+
+			$entityManager->flush();
+
+			return $copiedTemplate;
+		});
+
+		$this->unlockNestedSet($template);
+
+		return new SupraJsonResponse(
+			$this->convertPageToArray($copiedTemplate, $this->getCurrentLocale()->getId())
+		);
 	}
 }

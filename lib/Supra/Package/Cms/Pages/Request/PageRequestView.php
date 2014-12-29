@@ -234,7 +234,7 @@ class PageRequestView extends PageRequest
 			$auditReader = $this->getAuditReader();
 			$localization = $this->getLocalization();
 
-			$auditReader->getCache()->setSuffix($localization->getPublishedRevision());
+//			$auditReader->getCache()->setSuffix($localization->getPublishedRevision());
 
 			$entityManager = $this->getEntityManager();
 
@@ -265,7 +265,7 @@ class PageRequestView extends PageRequest
 		if ($this->auditReader === null) {
 			$this->auditReader = $this->container['entity_audit.manager']
 				->createAuditReader($this->getEntityManager());
-			$this->auditReader->setCache($this->container['cache.frontend']);
+//			$this->auditReader->setCache($this->container['cache.frontend']);
 		}
 
 		return $this->auditReader;
