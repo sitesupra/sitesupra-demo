@@ -811,8 +811,9 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 			'active' => $publishedLocalization ? $publishedLocalization->isActive() : $localization->isActive(),
 
+			'published' => $localization->isPublished(),
 			// is the latest version published or not
-			'published' => $isLatestVersionPublished,
+			'published_latest' => $isLatestVersionPublished,
 		);
 
 		// redirect data

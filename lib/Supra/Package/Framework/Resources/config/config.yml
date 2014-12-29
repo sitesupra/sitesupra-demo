@@ -85,7 +85,7 @@ doctrine_audit:
     ignore_columns:
         - created_at
         - updated_at
-        - lock_id
+        - lock
 session:
     storage: supra.framework.session_storage_native
 swiftmailer:
