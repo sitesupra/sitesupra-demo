@@ -24,79 +24,49 @@ class RecycleController extends AbstractPagesController
 		$auditManager = $this->container['entity_audit.manager'];
 		/* @var $auditManager AuditManager */
 
+		$auditConfiguration = $auditManager->getConfiguration();
+
 		$reader = $auditManager->createAuditReader($this->getEntityManager());
 
-		/*$auditEm = ObjectRepository::getEntityManager('#audit');
+		$localizationMeta = $this->container->getDoctrine()->getManager()->getClassMetadata('Cms:PageLocalization');
 
-		$userProvider = ObjectRepository::getUserProvider($this);
+		$query = 'SELECT l.id, l.title, l.'.$auditConfiguration->getRevisionFieldName().', l.template_id, l.path_part, '.
+			'r.username, r.timestamp '.
+			'FROM '.$auditConfiguration->getTablePrefix().$localizationMeta->table['name'].$auditConfiguration->getTableSuffix().' l '.
+			'INNER JOIN '.$auditConfiguration->getRevisionTableName().' r '.
+			'ON r.id = l.'.$auditConfiguration->getRevisionFieldName().' '.
+			'WHERE l.'.$auditConfiguration->getRevisionTypeFieldName().' = ? '.
+				'AND l.locale = ? '
+		;
 
-		$searchCriteria = array(
-			'locale' => $localeId,
-			'type' => PageRevisionData::TYPE_TRASH,
+		$params = array(
+			'DEL',
+			$locale->getId()
 		);
 
-		$qb = $auditEm->createQueryBuilder()
-			->from($entity, 'l')
-			->from(PageRevisionData::CN(), 'r')
-			->select('l.id, l.title, l.revision, l.master, r.creationTime, r.user')
-			->andWhere('r.type = :type')
-			->andWhere('l.locale = :locale')
-			->andWhere('l.revision = r.id')
-			->orderBy('r.creationTime', 'DESC');
-
-		if ($entity == Entity\PageLocalization::CN()) {
-			$qb->addSelect('l.pathPart, l.template');
-
-			// limit by application type
-			$typeFilter = $this->getRequestParameter('filter');
-			if ( ! empty($typeFilter)) {
-				$qb->andWhere('l.parentPageApplicationId = :applicationType');
-				$searchCriteria['applicationType'] = $typeFilter;
-			}
+		$typeFilter = $this->getRequestParameter('filter');
+		if ( ! empty($typeFilter)) {
+			$query .= 'AND l.parentPageApplicationId = ? ';
+			$params[] = $typeFilter;
 		}
 
-		$localizationDataList = $qb->getQuery()
-			->execute($searchCriteria, \Doctrine\ORM\Query::HYDRATE_ARRAY);
+		$query .= 'ORDER BY l.'.$auditConfiguration->getRevisionTypeFieldName().' DESC';
 
-		foreach ($localizationDataList as $localizationData) {
-
-			$pageInfo = array();
-			$pathPart = null;
-			$templateId = null;
-
-			if ($entity == Entity\PageLocalization::CN()) {
-				$pathPart = $localizationData['pathPart'];
-				$templateId = $localizationData['template'];
-			}
-
-			$userId = $localizationData['user'];
-			// 8 characters is enough if user was not found
-			$userName = '#' . substr($userId, 0 ,8);
-			if ( ! is_null($userId)) {
-				$user = $userProvider->findUserById($userId);
-				if ($user instanceof \Supra\User\Entity\User) {
-					$userName = $user->getName();
-				}
-			}
-
-			$timeTrashed = $localizationData['creationTime']->format('c');
-
-			$pageInfo = array(
-				'id' => $localizationData['id'],
-				'date' => $timeTrashed,
-				'title' => $localizationData['title'],
-				'revision' => $localizationData['revision'],
-				'author' => $userName,
-				'path' => $pathPart,
-				'template' => $templateId,
+		foreach ($reader->getConnection()->fetchAll($query, $params) as $row) {
+			$response[] = array(
+				'id' => $row['id'],
+				'date' => \DateTime::createFromFormat('Y-m-d H:i:s', $row['timestamp'])->format(DATE_ATOM),
+				'title' => $row['title'],
+				'revision' => $row['rev'],
+				'author' => $row['username'],
+				'path' => $row['path_part'],
+				'template' => $row['template_id'],
 				// TODO: do we need this?
 				'localized' => true,
 				'published' => false,
 				'scheduled' => false,
 			);
-
-			$response[] = $pageInfo;
-		}*/
+		}
 
 		return $response;
 	}
