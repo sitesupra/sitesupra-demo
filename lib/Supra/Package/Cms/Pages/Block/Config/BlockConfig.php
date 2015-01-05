@@ -2,6 +2,8 @@
 
 namespace Supra\Package\Cms\Pages\Block\Config;
 
+use Doctrine\Common\Util\Inflector;
+use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Package\Cms\Pages\Twig\BlockPropertyNodeVisitor;
 use Supra\Package\Cms\Pages\Block\Exception\NotInitializedConfigurationException;
 use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
@@ -49,6 +51,11 @@ abstract class BlockConfig
 	 * @var bool
 	 */
 	private $initialized = false;
+
+	/**
+	 * @var AbstractSupraPackage
+	 */
+	private $package;
 
 	/**
 	 * @return string
@@ -372,12 +379,36 @@ abstract class BlockConfig
 
 	/**
 	 * Concrete classes should override this to configure block cache.
-	 * 
+	 *
 	 * @param CacheMapper $mapper
 	 */
 	protected function configureCache(CacheMapper $mapper)
 	{
 
+	}
+
+	/**
+	 * Tries to guess block template name.
+	 * @return string
+	 */
+	private function guessTemplateName()
+	{
+		if ($this->package === null) {
+			throw new \RuntimeException(sprintf(
+				'Block package is unknown, thus it is impossible to guess template name for block [%s].',
+				$this->getTitle()
+			));
+		}
+
+		$name = (new \ReflectionClass($this))->getShortName();
+
+		if (($pos = strpos($name, 'Config')) !== false
+			&& $pos === (strlen($name) - 6)) {
+
+			$name = substr($name, 0, -6);
+		}
+
+		return $this->package->getName() . ':blocks' . DIRECTORY_SEPARATOR . Inflector::tableize($name) . '.html.twig';
 	}
 
 	/**
@@ -389,36 +420,14 @@ abstract class BlockConfig
 	{
 		$calledClass = get_called_class();
 
-		if (($pos = strpos($calledClass, 'Configuration')) !== false
-				&& $pos === (strlen($calledClass) - 13)
-				&& class_exists(($className = substr($calledClass, 0, -13)))) {
+		if (($pos = strpos($calledClass, 'Config')) !== false
+				&& $pos === (strlen($calledClass) - 6)
+				&& class_exists(($className = substr($calledClass, 0, -6)))) {
 
 			return $className;
 		}
 
-		return __NAMESPACE__ . '\\DefaultBlockController';
-	}
-
-	/**
-	 * Tries to guess block template name.
-	 *
-	 * @return string
-	 * @throws \LogicException
-	 */
-	private function guessTemplateName()
-	{
-		$calledClass = get_called_class();
-
-		if (($pos = strpos($calledClass, 'Configuration')) !== false
-				&& $pos === (strlen($calledClass) - 13)) {
-			
-			return strtolower(substr($calledClass, 0, -13));
-		}
-
-		throw new \RuntimeException(sprintf(
-				'Failed to guess template name for [%s] block',
-				$this->getTitle()
-		));
+		return  '\Supra\Package\Cms\Pages\Block\DefaultBlockController';
 	}
 
 	/**
@@ -459,6 +468,14 @@ abstract class BlockConfig
 	public function isInitialized()
 	{
 		return $this->initialized;
+	}
+
+	/**
+	 * @param AbstractSupraPackage $package
+	 */
+	public function setPackage(AbstractSupraPackage $package)
+	{
+		$this->package = $package;
 	}
 
 	/**

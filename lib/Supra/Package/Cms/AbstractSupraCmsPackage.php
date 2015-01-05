@@ -19,7 +19,7 @@ abstract class AbstractSupraCmsPackage extends AbstractSupraPackage
 		$container['cms.pages.theme.provider']->registerTheme($theme);
 
 		// blocks
-		$container['cms.pages.blocks.collection']->add($this->getBlocks());
+		$container['cms.pages.blocks.collection']->add($this->getBlocks(), $this);
 	}
 
 	/**

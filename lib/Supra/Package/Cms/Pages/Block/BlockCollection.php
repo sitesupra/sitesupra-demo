@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Pages\Block;
 
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Templating\TwigTemplating;
 use Supra\Package\Cms\Entity\Abstraction\Block;
 use Supra\Package\Cms\Pages\BlockController;
@@ -28,41 +29,44 @@ class BlockCollection implements ContainerAware
 	/**
 	 * @param array $groups
 	 * @param array $blocks
+	 * @param null|AbstractSupraPackage $package
 	 */
-	public function __construct(array $groups = array(), array $blocks = array())
+	public function __construct(array $groups = array(), array $blocks = array(), AbstractSupraPackage $package = null)
 	{
 		foreach ($groups as $group) {
 			$this->addGroupConfiguration($group);
 		}
 
 		foreach ($blocks as $block) {
-			$this->addConfiguration($block);
+			$this->addConfiguration($block, $package);
 		}
 
-		$this->addConfiguration(new UnknownBlockConfig());
+		$this->addConfiguration(new UnknownBlockConfig(), $package);
 	}
 
 	/**
 	 * @param mixed $blockConfigurations
+	 * @param null|AbstractSupraPackage $package
 	 */
-	public function add($blockConfigurations)
+	public function add($blockConfigurations, AbstractSupraPackage $package = null)
 	{
 		if (! is_array($blockConfigurations)) {
 			$blockConfigurations = array($blockConfigurations);
 		}
 
 		foreach ($blockConfigurations as $config) {
-			$this->addConfiguration($config);
+			$this->addConfiguration($config, $package);
 		}
 	}
 
 	/**
-	 * @param Config\BlockConfig $configuration
+	 * @param Config\BlockConfig $config
+	 * @param AbstractSupraPackage $package
 	 * @throws \RuntimeException
 	 */
-	public function addConfiguration(Config\BlockConfig $configuration)
+	public function addConfiguration(Config\BlockConfig $config, AbstractSupraPackage $package = null)
 	{
-		$className = get_class($configuration);
+		$className = get_class($config);
 
 		if (isset($this->blockConfigurations[$className])) {
 			throw new \RuntimeException(
@@ -70,7 +74,11 @@ class BlockCollection implements ContainerAware
 			);
 		}
 
-		$this->blockConfigurations[$className] = $configuration;
+		if ($package !== null) {
+			$config->setPackage($package);
+		}
+
+		$this->blockConfigurations[$className] = $config;
 	}
 
 	/**
