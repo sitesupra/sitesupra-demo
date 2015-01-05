@@ -1,17 +1,17 @@
 <?php
 
-namespace Supra\Package\Cms\Pages\Block;
+namespace Supra\Package\Cms\Pages\Block\Config;
 
 use Supra\Package\Cms\Pages\Twig\BlockPropertyNodeVisitor;
+use Supra\Package\Cms\Pages\Block\Exception\NotInitializedConfigurationException;
 use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\CacheMapper;
-use Supra\Package\Cms\Pages\Block\Config\AbstractPropertyConfig;
 
 /**
  * Block configuration abstraction.
  */
-abstract class BlockConfiguration
+abstract class BlockConfig
 {
 	protected $title;
 	protected $description;
@@ -21,6 +21,11 @@ abstract class BlockConfiguration
 	protected $insertable = true;
 	protected $unique = false;
 	protected $cmsClassName = 'Editable';
+
+	/**
+	 * @var string
+	 */
+	protected $templateName;
 
 	// cache configuration object
 	protected $cache;
@@ -72,7 +77,7 @@ abstract class BlockConfiguration
 	}
 
 	/**
-	 * @return type
+	 * @return string
 	 */
 	public function getDescription()
 	{
@@ -163,13 +168,12 @@ abstract class BlockConfiguration
 	public function setUnique($unique)
 	{
 		throw new \BadMethodCallException('Not supported.');
-
-		$this->unique = $unique;
+//		$this->unique = $unique;
 	}
 
 	/**
 	 * Frontend.
-	 * CMS classname for the block.
+	 * CMS class name for the block.
 	 *
 	 * @return string
 	 */
@@ -291,10 +295,10 @@ abstract class BlockConfiguration
 
 			$parent = $this->getProperty(substr($name, 0, $pos));
 
-			if ($parent instanceof Config\PropertySetConfig) {
+			if ($parent instanceof PropertySetConfig) {
 				return $parent->getSetItem(substr($name, $pos + 1));
 
-			} elseif ($parent instanceof Config\PropertyListConfig) {
+			} elseif ($parent instanceof PropertyListConfig) {
 				return $parent->getListItem();
 
 			} else {
@@ -373,7 +377,7 @@ abstract class BlockConfiguration
 	 */
 	protected function configureCache(CacheMapper $mapper)
 	{
-		$this->cache = null;
+
 	}
 
 	/**
@@ -458,12 +462,12 @@ abstract class BlockConfiguration
 	}
 
 	/**
-	 * @throws Exception\NotInitializedConfigurationException
+	 * @throws NotInitializedConfigurationException
 	 */
 	private function validate()
 	{
 		if ($this->initialized === false) {
-			throw new Exception\NotInitializedConfigurationException();
+			throw new NotInitializedConfigurationException();
 		}
 	}
 }

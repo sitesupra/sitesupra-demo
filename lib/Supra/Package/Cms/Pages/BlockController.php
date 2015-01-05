@@ -11,7 +11,6 @@ use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Pages\Response\ResponsePart;
 use Supra\Package\Cms\Pages\Request\PageRequest;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
-use Supra\Package\Cms\Pages\Block\BlockConfiguration;
 use Supra\Package\Cms\Pages\Block\BlockExecutionContext;
 use Supra\Package\Cms\Pages\Response\BlockResponse;
 use Supra\Package\Cms\Pages\Response\BlockResponseView;
@@ -45,7 +44,7 @@ abstract class BlockController extends Controller
 	protected $block;
 
 	/**
-	 * @var BlockConfiguration
+	 * @var Config\BlockConfig
 	 */
 	protected $config;
 
@@ -69,16 +68,16 @@ abstract class BlockController extends Controller
 
 	/**
 	 * @param Block $block
-	 * @param BlockConfiguration $configuration
+	 * @param Config\BlockConfig $configuration
 	 */
-	public function __construct(Block $block, BlockConfiguration $configuration)
+	public function __construct(Block $block, Config\BlockConfig $configuration)
 	{
 		$this->block = $block;
 		$this->config = $configuration;
 	}
 
 	/**
-	 * @return BlockConfiguration
+	 * @return Config\BlockConfig
 	 */
 	public function getConfiguration()
 	{

@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Pages\Block;
 
-class UnknownBlockConfiguration extends BlockConfiguration
+class UnknownBlockConfig extends Config\BlockConfig
 {
 	protected function configureAttributes(Mapper\AttributeMapper $mapper)
 	{

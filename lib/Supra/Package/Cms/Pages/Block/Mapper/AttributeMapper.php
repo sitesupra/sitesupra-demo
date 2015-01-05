@@ -6,37 +6,37 @@ class AttributeMapper extends Mapper
 {
 	public function title($title)
 	{
-		$this->configuration->setTitle($title);
+		$this->config->setTitle($title);
 		return $this;
 	}
 
 	public function description($description)
 	{
-		$this->configuration->setDescription($description);
+		$this->config->setDescription($description);
 		return $this;
 	}
 
 	public function icon($icon)
 	{
-		$this->configuration->setIcon($icon);
+		$this->config->setIcon($icon);
 		return $this;
 	}
 
 	public function tooltip($tooltip)
 	{
-		$this->configuration->setTooltip($tooltip);
+		$this->config->setTooltip($tooltip);
 		return $this;
 	}
 
 	public function group($group)
 	{
-		$this->configuration->setGroupName($group);
+		$this->config->setGroupName($group);
 		return $this;
 	}
 
 	public function insertable($insertable = true)
 	{
-		$this->configuration->setInsertable($insertable);
+		$this->config->setInsertable($insertable);
 		return $this;
 	}
 
@@ -44,6 +44,7 @@ class AttributeMapper extends Mapper
 	 * Alias for insertable()
 	 * 
 	 * @param bool $hidden
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper
 	 */
 	public function hidden($hidden = true)
 	{
@@ -52,11 +53,11 @@ class AttributeMapper extends Mapper
 
 	/**
 	 * @param string $templateName
-	 * @return \Supra\Package\Cms\Pages\Block\Mapper\BlockMapper
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper
 	 */
 	public function template($templateName)
 	{
-		$this->configuration->setTemplateName($templateName);
+		$this->config->setTemplateName($templateName);
 		return $this;
 	}
 
@@ -66,22 +67,19 @@ class AttributeMapper extends Mapper
 	 */
 	public function controller($controllerClass)
 	{
-		$this->configuration->setControllerClass($controllerClass);
+		$this->config->setControllerClass($controllerClass);
 		return $this;
 	}
 
 	/**
 	 * @TODO: refactor this.
 	 *
-	 * @internal
-	 * @deprecated
-	 *
 	 * @param string $cmsClassName
-	 * @return \Supra\Package\Cms\Pages\Block\Mapper\BlockMapper
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper
 	 */
 	public function cmsClassName($cmsClassName)
 	{
-		$this->configuration->setCmsClassName($cmsClassName);
+		$this->config->setCmsClassName($cmsClassName);
 		return $this;
 	}
 }

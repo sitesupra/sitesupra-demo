@@ -6,7 +6,6 @@ use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Core\Templating\TwigTemplating;
 use Supra\Package\Cms\Entity\Abstraction\Block;
-use Supra\Package\Cms\Pages\Block\BlockConfiguration;
 use Supra\Package\Cms\Pages\BlockController;
 
 class BlockCollection implements ContainerAware
@@ -40,7 +39,7 @@ class BlockCollection implements ContainerAware
 			$this->addConfiguration($block);
 		}
 
-		$this->addConfiguration(new UnknownBlockConfiguration());
+		$this->addConfiguration(new UnknownBlockConfig());
 	}
 
 	/**
@@ -58,10 +57,10 @@ class BlockCollection implements ContainerAware
 	}
 
 	/**
-	 * @param BlockConfiguration $configuration
+	 * @param Config\BlockConfig $configuration
 	 * @throws \RuntimeException
 	 */
-	public function addConfiguration(BlockConfiguration $configuration)
+	public function addConfiguration(Config\BlockConfig $configuration)
 	{
 		$className = get_class($configuration);
 
@@ -76,21 +75,23 @@ class BlockCollection implements ContainerAware
 
 	/**
 	 * @param string $className
-	 * @return BlockConfiguration
+	 * @return Config\BlockConfig
 	 * @throws \RuntimeException
 	 */
 	public function getConfiguration($className)
 	{
-		$configuration = isset($this->blockConfigurations[$className])
+		$config = isset($this->blockConfigurations[$className])
 				? $this->blockConfigurations[$className]
-				: $this->blockConfigurations[__NAMESPACE__ . '\\UnknownBlockConfiguration']
+				: $this->blockConfigurations[__NAMESPACE__ . '\\UnknownBlockConfig']
 				;
 
-		if (! $configuration->isInitialized()) {
-			$this->initialize($configuration);
+		/* @var $config Config\BlockConfig */
+
+		if (! $config->isInitialized()) {
+			$this->initialize($config);
 		}
 
-		return $configuration;
+		return $config;
 	}
 
 	/**
@@ -103,11 +104,12 @@ class BlockCollection implements ContainerAware
 	}
 
 	/**
-	 * @return BlockConfiguration[]
+	 * @return Config\BlockConfig[]
 	 */
 	public function getConfigurations()
 	{
 		foreach ($this->blockConfigurations as $config) {
+			/* @var $config Config\BlockConfig */
 			if (! $config->isInitialized()) {
 				$this->initialize($config);
 			}
@@ -189,6 +191,7 @@ class BlockCollection implements ContainerAware
 	public function findDefaultGroupConfiguration()
 	{
 		foreach ($this->groups as $group) {
+			/* @var $group BlockGroupConfiguration */
 			if ($group->isDefault()) {
 				return $group;
 			}
@@ -208,9 +211,9 @@ class BlockCollection implements ContainerAware
 	/**
 	 * @TODO: should have some BlockBuilder? BlockConfigurationBuilder? instead
 	 *
-	 * @param BlockConfiguration $configuration
+	 * @param Config\BlockConfig $config
 	 */
-	protected function initialize(BlockConfiguration $configuration)
+	protected function initialize(Config\BlockConfig $config)
 	{
 		$templating = $this->container->getTemplating();
 
@@ -218,6 +221,6 @@ class BlockCollection implements ContainerAware
 			throw new \RuntimeException('Twig templating engine is required.');
 		}
 
-		$configuration->initialize($templating->getTwig());
+		$config->initialize($templating->getTwig());
 	}
 }

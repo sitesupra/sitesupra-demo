@@ -243,7 +243,7 @@ abstract class Editable implements EditableInterface
 
 	/**
 	 * @param string $name
-	 * @return EditableAbstraction
+	 * @return Editable
 	 * @throws \InvalidArgumentException
 	 */
 	public static function getEditable($name)

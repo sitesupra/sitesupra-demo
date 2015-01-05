@@ -2,17 +2,17 @@
 
 namespace Supra\Package\Cms\Pages\Block\Mapper;
 
-use Supra\Package\Cms\Pages\Block\BlockConfiguration;
+use Supra\Package\Cms\Pages\Block\Config\BlockConfig;
 
 abstract class Mapper
 {
 	/**
-	 * @var BlockConfiguration
+	 * @var BlockConfig
 	 */
-	protected $configuration;
+	protected $config;
 
-	public function __construct(BlockConfiguration $configuration)
+	public function __construct(BlockConfig $configuration)
 	{
-		$this->configuration = $configuration;
+		$this->config = $configuration;
 	}
 }

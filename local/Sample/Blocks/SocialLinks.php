@@ -2,11 +2,11 @@
 
 namespace Sample\Blocks;
 
-use Supra\Package\Cms\Pages\Block\BlockConfiguration;
+use Supra\Package\Cms\Pages\Block\Config\BlockConfig;
 use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 
-class SocialLinks extends BlockConfiguration
+class SocialLinks extends BlockConfig
 {
 	protected function configureAttributes(AttributeMapper $mapper)
 	{

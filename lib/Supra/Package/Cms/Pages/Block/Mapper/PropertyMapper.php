@@ -8,7 +8,7 @@ use Supra\Package\Cms\Pages\Block\Config;
 class PropertyMapper extends Mapper
 {
 	/**
-	 * Shortcut for BlockConfiguration::addProperty()
+	 * Shortcut for BlockConfig::addProperty()
 	 *
 	 * @param string $name
 	 * @param string $editableName
@@ -17,7 +17,7 @@ class PropertyMapper extends Mapper
 	 */
 	public function add($name, $editableName, array $editableOptions = array())
 	{
-		$this->configuration->addProperty(
+		$this->config->addProperty(
 				$this->createProperty($name, $editableName, $editableOptions)
 		);
 		
@@ -31,7 +31,7 @@ class PropertyMapper extends Mapper
 	 */
 	public function addSet($name, array $items)
 	{
-		$this->configuration->addProperty(
+		$this->config->addProperty(
 				$this->createPropertySet($name, $items)
 		);
 
@@ -40,12 +40,12 @@ class PropertyMapper extends Mapper
 
 	/**
 	 * @param string $name
-	 * @param Config\AbstractProperty
+	 * @param Config\AbstractPropertyConfig $item
 	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
 	 */
 	public function addList($name, Config\AbstractPropertyConfig $item)
 	{
-		$this->configuration->addProperty(
+		$this->config->addProperty(
 				$this->createPropertyList($name, $item)
 		);
 
@@ -53,15 +53,14 @@ class PropertyMapper extends Mapper
 	}
 
 	/**
-	 * Shortcut for BlockConfiguration::setAutoDiscoverProperties()
+	 * Shortcut for BlockConfig::setAutoDiscoverProperties()
 	 *
 	 * @param bool $autoDiscover
 	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
 	 */
 	public function autoDiscover($autoDiscover = true)
 	{
-		$this->configuration->setAutoDiscoverProperties($autoDiscover);
-
+		$this->config->setAutoDiscoverProperties($autoDiscover);
 		return $this;
 	}
 
@@ -94,7 +93,7 @@ class PropertyMapper extends Mapper
 
 	/**
 	 * @param string $name
-	 * @param Config\AbstractPropertyConfig $collectionItem
+	 * @param Config\AbstractPropertyConfig $listItem
 	 * @return Config\PropertyListConfig
 	 */
 	public function createPropertyList($name, Config\AbstractPropertyConfig $listItem)
