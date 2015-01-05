@@ -194,7 +194,6 @@ class Container extends BaseContainer implements ContainerInterface
 
 		array_walk_recursive($data, function (&$value) use ($obj) {
 			if (is_string($value)) {
-				var_dump($value);
 				$value = $obj->replaceParametersScalar($value);
 			}
 		});
