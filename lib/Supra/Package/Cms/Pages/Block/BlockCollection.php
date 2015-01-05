@@ -38,10 +38,10 @@ class BlockCollection implements ContainerAware
 		}
 
 		foreach ($blocks as $block) {
-			$this->addConfiguration($block, $package);
+			$this->addConfig($block, $package);
 		}
 
-		$this->addConfiguration(new UnknownBlockConfig(), $package);
+		$this->addConfig(new UnknownBlockConfig(), $package);
 	}
 
 	/**
@@ -55,7 +55,7 @@ class BlockCollection implements ContainerAware
 		}
 
 		foreach ($blockConfigurations as $config) {
-			$this->addConfiguration($config, $package);
+			$this->addConfig($config, $package);
 		}
 	}
 
@@ -64,7 +64,7 @@ class BlockCollection implements ContainerAware
 	 * @param AbstractSupraPackage $package
 	 * @throws \RuntimeException
 	 */
-	public function addConfiguration(Config\BlockConfig $config, AbstractSupraPackage $package = null)
+	public function addConfig(Config\BlockConfig $config, AbstractSupraPackage $package = null)
 	{
 		$className = get_class($config);
 
