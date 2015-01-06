@@ -2,14 +2,12 @@
 
 namespace Supra\Package\Cms\Pages\Set;
 
-use ArrayObject;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
-use Supra\Controller\Pages\Exception;
 
 /**
  * Set containing entity objects
  */
-abstract class AbstractSet extends ArrayObject
+abstract class AbstractSet extends \ArrayObject
 {
 	/**
 	 * @param Entity[] $array
@@ -40,7 +38,7 @@ abstract class AbstractSet extends ArrayObject
 	public function getFirstElement()
 	{
 		if ( ! isset($this[0])) {
-			throw new Exception\RuntimeException("Element set is empty");
+			throw new \RuntimeException("Element set is empty");
 		}
 		
 		return $this[0];
@@ -54,7 +52,7 @@ abstract class AbstractSet extends ArrayObject
 		$lastIndex = $this->count() - 1;
 		
 		if ( ! isset($this[$lastIndex])) {
-			throw new Exception\RuntimeException("Element set is empty");
+			throw new \RuntimeException("Element set is empty");
 		}
 		
 		return $this[$lastIndex];

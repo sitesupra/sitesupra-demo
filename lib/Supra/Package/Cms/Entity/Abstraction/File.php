@@ -2,19 +2,15 @@
 
 namespace Supra\Package\Cms\Entity\Abstraction;
 
+use Doctrine\Common\Collections;
+use Supra\Core\NestedSet;
 use Supra\Core\NestedSet\Exception\BadMethodCall;
 use Supra\Core\NestedSet\Node\DoctrineNode;
 use Supra\Core\NestedSet\Node\EntityNodeInterface;
-use Supra\NestedSet;
-use Supra\Authorization\AuthorizedEntityInterface;
-use Supra\Authorization\Permission\Permission;
 use Supra\Package\Cms\Entity\FilePath;
-use Supra\Package\CmsAuthentication\Entity\AbstractUser;
-use Supra\Authorization\AuthorizationProvider;
-use Supra\FileStorage\Entity\SlashFolder;
-use Supra\AuditLog\TitleTrackingItemInterface;
-use Doctrine\Common\Collections;
+use Supra\Package\Cms\Entity\SlashFolder;
 use Supra\Package\Cms\Entity\FileProperty;
+use Supra\Package\CmsAuthentication\Entity\AbstractUser;
 
 
 /**
@@ -37,7 +33,7 @@ use Supra\Package\Cms\Entity\FileProperty;
  * @method boolean hasParent()
  * @method NestedSet\Node\NodeAbstraction getParent()
  * @method array getAncestors(int $levelLimit, boolean $includeNode)
- * @method array getDescendants(int $levelLimit, boolean $includeNode)
+ * @method array getDescendants($levelLimit = 0, $includeNode = false)
  * @method NestedSet\Node\NodeAbstraction getFirstChild()
  * @method NestedSet\Node\NodeAbstraction getLastChild()
  * @method NestedSet\Node\NodeAbstraction getNextSibling()
@@ -55,7 +51,7 @@ use Supra\Package\Cms\Entity\FileProperty;
  * @method boolean isDescendantOf(NestedSet\Node\NodeInterface $node)
  * @method boolean isEqualTo(NestedSet\Node\NodeInterface $node)
  */
-abstract class File extends Entity implements EntityNodeInterface, AuthorizedEntityInterface, TitleTrackingItemInterface, TimestampableInterface
+abstract class File extends Entity implements EntityNodeInterface, TimestampableInterface
 {
 	const PERMISSION_UPLOAD_NAME = 'file_upload';
 	const PERMISSION_UPLOAD_MASK = 256;
@@ -121,7 +117,7 @@ abstract class File extends Entity implements EntityNodeInterface, AuthorizedEnt
 
 	/**
 	 * @OneToOne(targetEntity="Supra\Package\Cms\Entity\FilePath", cascade={"remove", "persist", "merge"}, fetch="EAGER")
-	 * @var \Supra\FileStorage\Entity\FilePath
+	 * @var FilePath
 	 */
 	protected $path;
 	

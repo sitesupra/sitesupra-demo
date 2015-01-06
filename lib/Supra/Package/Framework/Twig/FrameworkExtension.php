@@ -2,7 +2,6 @@
 
 namespace Supra\Package\Framework\Twig;
 
-use Supra\Controller\FrontController;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;

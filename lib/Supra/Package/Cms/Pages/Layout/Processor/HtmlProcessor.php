@@ -3,7 +3,6 @@
 namespace Supra\Package\Cms\Pages\Layout\Processor;
 
 use Symfony\Component\HttpFoundation\Response;
-use Supra\Controller\Layout\Exception\RuntimeException;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
 
 /**
@@ -46,38 +45,35 @@ class HtmlProcessor implements ProcessorInterface
 	protected $endDelimiter = '-->';
 
 	/**
-	 * Process the layout
-	 * @param ResponseInterface $response
-	 * @param array $placeResponses
-	 * @param string $layoutSrc
+	 * {@inheritDoc}
 	 */
 	public function process($layoutSrc, Response $response, array $placeResponses)
 	{
+		$content = '';
+
 		// Output CDATA
-		$cdataCallback = function($cdata) use ($response) {
-					$response->output($cdata);
+		$cdataCallback = function($cdata) use (&$content) {
+			$content .= $cdata;
 		};
 
 		$self = $this;
 
 		// Flush place holder responses into master response
-		$macroCallback = function($func, array $args, $self) use (&$response, &$placeResponses, $self) {
+		$macroCallback = function($func, array $args) use (&$content, &$placeResponses, $self) {
 					if ($func == HtmlProcessor::PLACE_HOLDER) {
 						if ( ! array_key_exists(0, $args) || $args[0] == '') {
-							throw new RuntimeException("No placeholder name defined in the placeHolder macro in template ");
+							throw new \RuntimeException("No placeholder name defined in the placeHolder macro in template ");
 						}
 
-						$place = $args[0];
-
-						if (isset($placeResponses[$place])) {
-							/* @var $placeResponse ResponseInterface */
-							$placeResponse = $placeResponses[$place];
-							$placeResponse->flushToResponse($response);
+						if (isset($placeResponses[$args[0]])) {
+							$content .= (string) $placeResponses[$args[0]];
 						}
 					}
 				};
 
 		$this->walk($layoutSrc, $cdataCallback, $macroCallback);
+
+		$response->setContent($content);
 	}
 
 	/**
@@ -96,7 +92,7 @@ class HtmlProcessor implements ProcessorInterface
 		$macroCallback = function($func, array $args) use (&$places, $layoutSrc) {
 					if ($func == HtmlProcessor::PLACE_HOLDER) {
 						if ( ! array_key_exists(0, $args) || $args[0] == '') {
-							throw new RuntimeException("No placeholder name defined in the placeHolder macro in file {$layoutSrc}");
+							throw new \RuntimeException("No placeholder name defined in the placeHolder macro in file {$layoutSrc}");
 						}
 
 						// Normalize placeholder ID for case insensitive MySQL varchar field
@@ -113,7 +109,7 @@ class HtmlProcessor implements ProcessorInterface
 	 * Generates absolute filename
 	 * @param string $layoutSrc
 	 * @return string
-	 * @throws RuntimeException when file or security issue is raised
+	 * @throws \RuntimeException when file or security issue is raised
 	 */
 	protected function getFileName($layoutSrc)
 	{
@@ -122,7 +118,7 @@ class HtmlProcessor implements ProcessorInterface
 			throw new LayoutNotFound("File '$layoutSrc' was not found");
 		}
 		if ( ! is_readable($filename)) {
-			throw new RuntimeException("File '$layoutSrc' is not readable");
+			throw new \RuntimeException("File '$layoutSrc' is not readable");
 		}
 
 		// security stuff
@@ -144,15 +140,15 @@ class HtmlProcessor implements ProcessorInterface
 
 	/**
 	 * @param string $filename
-	 * @throws RuntimeException if security issue is found
+	 * @throws \RuntimeException if security issue is found
 	 */
 	protected function securityCheck($filename)
 	{
 		if (preg_match('!(^|/|\\\\)\.\.($|/|\\\\)!', $filename)) {
-			throw new RuntimeException("Security error for '$filename': Layout filename cannot contain '..' part");
+			throw new \RuntimeException("Security error for '$filename': Layout filename cannot contain '..' part");
 		}
 		if (\filesize($filename) > self::FILE_SIZE_LIMIT) {
-			throw new RuntimeException("Security error for '$filename': Layout file size cannot exceed " . self::FILE_SIZE_LIMIT . ' bytes');
+			throw new \RuntimeException("Security error for '$filename': Layout file size cannot exceed " . self::FILE_SIZE_LIMIT . ' bytes');
 		}
 	}
 

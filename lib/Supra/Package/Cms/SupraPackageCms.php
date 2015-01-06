@@ -20,8 +20,6 @@ use Supra\Package\Cms\FileStorage\Validation\FileNameUploadFilter;
 use Supra\Package\Cms\FileStorage\Validation\ImageSizeUploadFilter;
 use Supra\Package\Cms\Listener\CmsExceptionListener;
 use Supra\Package\Cms\Pages\Application\PageApplicationManager;
-use Supra\Package\Cms\Pages\Application\BlogPageApplication;
-use Supra\Package\Cms\Pages\Application\GlossaryPageApplication;
 use Supra\Package\Cms\Pages\Block\BlockCollection;
 use Supra\Package\Cms\Pages\Block\BlockGroupConfiguration;
 use Supra\Package\Cms\Pages\Twig\PageExtension;
@@ -45,13 +43,7 @@ class SupraPackageCms extends AbstractSupraPackage
 
 		// Page Apps Manager
 		$container[$this->name . '.pages.page_application_manager'] = function () {
-
-			$manager = new PageApplicationManager();
-
-			$manager->registerApplication(new BlogPageApplication());
-			$manager->registerApplication(new GlossaryPageApplication());
-
-			return $manager;
+			return new PageApplicationManager();
 		};
 
 		//setting up doctrine

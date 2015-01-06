@@ -1,8 +1,0 @@
-{
-	"status": 1,
-	"data": [
-		{"id": "template_1", "title": "Promo page", "img": "/cms/lib/supra/img/templates/template-1.png"},
-		{"id": "template_2", "title": "Text page", "img": "/cms/lib/supra/img/templates/template-2.png"},
-		{"id": "template_3", "title": "Simple", "img": "/cms/lib/supra/img/templates/template-3.png"}
-	]
-}

@@ -22,7 +22,7 @@ class PageFinder extends AbstractFinder
 	private $searchCondition;
 
 	/**
-	 * @return Repository\PageAbstractRepository
+	 * @return PageAbstractRepository
 	 */
 	protected function getRepository()
 	{
@@ -128,11 +128,10 @@ class PageFinder extends AbstractFinder
 				->rightGreaterThanOrEqualsTo($rightLimit);
 	}
 
-	public function getAncestors($page)
+	public function getAncestors(Page $page)
 	{
 		$left = $page->getLeftValue();
 		$right = $page->getRightValue();
-		$level = $page->getLevel();
 
 		$searchCondition = $this->getSearchCondition();
 		$repository = $this->getNestedSetRepository();
@@ -152,7 +151,7 @@ class PageFinder extends AbstractFinder
 	}
 
 	/**
-	 * @return \Supra\Controller\Pages\Finder\LocalizationFinder
+	 * @return LocalizationFinder
 	 */
 	public function createLocalizationFinder()
 	{

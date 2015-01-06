@@ -12,14 +12,6 @@ class PageResponse extends Response
 	protected $context;
 
 	/**
-	 * @param ResponsePart $responsePart
-	 */
-	public function addResponsePart(ResponsePart $responsePart)
-	{
-		$this->content .= (string) $responsePart;
-	}
-
-	/**
 	 * @return ResponseContext
 	 */
 	public function getContext()

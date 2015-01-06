@@ -14,7 +14,7 @@ class ApplicationLocalizationParameter extends Abstraction\Entity
 //	 * @var \Supra\Controller\Pages\Entity\ApplicationLocalization
 //	 */
 //	protected $localization;
-	
+
 	/**
 	 * @Column(type="supraId20", name="localization_id")
 	 * @var string
@@ -81,10 +81,10 @@ class ApplicationLocalizationParameter extends Abstraction\Entity
 	{
 //		$this->localization = $localization;
 //		$localization->addParameterToCollection($this);
-		
+
 		$this->localizationId = $localization->getId();
 	}
-	
+
 //	/**
 //	 * @return \Supra\Controller\Pages\Entity\ApplicationLocalization
 //	 */
@@ -92,7 +92,7 @@ class ApplicationLocalizationParameter extends Abstraction\Entity
 //	{
 //		return $this->localization;
 //	}
-	
+
 	/**
 	 * @return string
 	 */

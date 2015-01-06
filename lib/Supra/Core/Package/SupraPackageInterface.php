@@ -13,7 +13,7 @@ interface SupraPackageInterface
 	public function finish(ContainerInterface $container);
 
 	/**
-	 * @return \Supra\Configuration\ConfigurationInterface
+	 * @return \Symfony\Component\Config\Definition\ConfigurationInterface
 	 */
 	public function getConfiguration();
 }

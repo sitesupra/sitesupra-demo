@@ -5,14 +5,11 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use Supra\Package\Cms\Entity\EditLock;
+use Supra\Package\Cms\Entity\LocalizationTag;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\GroupLocalization;
 use Supra\Package\Cms\Entity\TemplateLocalization;
 use Supra\Package\Cms\Entity\ApplicationLocalization;
-
-// @FIXME: refactor. remove usages.
-use Supra\Controller\Pages\Exception\RuntimeException;
-use Supra\AuditLog\TitleTrackingItemInterface;
 
 /**
  * @Entity
@@ -30,7 +27,6 @@ use Supra\AuditLog\TitleTrackingItemInterface;
  */
 abstract class Localization extends Entity implements LocalizationInterface
 {
-
 	const CHANGE_FREQUENCY_HOURLY = 'hourly';
 	const CHANGE_FREQUENCY_DAILY = 'daily';
 	const CHANGE_FREQUENCY_WEEKLY = 'weekly';
@@ -864,7 +860,7 @@ abstract class Localization extends Entity implements LocalizationInterface
 		$tagArray = array();
 
 		foreach ($this->tags as $tag) {
-			/* @var $tag \Supra\Controller\Pages\Entity\LocalizationTag */
+			/* @var $tag LocalizationTag */
 			$tagArray[] = $tag->getName();
 		}
 		

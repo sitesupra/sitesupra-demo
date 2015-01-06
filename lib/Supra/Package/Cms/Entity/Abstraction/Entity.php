@@ -6,8 +6,6 @@ use Doctrine\Common\Collections\Collection;
 use Supra\Package\Cms\Entity\TemplateBlock;
 use Supra\Package\Cms\Entity\PageLocalization;
 
-use Supra\Controller\Pages\Exception;
-
 /**
  * Base entity class for Pages component.
  * @MappedSuperclass
@@ -195,13 +193,13 @@ abstract class Entity
 	 * @param Entity $instance
 	 * @param string $class
 	 * @param string $method
-	 * @throws Exception\RuntimeException if the instance check fails
+	 * @throws \RuntimeException if the instance check fails
 	 */
 	protected function isInstanceOf(Entity $instance, $class, $method)
 	{
 		if ( ! ($instance instanceof $class)) {
 			$this->unlockAll();
-			throw new Exception\RuntimeException("Object can accept instance of $class in method $method");
+			throw new \RuntimeException("Object can accept instance of $class in method $method");
 		}
 	}
 
@@ -227,7 +225,7 @@ abstract class Entity
 	 * @param Entity $newItem
 	 * @param string $uniqueField
 	 * @return boolean true if added, false if already the same instance has been added
-	 * @throws Exception\RuntimeException if element with the same unique field values exists
+	 * @throws \RuntimeException if element with the same unique field values exists
 	 */
 	protected function addUnique(Collection $collection, Entity $newItem, $uniqueField = null)
 	{
@@ -241,7 +239,7 @@ abstract class Entity
 			$indexBy = $newItem->getProperty($uniqueField);
 
 			if ($collection->offsetExists($indexBy)) {
-				throw new Exception\RuntimeException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
+				throw new \RuntimeException("Cannot add value '{$newItem}' to '{$this}': element by {$uniqueField}={$indexBy} already exists in the collection");
 			}
 
 			$collection->set($indexBy, $newItem);
@@ -351,7 +349,7 @@ abstract class Entity
 	public function matchDiscriminator(Entity $object)
 	{
 		if ( ! $object instanceof Entity) {
-			throw new Exception\LogicException("Entity not passed to the matchDiscriminator method");
+			throw new \LogicException("Entity not passed to the matchDiscriminator method");
 		}
 
 		$discrA = $this::DISCRIMINATOR;
@@ -380,6 +378,6 @@ abstract class Entity
 
 		$this->unlockAll();
 
-		throw new Exception\RuntimeException("The object discriminators do not match for {$this} and {$object}");
+		throw new \RuntimeException("The object discriminators do not match for {$this} and {$object}");
 	}
 }

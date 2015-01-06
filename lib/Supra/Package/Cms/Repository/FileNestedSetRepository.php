@@ -7,11 +7,8 @@ use Doctrine\ORM\Mapping;
 use Doctrine\ORM\EntityManager;
 use Supra\Core\NestedSet\DoctrineRepository;
 use Supra\Core\NestedSet\RepositoryInterface;
-use Supra\FileStorage\Exception;
+use Supra\Package\Cms\FileStorage\Exception\LogicException;
 
-/**
- * FileRepository
- */
 class FileNestedSetRepository extends EntityRepository implements RepositoryInterface
 {
 	/**
@@ -28,7 +25,7 @@ class FileNestedSetRepository extends EntityRepository implements RepositoryInte
 		$className = $class->getName();
 		
 		if ($className != 'Supra\Package\Cms\Entity\Abstraction\File') {
-			throw new Exception\LogicException("File repository should be called for file abstraction entity only, requested for '{$className}'");
+			throw new LogicException("File repository should be called for file abstraction entity only, requested for '{$className}'");
 		}
 		
 		parent::__construct($em, $class);
@@ -59,9 +56,6 @@ class FileNestedSetRepository extends EntityRepository implements RepositoryInte
 	 */
 	public function getRootNodes()
 	{
-		$rootNodes = $this->findByLevel(0);
-
-		return $rootNodes;
+		return $this->findByLevel(0);
 	}
-
 }

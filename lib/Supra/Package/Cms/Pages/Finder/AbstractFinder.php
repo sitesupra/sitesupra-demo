@@ -4,8 +4,7 @@ namespace Supra\Package\Cms\Pages\Finder;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\QueryBuilder;
-//use Supra\Controller\Pages\PageController;
-//use Supra\Cache\CachedQueryBuilderWrapper;
+use Supra\Core\Doctrine\Hydrator\ColumnHydrator;
 
 /**
  * AbstractFinder
@@ -103,7 +102,6 @@ abstract class AbstractFinder
 
 	public function getTotalCount($qb, $groupBy)
 	{
-		//$qb = $this->getQueryBuilder();
 		$qbTotal = clone($qb);
 		/* @var $qbTotal QueryBuilder */
 
@@ -125,11 +123,11 @@ abstract class AbstractFinder
 				->setMaxResults($limit)
 				->setFirstResult($offset)
 				->getQuery()
-				->getResult(\Supra\Database\Doctrine\Hydrator\ColumnHydrator::HYDRATOR_ID);
+				->getResult(ColumnHydrator::HYDRATOR_ID);
 
 		if ( ! empty($ids)) {
-			$result = $qb->andWhere($qb->expr()->in($groupBy, ':paginatorIdList'))
-					->setParameter('paginatorIdList', $ids, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
+			$result = $qb->andWhere($qb->expr()->in($groupBy, ':ids'))
+					->setParameter('ids', $ids, \Doctrine\DBAL\Connection::PARAM_STR_ARRAY)
 					->getQuery()
 					->getResult();
 		} else {

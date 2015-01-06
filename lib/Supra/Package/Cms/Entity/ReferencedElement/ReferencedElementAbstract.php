@@ -4,8 +4,6 @@ namespace Supra\Package\Cms\Entity\ReferencedElement;
 
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 
-use Supra\Controller\Pages\Exception;
-
 /**
  * @Entity
  * @InheritanceType("JOINED")
@@ -14,7 +12,6 @@ use Supra\Controller\Pages\Exception;
  *		"link" = "LinkReferencedElement", 
  *		"image" = "ImageReferencedElement",
  *		"video" = "VideoReferencedElement",
- *		"icon" = "IconReferencedElement",
  * })
  */
 abstract class ReferencedElementAbstract extends Entity
@@ -26,8 +23,8 @@ abstract class ReferencedElementAbstract extends Entity
 	abstract public function toArray();
 	
 	/**
-	 * @FIXME: should move to CMS
 	 * @param array $array
+	 * @return ReferencedElementAbstract
 	 */
 	public static function fromArray(array $array)
 	{
@@ -51,7 +48,7 @@ abstract class ReferencedElementAbstract extends Entity
 				break;
 			
 			default:
-				throw new Exception\RuntimeException("Invalid metadata array: " . print_r($array, 1));
+				throw new \RuntimeException("Invalid metadata array: " . print_r($array, 1));
 		}
 		
 		$element->fillArray($array);

@@ -2,8 +2,6 @@
 
 namespace Supra\Package\Cms\Exception;
 
-use Supra\Exception\LocalizedException;
-
 /**
  * CMS localized exception
  */

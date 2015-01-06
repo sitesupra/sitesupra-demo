@@ -2,11 +2,12 @@
 
 namespace Supra\Package\Cms\FileStorage;
 
+use Doctrine\ORM\EntityManager;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
-use Doctrine\ORM\EntityManager;
 use Supra\Package\Cms\Entity\File;
-use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;;
+use Supra\Package\Cms\Entity\Abstraction\File as FileAbstraction;
+use Supra\Package\Cms\Entity\FileProperty;
 use Supra\Package\Cms\Entity\Folder;
 use Supra\Package\Cms\Entity\Image;
 use Supra\Package\Cms\Entity\ImageSize;
@@ -17,7 +18,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  */
 class FileStorage implements ContainerAware
 {
-	const CACHE_GROUP_NAME = 'Supra\FileStorage';
+	const CACHE_GROUP_NAME = 'SupraCms\FileStorage';
 	const RESERVED_DIR_SIZE = "_size";
 	const RESERVED_DIR_VERSION = "_ver";
 	const VALIDATION_EXTENSION_RENAME_MESSAGE_KEY = 'medialibrary.validation_error.extension_rename';
@@ -113,16 +114,16 @@ class FileStorage implements ContainerAware
 	 *
 	 * @param string $fileId
 	 * @param string $type
-	 * @return null|\Supra\FileStorage\File
+	 * @return null | FileAbstraction
 	 */
 	public function find($fileId, $type = null)
 	{
-		if ( ! is_string($fileId)) {
+		if (! is_string($fileId)) {
 			return null;
 		}
 
 		if (empty($type)) {
-			$type = Entity\Abstraction\File::CN();
+			$type = FileAbstraction::CN();
 		}
 		
 		return $this->getDoctrineEntityManager()
@@ -733,7 +734,7 @@ class FileStorage implements ContainerAware
 	}
 
 	/**
-	 * @param \Supra\FileStorage\Entity\Image $file
+	 * @param Image $file
 	 * @param integer $width
 	 * @param integer $height
 	 * @param integer $cropLeft
@@ -742,6 +743,7 @@ class FileStorage implements ContainerAware
 	 * @param integer $cropHeight
 	 * @param integer $quality
 	 * @param integer $force
+	 * @return string
 	 * @throws Exception\RuntimeException
 	 */
 	public function createImageVariant(Image $file, $width, $height, $cropLeft, $cropTop, $cropWidth, $cropHeight, $quality = 95, $force = false)
@@ -928,7 +930,7 @@ class FileStorage implements ContainerAware
 	
 	/**
 	 * Create resized version for the image
-	 * @param Entity\Image $file
+	 * @param ImageSize $sourceImageSize
 	 * @param integer $targetWidth
 	 * @param integer $targetHeight
 	 * @param boolean $cropped 
@@ -936,10 +938,10 @@ class FileStorage implements ContainerAware
 	 * @param boolean $force
 	 * @return string
 	 */
-	public function createCroppedImageVariant(Entity\ImageSize $sourceImageSize, $targetWidth, $targetHeight, $cropped = false, $quality = 95, $force = false)
+	public function createCroppedImageVariant(ImageSize $sourceImageSize, $targetWidth, $targetHeight, $cropped = false, $quality = 95, $force = false)
 	{
 		// validate params
-		if ( ! $sourceImageSize instanceof Entity\ImageSize) {
+		if ( ! $sourceImageSize instanceof ImageSize) {
 			throw new Exception\RuntimeException('ImageSize entity expected');
 		}
 		if (($targetWidth <= 0) || ($targetHeight <= 0)) {
@@ -1161,30 +1163,30 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Rotate image by 90 degrees CCW
-	 * @param Entity\Image $file
+	 * @param Image $file
 	 * @param integer $quality 
 	 */
-	public function rotateImageLeft(Entity\Image $file, $quality = 95)
+	public function rotateImageLeft(Image $file, $quality = 95)
 	{
 		$this->rotateImage($file, ImageProcessor\ImageRotator::ROTATE_LEFT, $quality);
 	}
 
 	/**
 	 * Rotate image by 90 degrees CW
-	 * @param Entity\Image $file
+	 * @param Image $file
 	 * @param integer $quality 
 	 */
-	public function rotateImageRight(Entity\Image $file, $quality = 95)
+	public function rotateImageRight(Image $file, $quality = 95)
 	{
 		$this->rotateImage($file, ImageProcessor\ImageRotator::ROTATE_RIGHT, $quality);
 	}
 
 	/**
 	 * Rotate image by 180
-	 * @param Entity\Image $file
+	 * @param Image $file
 	 * @param integer $quality 
 	 */
-	public function rotateImage180(Entity\Image $file, $quality = 95)
+	public function rotateImage180(Image $file, $quality = 95)
 	{
 		$this->rotateImage($file, ImageProcessor\ImageRotator::ROTATE_180, $quality);
 	}
@@ -1386,10 +1388,10 @@ class FileStorage implements ContainerAware
 
 	/**
 	 * Get file content
-	 * @param Entity\File $file
+	 * @param File $file
 	 * @return string
 	 */
-	public function getFileContent(Entity\File $file)
+	public function getFileContent(File $file)
 	{
 		$filePath = $this->getFilesystemPath($file);
 		$fileContent = file_get_contents($filePath);
@@ -1768,21 +1770,22 @@ class FileStorage implements ContainerAware
 	}
 	
 	/**
-	 * @param Entity\Abstraction\File $file
+	 * @param FileAbstraction $file
 	 * @param string $propertyName
+	 * @throws Exception\RuntimeException
 	 * @return mixed
 	 */
-	public function getFileCustomPropertyValue(Entity\Abstraction\File $file, $propertyName)
+	public function getFileCustomPropertyValue(FileAbstraction $file, $propertyName)
 	{
 		if ( ! isset($this->customPropertyConfigurations[$propertyName])) {
-			throw new \RuntimeConfiguration("Property '{$propertyName}' is not configured");
+			throw new Exception\RuntimeException("Property '{$propertyName}' is not configured");
 		}
 		
 		$property = $file->getCustomProperties()
 				->get($propertyName);
-		/* @var $property Supra\FileStorage\Entity\FileProperty */
+		/* @var $property FileProperty */
 		
-		if ($property instanceof Entity\FileProperty) {
+		if ($property instanceof FileProperty) {
 			// @TODO: pass through editable? Filter?
 			return $property->getValue();
 		}
@@ -1793,29 +1796,29 @@ class FileStorage implements ContainerAware
 	}
 	
 	/**
-	 * @param Entity\Abstraction\File $file
+	 * @param FileAbstraction $file
 	 * @param string $propertyName
-	 * @return mixed
+	 * @return FileProperty
+	 * @throws Exception\RuntimeException
 	 */
-	public function getFileCustomProperty(Entity\Abstraction\File $file, $propertyName)
+	public function getFileCustomProperty(FileAbstraction $file, $propertyName)
 	{
 		if ( ! isset($this->customPropertyConfigurations[$propertyName])) {
-			throw new \RuntimeConfiguration("Property '{$propertyName}' is not configured");
+			throw new Exception\RuntimeException("Property '{$propertyName}' is not configured");
 		}
 		
 		$property = $file->getCustomProperties()
 				->get($propertyName);
-		/* @var $property Supra\FileStorage\Entity\FileProperty */
+		/* @var $property FileProperty */
 		
-		if ( ! $property instanceof Entity\FileProperty) {
+		if (! $property instanceof FileProperty) {
 			
-			$property = new Entity\FileProperty($propertyName, $file);
+			$property = new FileProperty($propertyName, $file);
 			
 			$this->getDoctrineEntityManager()
 					->persist($property);
 		}
 		
 		return $property;
-				
 	}
 }
