@@ -1,9 +1,0 @@
-- Supra\Search\SearchControllerConfiguration:
-    resultsTemplateFilename: search-results.html.twig
-    noResultsTemplateFilename: search-results-empty.html.twig
-    class: Project\FancyBlocks\Search\ProjectSearchController
-    resultsPerPage: 5
-    title: Search
-    description: Search form and results
-    icon: icon.png
-    groupId: system
