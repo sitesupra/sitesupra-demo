@@ -25,6 +25,16 @@ class PropertyMapper extends Mapper
 	}
 
 	/**
+	 * @param Config\AbstractPropertyConfig $config
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
+	 */
+	public function addProperty(Config\AbstractPropertyConfig $config)
+	{
+		$this->config->addProperty($config);
+		return $this;
+	}
+
+	/**
 	 * @param string $name
 	 * @param array $items
 	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
@@ -61,6 +71,17 @@ class PropertyMapper extends Mapper
 	public function autoDiscover($autoDiscover = true)
 	{
 		$this->config->setAutoDiscoverProperties($autoDiscover);
+		return $this;
+	}
+
+	/**
+	 * Shortcut for BlockConfig::setAutoDiscoverProperties(false).
+	 *
+	 * @return \Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper
+	 */
+	public function disableAutoDiscovering()
+	{
+		$this->config->setAutoDiscoverProperties(false);
 		return $this;
 	}
 

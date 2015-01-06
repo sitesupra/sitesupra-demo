@@ -10,6 +10,11 @@ class UnknownBlockConfig extends Config\BlockConfig
 				->hidden();
 	}
 
+	protected function configureProperties(Mapper\PropertyMapper $mapper)
+	{
+		$mapper->disableAutoDiscovering();
+	}
+
 	public function getControllerClass()
 	{
 		return UnknownBlockController::className;

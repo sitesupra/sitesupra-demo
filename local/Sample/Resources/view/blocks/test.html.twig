@@ -1,0 +1,112 @@
+{# *** Plain set, loop through *** #}
+{% for item in set(
+        property('plainSetItem1', 'inline_string'),
+        property('plainSetItem2', 'inline_string')) %}
+
+    {{ item | raw }}
+
+{% endfor %}
+
+
+{# *** Plain set, direct access *** #}
+{% set propertySet = set(
+property('fooBar', 'inline_string'),
+property('fooBar2', 'inline_string'),
+property('fooBar3', 'inline_string')) %}
+
+{{ propertySet.fooBar | raw }}
+{{ propertySet.fooBar2 | raw }}
+{{ propertySet.fooBar3 | raw }}
+
+
+{# *** Set with a subset *** #}
+{% for item in set(
+    set(
+        property('foo', 'inline_string'),
+        property('bar', 'inline_string')
+    ),
+    property('item1', 'inline_string'),
+    property('item2', 'inline_string'),
+    property('item3', 'inline_string')
+) %}
+
+    {% if item is iterable %}
+        {% for subItem in item %}
+            {{ subItem | raw }}
+        {% endfor %}
+    {% else %}
+        {{ item | raw }}
+    {% endif %}
+
+{% endfor %}
+
+
+{# *** Plain collection  *** #}
+{% for item in collection(property('image', 'image')) %}
+    {{ item | raw }}
+{% endfor %}
+
+
+{# *** Collection of sets *** #}
+{% for tab in collection(set(
+        property('title', 'inline_string'),
+        property('content', 'inline_text')
+    )) %}
+
+    <h3>{{ tab.title | raw }}</h3>
+    <p>{{ tab.content | raw }}</p>
+
+{% endfor %}
+
+
+{# *** Set of collections *** #}
+{% set portfolio = set(
+    collection('web',       property('image', 'image')),
+    collection('apps',      property('image', 'image')),
+    collection('branding',  property('image', 'image'))
+) %}
+
+<h3>Web</h3>
+{% for image in portfolio.web %}
+    {{ image }}
+{% endfor %}
+
+<h3>Apps</h3>
+{% for image in portfolio.apps %}
+    {{ image }}
+{% endfor %}
+
+<h3>Branding</h3>
+{% for image in portfolio.branding %}
+    {{ image }}
+{% endfor %}
+
+
+{# ========================================================
+{% set tab = set(property('title', 'inline_string'), property('content', 'html')) %}
+{% for tab in collection(tab) %}
+    <h3>{{ tab.title }}</h3>
+    <div class="text">{{ tab.content }}</div>
+{% endfor %}
+#}
+
+{# ========================================================
+{% set image = property('image') %}
+{% for image in collection(image) %}
+    {{ image }}
+{% endfor %}
+#}
+
+{# ========================================================
+{% set tabTitle = property('title', 'inline_string') %}
+{% set tabContent = property('content', 'inline_string') %}
+
+{% set tab = set({tabTitle, tabContent}) %}
+
+{% set tabs = collection(tab) %}
+
+{% for tab in tabs %}
+    <h3>{{ tab.title }}</h3>
+    <div class="text">{{ tab.content }}</div>
+{% endfor %}
+#}

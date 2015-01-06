@@ -25,6 +25,7 @@ class SamplePackage extends AbstractSupraCmsPackage
 			new Blocks\SocialLinks(),
 			
 			new Blocks\CollectionGallery(),
+			new Blocks\Test(),
 		);
 	}
 

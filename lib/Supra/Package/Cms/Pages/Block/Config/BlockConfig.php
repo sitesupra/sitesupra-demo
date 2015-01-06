@@ -40,7 +40,7 @@ abstract class BlockConfig
 	/**
 	 * @var bool
 	 */
-	protected $autoDiscoverProperties = false;
+	protected $autoDiscoverProperties = true;
 
 	/**
 	 * @var AbstractPropertyConfig[]
@@ -247,7 +247,7 @@ abstract class BlockConfig
 	{
 		$this->validate();
 
-		if (empty($this->templateName)) {
+		if (empty($this->templateName) && $this->package !== null) {
 			return $this->guessTemplateName();
 		}
 

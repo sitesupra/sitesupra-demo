@@ -32,26 +32,22 @@ abstract class BlockResponse extends ResponsePart
 		return array('templateName', 'parameters', 'context', 'output');
 	}
 
-	public function __wakeup()
-	{
-	}
-
-
 	/**
 	 * @param Block $block
-	 * @param string $templateName
 	 * @param Templating $templating
+	 * @param null|string $templateName
 	 */
-	public function __construct(Block $block, $templateName, Templating $templating)
+	public function __construct(Block $block, Templating $templating, $templateName = null)
 	{
 		$this->block = $block;
-		$this->templateName = $templateName;
 		$this->templating = $templating;
+		$this->templateName = $templateName;
 	}
 
 	/**
 	 * @param mixed $key
 	 * @param mixed $value
+	 * @return $this
 	 */
 	public function assign($key, $value)
 	{
@@ -66,6 +62,7 @@ abstract class BlockResponse extends ResponsePart
 
 	/**
 	 * @param string $templateName
+	 * @return $this
 	 */
 	public function setTemplateName($templateName)
 	{
@@ -78,6 +75,10 @@ abstract class BlockResponse extends ResponsePart
 	 */
 	public function render()
 	{
+		if ($this->templateName === null) {
+			throw new \RuntimeException('Template name was not specified, nothing to render.');
+		}
+
 		$this->output(
 				$this->templating->render(
 						$this->templateName,

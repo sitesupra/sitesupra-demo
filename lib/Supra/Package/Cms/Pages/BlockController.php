@@ -240,7 +240,7 @@ abstract class BlockController extends Controller
 		$propertyConfig = $this->config->getProperty($name);
 
 		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
-			return new BlockPropertyCollectionValue($property, $this, $options);
+			return new BlockPropertyCollectionValue($property, $propertyConfig, $this, $options);
 		}
 
 		$editable = $propertyConfig->getEditable()->getInstance();
@@ -344,8 +344,8 @@ abstract class BlockController extends Controller
 	protected function createBlockResponse(Request $request)
 	{
 		return $request instanceof PageRequestEdit
-				? new BlockResponseEdit($this->block, $this->config->getTemplateName(), $this->container->getTemplating())
-				: new BlockResponseView($this->block, $this->config->getTemplateName(), $this->container->getTemplating());
+				? new BlockResponseEdit($this->block, $this->container->getTemplating(), $this->config->getTemplateName())
+				: new BlockResponseView($this->block, $this->container->getTemplating(), $this->config->getTemplateName());
 	}
 
 	/**
