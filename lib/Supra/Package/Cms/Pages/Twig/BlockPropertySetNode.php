@@ -28,6 +28,6 @@ class BlockPropertySetNode extends BlockPropertyNode
             }
         }
 
-        return implode($nameParts) . 'Set';
+        return lcfirst(implode($nameParts)) . 'Set';
     }
 }
