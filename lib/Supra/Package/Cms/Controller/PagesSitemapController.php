@@ -49,6 +49,8 @@ class PagesSitemapController extends AbstractPagesController
 	{
 		$manager = $this->getPageApplicationManager();
 
+		$responseData = array();
+
 		foreach ($manager->getAllApplications() as $application) {
 			$responseData[] = array(
 				'id'		=> $application->getId(),

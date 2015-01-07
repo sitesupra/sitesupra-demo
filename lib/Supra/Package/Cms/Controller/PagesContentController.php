@@ -213,7 +213,7 @@ class PagesContentController extends AbstractPagesController
 			$templateLocalization = $localization->getTemplateLocalization();
 
 			if (! $templateLocalization->isPublished()) {
-				$templateLocalization->updatePublishTime();
+				$templateLocalization->setPublishTime();
 
 				$this->getEntityManager()
 					->flush($templateLocalization);
@@ -226,7 +226,7 @@ class PagesContentController extends AbstractPagesController
 			}
 		}
 
-		$localization->updatePublishTime();
+		$localization->setPublishTime();
 
 		$this->getEntityManager()
 				->flush($localization);

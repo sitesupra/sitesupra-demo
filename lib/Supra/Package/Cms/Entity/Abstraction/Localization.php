@@ -4,10 +4,15 @@ namespace Supra\Package\Cms\Entity\Abstraction;
 
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
+use Supra\Package\Cms\Entity\ApplicationPage;
 use Supra\Package\Cms\Entity\EditLock;
+use Supra\Package\Cms\Entity\GroupPage;
 use Supra\Package\Cms\Entity\LocalizationTag;
+use Supra\Package\Cms\Entity\Page;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\GroupLocalization;
+use Supra\Package\Cms\Entity\PageLocalizationPath;
+use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\TemplateLocalization;
 use Supra\Package\Cms\Entity\ApplicationLocalization;
 
@@ -144,7 +149,7 @@ abstract class Localization extends Entity implements LocalizationInterface
 	/**
 	 * Moved to abstraction so it can be used inside queries
 	 * @Column(type="datetime", nullable=true)
-	 * @var DateTime
+	 * @var \DateTime
 	 */
 	protected $creationTime;
 
@@ -182,13 +187,13 @@ abstract class Localization extends Entity implements LocalizationInterface
 	protected $publishedRevision;
 
 	/**
-	 * Construct
-	 * @param string $locale
+	 * @param string $localeId
 	 */
 	public function __construct($localeId)
 	{
 		parent::__construct();
-		$this->setLocaleId($localeId);
+
+		$this->locale = $localeId;
 
 		$this->blockProperties = new ArrayCollection();
 		$this->placeHolders = new ArrayCollection();
@@ -196,7 +201,7 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 
 	/**
-	 * @return \Doctrine\Common\Collections\Collection
+	 * @return Collection
 	 */
 	public function getBlockProperties()
 	{
@@ -212,7 +217,6 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 
 	/**
-	 * Adds placeholder
 	 * @param PlaceHolder $placeHolder
 	 */
 	public function addPlaceHolder(PlaceHolder $placeHolder)
@@ -322,11 +326,9 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 	
 	/**
-	 * Returns page antestor localziation array
-	 * 
 	 * @param int $levelLimit
 	 * @param boolean $includeNode
-	 * @return array
+	 * @return Localization[]
 	 */
 	public function getAncestors($levelLimit = 0, $includeNode = false)
 	{
@@ -338,9 +340,8 @@ abstract class Localization extends Entity implements LocalizationInterface
 		
 		$ancestors = array();
 		
-		$pageAncestors = $master->getAncestors($levelLimit, $includeNode);
-		
-		foreach ($pageAncestors as $ancestor) {
+		foreach ($master->getAncestors($levelLimit, $includeNode) as $ancestor) {
+			/* @var $ancestor AbstractPage */
 			$ancestors[] = $ancestor->getLocalization($this->locale);
 		}
 		
@@ -408,6 +409,8 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 
 	/**
+	 * @param string $type
+	 * @param int $maxDepth
 	 * @return ArrayCollection
 	 */
 	private function getChildrenHelper($type = __CLASS__, $maxDepth = 1)
@@ -580,7 +583,7 @@ abstract class Localization extends Entity implements LocalizationInterface
 	 */
 	public function isPlaceHolderEditable(PlaceHolder $placeHolder)
 	{
-		// Place holder can be ediable if it belongs to the page
+		// Place holder can be editable if it belongs to the page
 		$localization = $placeHolder->getMaster();
 
 		if ($localization->equals($this)) {
@@ -591,38 +594,28 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 
 	/**
-	 * @param Entity $baseEntity
-	 * @param string $locale
 	 * @param AbstractPage $page
+	 * @param string $locale
 	 * @return Localization
 	 */
 	public static function factory(AbstractPage $page, $locale)
 	{
 		$localization = null;
-		$discriminator = $page::DISCRIMINATOR;
 
-		switch ($discriminator) {
-			case Entity::APPLICATION_DISCR:
-				$localization = new ApplicationLocalization($locale);
-				break;
+		if ($page instanceof ApplicationPage) {
+			$localization = new ApplicationLocalization($locale);
 
+		} elseif ($page instanceof GroupPage) {
+			$localization = new GroupLocalization($locale, $page);
 
-			case Entity::GROUP_DISCR:
-				$localization = new GroupLocalization($locale, $page);
-				break;
+		} elseif ($page instanceof Template) {
+			$localization = new TemplateLocalization($locale);
 
+		} elseif ($page instanceof Page) {
+			$localization = new PageLocalization($locale);
 
-			case Entity::TEMPLATE_DISCR:
-				$localization = new TemplateLocalization($locale);
-				break;
-
-
-			case Entity::PAGE_DISCR:
-				$localization = new PageLocalization($locale);
-				break;
-
-			default:
-				throw new \InvalidArgumentException("Discriminator $discriminator not recognized");
+		} else {
+			throw new \UnexpectedValueException(sprintf('Don\'t know what to do with [%s]', get_class($page)));
 		}
 
 		$localization->setMaster($page);
@@ -688,14 +681,16 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 
 	/**
-	 * Sets page change frequency for sitemap.xml
-	 * Use constants like Localization::CHANGE_FREQUENCY_DAILY;
-	 * @example always, hourly, daily, weekly, monthly, yearly, never. 
-	 * @param string $changeFrequency 
+	 * @example always, hourly, daily, weekly, monthly, yearly, never.
+	 * @param string $changeFrequency
 	 */
 	public function setChangeFrequency($changeFrequency)
 	{
-		$frequencies = array(
+		if (empty($changeFrequency)) {
+			$changeFrequency = self::CHANGE_FREQUENCY_WEEKLY;
+		}
+
+		if (! in_array($changeFrequency, array(
 			self::CHANGE_FREQUENCY_HOURLY,
 			self::CHANGE_FREQUENCY_DAILY,
 			self::CHANGE_FREQUENCY_WEEKLY,
@@ -703,25 +698,15 @@ abstract class Localization extends Entity implements LocalizationInterface
 			self::CHANGE_FREQUENCY_YEARLY,
 			self::CHANGE_FREQUENCY_ALWAYS,
 			self::CHANGE_FREQUENCY_NEVER,
-		);
-
-		if (empty($changeFrequency)) {
-			$changeFrequency = self::CHANGE_FREQUENCY_WEEKLY;
-		}
-
-		if ( ! in_array($changeFrequency, $frequencies)) {
-			$logger = ObjectRepository::getLogger($this);
-			$logger->warn("Invalid frequency value '$changeFrequency' provided.");
-
-			return false;
+		))) {
+			throw new \UnexpectedValueException(sprintf("Unrecognized value [%s].", $changeFrequency));
 		}
 
 		$this->changeFrequency = $changeFrequency;
 	}
 
 	/**
-	 * Returns page priority for sitemap.xml
-	 * @return string 
+	 * @return string
 	 */
 	public function getPagePriority()
 	{
@@ -729,125 +714,55 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 
 	/**
-	 * Sets page priority for sitemap.xml
-	 * The valid range is from 0.0 to 1.0, with 1.0 being the most important. 
+	 * The valid range is from 0.0 to 1.0, with 1.0 being the most important.
+	 *
 	 * @param string $pagePriority 
 	 */
 	public function setPagePriority($pagePriority)
 	{
 		if ($pagePriority < 0 || $pagePriority > 1) {
-			$logger = ObjectRepository::getLogger($this);
-			$logger->error('Wrong priority provided. Will use default. 
-				The valid range is from 0.0 to 1.0, with 1.0 being the most important');
-			return false;
+			throw new \UnexpectedValueException(sprintf('The valid range is from 0.0 to 1.0, [%s] received.', $pagePriority));
 		}
 
 		$this->pagePriority = $pagePriority;
 	}
 
 	/**
-	 * @return array
+	 * @throws \BadMethodCallException
 	 */
-	protected function getAuthorizationAncestorsDirect()
+	static function getPreviewFilenameForTypeAndLocalizationAndRevision(Pag$localizationType, $localizationId, $revisionId)
 	{
-		// This is overriden because page localizations themselves are not nested set element, so
-		// we take master page, fetch all of its ancestors and then fetch page localizations from those.
-		$ancestors = array();
-
-		$master = $this->getMaster();
-		$masterAncestors = $master->getAncestors();
-
-		$ancestors[] = $master;
-
-		foreach ($masterAncestors as $masterAncestor) {
-			/* @var $masterAncestor AbstractPage */
-
-			$ancestors[] = $masterAncestor;
-
-			$ancestorLocalization = $masterAncestor->getLocalization($this->locale);
-
-			if ( ! empty($ancestorLocalization)) {
-				$ancestors[] = $ancestorLocalization;
-			}
-		}
-
-		return $ancestors;
+		throw new \BadMethodCallException('Not implemented.');
 	}
 
 	/**
-	 * @param string $localizationType
-	 * @param string $localizationId
-	 * @param string $revisionId
-	 * @return string
-	 */
-	static function getPreviewFilenameForTypeAndLocalizationAndRevision($localizationType, $localizationId, $revisionId)
-	{
-		$ini = ObjectRepository::getIniConfigurationLoader(get_called_class());
-		$webrootPath = $ini->getValue('system', 'site_assets_external_path', SUPRA_WEBROOT_PATH . 'assets/');
-
-		$previewFilename = join(DIRECTORY_SEPARATOR, array(
-			$webrootPath,
-			'previews',
-			$localizationType,
-			md5($localizationId . $revisionId) . '.jpg'));
-
-		return $previewFilename;
-	}
-
-	/**
-	 * @param string $localizationType
-	 * @param string $localizationId
-	 * @param string $revisionId
-	 * @return string
+	 * @throws \BadMethodCallException
 	 */
 	static function getPreviewUrlForTypeAndLocalizationAndRevision($localizationType, $localizationId, $revisionId)
 	{
-		$previewUrl = join(DIRECTORY_SEPARATOR, array(
-			'/assets/previews',
-			$localizationType,
-			md5($localizationId . $revisionId) . '.jpg'));
-
-		return $previewUrl;
+		throw new \BadMethodCallException('Not implemented.');
 	}
 
 	/**
-	 * @return string
+	 * @throws \BadMethodCallException
 	 */
 	public function getPreviewUrl()
 	{
-		return static::getPreviewUrlForLocalizationAndRevision($this->getId(), $this->getRevisionId());
+		throw new \BadMethodCallException('Not implemented.');
 	}
 
 	/**
-	 * @return string
+	 * @throws \BadMethodCallException
 	 */
 	public function getPreviewFilename()
 	{
-		return static::getPreviewFilenameForLocalizationAndRevision($this->getId(), $this->getRevisionId());
+		throw new \BadMethodCallException('Not implemented.');
 	}
-	
-//
-//	/**
-//	 * @return \Doctrine\Common\Collections\ArrayCollection
-//	 */
-//	public function getPlaceHolderGroups()
-//	{
-//		return $this->placeHolderGroups;
-//	}
 
-//	/**
-//	 * @param PlaceHolderGroup $group
-//	 */
-//	public function addPlaceHolderGroup(PlaceHolderGroup $group)
-//	{
-//		$group->setLocalization($this);
-//		$this->placeHolderGroups->set($group->getName(), $group);
-//	}
-	
 	/**
 	 * @return Collection
 	 */
-	public function getTagCollection()
+	public function getTags()
 	{
 		return $this->tags;
 	}
@@ -868,32 +783,20 @@ abstract class Localization extends Entity implements LocalizationInterface
 	}
 	
 	/**
-	 * @param string $name
+	 * @param LocalizationTag $tag
 	 */
-	public function addTag($tag)
+	public function addTag(LocalizationTag $tag)
 	{
-		$name = $tag->getName();
 		$tag->setLocalization($this);
-		
-		$this->tags->set($name, $tag);
+		$this->tags->set($tag->getName(), $tag);
 	}
 
 	/**
-	 * Helper for the publishing process.
-	 * Initializes proxy associations because not initialized proxies aren't merged by Doctrine.
-	 *
-	 * @return void
+	 * @param \DateTime $publishTime
 	 */
-	public function initializeProxyAssociations()
+	public function setPublishTime(\DateTime $publishTime = null)
 	{
-		if ($this->tags instanceof \Doctrine\ORM\PersistentCollection) {
-			$this->tags->initialize();
-		}
-	}
-
-	public function updatePublishTime()
-	{
-		$this->publishTime = new \DateTime('now');
+		$this->publishTime = $publishTime ? $publishTime : new \DateTime();
 	}
 
 	/**

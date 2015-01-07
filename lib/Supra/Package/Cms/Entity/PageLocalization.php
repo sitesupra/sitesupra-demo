@@ -462,23 +462,6 @@ class PageLocalization extends Abstraction\Localization
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function initializeProxyAssociations()
-	{
-		parent::initializeProxyAssociations();
-
-		foreach (array($this->template, $this->path, $this->redirectTarget) as $proxy) {
-
-			if ($proxy instanceof Proxy
-					&& ! $proxy->__isInitialized()) {
-
-				$proxy->__load();
-			}
-		}
-	}
-
-	/**
 	 * @param string $localizationId
 	 * @param string $revisionId
 	 * @return string
