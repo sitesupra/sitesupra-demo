@@ -353,7 +353,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 		if ($page instanceof Entity\Template) {
 
-			$count = (int) $entityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.template = ?0'))
+			$count = (int) $entityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.template = ?0', PageLocalization::CN()))
 					->setParameters(array($page->getId()))
 					->getSingleScalarResult();
 
