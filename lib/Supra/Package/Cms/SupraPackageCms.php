@@ -67,6 +67,7 @@ class SupraPackageCms extends AbstractSupraPackage
 				'Supra\Package\Cms\Entity\GroupPage',
 				'Supra\Package\Cms\Entity\Template',
 				'Supra\Package\Cms\Entity\PageLocalization',
+				'Supra\Package\Cms\Entity\PageLocalizationPath',
 				'Supra\Package\Cms\Entity\TemplateLocalization',
 				'Supra\Package\Cms\Entity\Abstraction\Block',
 				'Supra\Package\Cms\Entity\Abstraction\PlaceHolder',

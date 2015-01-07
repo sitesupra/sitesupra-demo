@@ -301,6 +301,11 @@ routes:
         controller:                     Cms:Recycle:loadPages
         options:
             frontend:                   true
+    recycle_pages_restore:
+        pattern:                        %cms.prefix%/recycle/pages/restore
+        controller:                     Cms:Recycle:restore
+        options:
+            frontend:                   true
     pagehistory_load:
         pattern:                        %cms.prefix%/content-manager/pagehistory/load
         controller:                     Cms:PageHistory:load

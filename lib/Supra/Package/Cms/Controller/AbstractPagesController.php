@@ -589,22 +589,30 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 	/**
 	 * Locks the nested set for entity.
+	 *
+	 * @param string|EntityNodeInterface $entityNode
 	 */
-	protected function lockNestedSet(EntityNodeInterface $entityNode)
+	protected function lockNestedSet($entityNode)
 	{
+		$class = is_string($entityNode) ? $entityNode : $entityNode->getNestedSetRepositoryClassName();
+
 		$this->getEntityManager()
-				->getRepository($entityNode->getNestedSetRepositoryClassName())
+				->getRepository($class)
 				->getNestedSetRepository()
 				->lock();
 	}
 
 	/**
 	 * Unlocks the nested set.
+	 *
+	 * @param string|EntityNodeInterface $entityNode
 	 */
-	protected function unlockNestedSet(EntityNodeInterface $entityNode)
+	protected function unlockNestedSet($entityNode)
 	{
+		$class = is_string($entityNode) ? $entityNode : $entityNode->getNestedSetRepositoryClassName();
+
 		$this->getEntityManager()
-				->getRepository($entityNode->getNestedSetRepositoryClassName())
+				->getRepository($class)
 				->getNestedSetRepository()
 				->unlock();
 	}
