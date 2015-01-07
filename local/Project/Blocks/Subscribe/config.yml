@@ -1,9 +1,0 @@
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Blocks\Subscribe\SubscribeBlock
-    title: Subscribe Block
-    description: Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-    cmsClassname: Editable
-    html: >
-        <p>Some HTML description</p>
-        <p>Some HTML description</p>
-        <p>Some HTML description</p>

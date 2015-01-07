@@ -4,17 +4,14 @@ namespace Supra\Package\Cms\Pages\Set;
 
 use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\Abstraction\PlaceHolder;
-use Supra\Controller\Pages\Entity;
-use Supra\Controller\Pages\Exception;
 
 /**
  * Set of place holders
- * @method PlaceHolder offsetGet()
  */
 class PlaceHolderSet extends AbstractSet
 {
 	/**
-	 * @var Entity\Abstraction\Localization
+	 * @var Localization
 	 */
 	private $localization;
 	
@@ -43,12 +40,12 @@ class PlaceHolderSet extends AbstractSet
 	
 	/**
 	 * Use only append to fill this object, must start with top elements
-	 * @param Entity\Abstraction\PlaceHolder $placeHolder
+	 * @param PlaceHolder $placeHolder
 	 */
 	public function append($placeHolder)
 	{
 		if ( ! $placeHolder instanceof PlaceHolder) {
-			throw new Exception\LogicException(__METHOD__ . " accepts PlaceHolder arguments only");
+			throw new \LogicException(__METHOD__ . " accepts PlaceHolder arguments only");
 		}
 		
 		if (isset($this->localization)) {
@@ -103,7 +100,7 @@ class PlaceHolderSet extends AbstractSet
 	{
 		$placeHolder = null;
 		
-		/* @var $placeHolder Entity\Abstraction\PlaceHolder */
+		/* @var $placeHolder PlaceHolder */
 		foreach ($this as $placeHolderTest) {
 			if ($placeHolderTest->getName() == $name) {
 				$placeHolder = $placeHolderTest;

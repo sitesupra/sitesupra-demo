@@ -36,6 +36,7 @@ use Supra\Package\Framework\Command\DoctrineSchemaUpdateCommand;
 use Supra\Package\Framework\Command\RoutingListCommand;
 use Supra\Package\Framework\Command\SupraBootstrapCommand;
 use Supra\Package\Framework\Command\SupraShellCommand;
+use Supra\Package\Framework\Command\ValidateNestedSetCommand;
 use Supra\Package\Framework\Listener\NotFoundAssetExceptionListener;
 use Supra\Package\Framework\Twig\FrameworkExtension;
 use Symfony\Component\HttpFoundation\Session\Session;
@@ -64,6 +65,7 @@ class SupraPackageFramework extends AbstractSupraPackage
 		$container->getConsole()->add(new CacheClearCommand());
 		$container->getConsole()->add(new SupraBootstrapCommand());
 		$container->getConsole()->add(new DoctrineConvertEncodingsCommand());
+		$container->getConsole()->add(new ValidateNestedSetCommand());
 
 		//include supra helpers
 		$cmsExtension = new CmsExtension();

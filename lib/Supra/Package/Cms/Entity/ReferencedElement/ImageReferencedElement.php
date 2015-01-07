@@ -2,8 +2,6 @@
 
 namespace Supra\Package\Cms\Entity\ReferencedElement;
 
-use Supra\FileStorage\Entity\Image;
-
 /**
  * @Entity
  */

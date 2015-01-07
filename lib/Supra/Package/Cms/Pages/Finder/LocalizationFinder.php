@@ -2,8 +2,10 @@
 
 namespace Supra\Package\Cms\Pages\Finder;
 
-use Supra\Controller\Pages\Entity;
-use Supra\Locale\LocaleInterface;
+use Supra\Core\Locale\LocaleInterface;
+use Supra\Package\Cms\Entity\TemplateLocalization;
+use Supra\Package\Cms\Entity\PageLocalization;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 
 /**
  * LocalizationFinder
@@ -46,12 +48,12 @@ class LocalizationFinder extends AbstractFinder
 
 		if ($this->pageFinder instanceof TemplateFinder) {
 
-			$qb->from(Entity\TemplateLocalization::CN(), 'l');
+			$qb->from(TemplateLocalization::CN(), 'l');
 
 			$qb->select('l');
 		} else {
 
-			$qb->from(Entity\PageLocalization::CN(), 'l');
+			$qb->from(PageLocalization::CN(), 'l');
 
 			$qb->select('l, e2, p');
 			
@@ -141,7 +143,7 @@ class LocalizationFinder extends AbstractFinder
 		$localizationResult = array();
 
 		foreach ($result as $entity) {
-			if ($entity instanceof Entity\Abstraction\Localization) {
+			if ($entity instanceof Localization) {
 				$localizationResult[] = $entity;
 			}
 		}
@@ -149,15 +151,15 @@ class LocalizationFinder extends AbstractFinder
 		return $localizationResult;
 	}
 
-	public function addFilterByParent(Entity\Abstraction\Localization $localization, $minDepth = 1, $maxDepth = null)
+	public function addFilterByParent(Localization $localization, $minDepth = 1, $maxDepth = null)
 	{
-		$this->setLocale($localization->getLocale());
+		$this->setLocale($localization->getLocaleId());
 		$this->pageFinder->addFilterByParent($localization->getMaster(), $minDepth, $maxDepth);
 	}
 
-	public function addFilterByChild(Entity\Abstraction\Localization $localization, $minDepth = 0, $maxDepth = null)
+	public function addFilterByChild(Localization $localization, $minDepth = 0, $maxDepth = null)
 	{
-		$this->setLocale($localization->getLocale());
+		$this->setLocale($localization->getLocaleId());
 		$this->pageFinder->addFilterByChild($localization->getMaster(), $minDepth, $maxDepth);
 	}
 

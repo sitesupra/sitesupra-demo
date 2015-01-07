@@ -1,4 +1,0 @@
-- _class: Supra\Controller\Pages\Configuration\BlockControllerConfiguration
-  class: Project\Sitemap\SitemapBlock
-  title: Sitemap (test for organizer)
-  groupId: system

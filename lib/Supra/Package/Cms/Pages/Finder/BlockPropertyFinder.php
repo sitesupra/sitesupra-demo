@@ -4,14 +4,13 @@ namespace Supra\Package\Cms\Pages\Finder;
 
 use Doctrine\ORM\QueryBuilder;
 use Doctrine\DBAL\Connection;
-use Supra\Controller\Pages\Entity\BlockProperty;
+use Supra\Package\Cms\Entity\BlockProperty;
 
 /**
  * BlockPropertyFinder
  */
 class BlockPropertyFinder extends AbstractFinder
 {
-
 	/**
 	 * @var LocalizationFinder
 	 */
@@ -23,7 +22,7 @@ class BlockPropertyFinder extends AbstractFinder
 	protected $components = array();
 
 	/**
-	 * @param PageFinder $pageFinder
+	 * @param LocalizationFinder $localizationFinder
 	 */
 	public function __construct(LocalizationFinder $localizationFinder)
 	{
@@ -62,7 +61,7 @@ class BlockPropertyFinder extends AbstractFinder
 		$this->components[$component] = (array) $fields;
 	}
 
-	protected function prepareComponents($qb)
+	protected function prepareComponents(QueryBuilder $qb)
 	{
 		if ( ! empty($this->components)) {
 			$or = $qb->expr()->orX();

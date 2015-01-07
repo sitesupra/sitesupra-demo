@@ -1,8 +1,6 @@
 <?php
 
-namespace Supra\Controller\Pages\Finder\Organizer\Iterator;
-
-use Supra\Controller\Pages\Entity\PageLocalization;
+namespace Supra\Package\Cms\Pages\Finder\Organizer\Iterator;
 
 class RecursiveLocalizationIterator implements \RecursiveIterator
 {
@@ -41,7 +39,7 @@ class RecursiveLocalizationIterator implements \RecursiveIterator
 	}
 
 	/**
-	 * @return PageLocalization 
+	 * @return \Supra\Package\Cms\Entity\PageLocalization
 	 */
 	public function current()
 	{

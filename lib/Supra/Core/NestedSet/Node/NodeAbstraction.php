@@ -565,7 +565,7 @@ abstract class NodeAbstraction implements NodeInterface
 
 	/**
 	 * Get array of direct descendants
-	 * @return array
+	 * @return NodeAbstraction[]
 	 * @nestedSetMethod
 	 */
 	public function getChildren()

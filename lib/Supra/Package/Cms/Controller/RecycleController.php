@@ -12,14 +12,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RecycleController extends AbstractPagesController
 {
+	/**
+	 * @return SupraJsonResponse
+	 */
 	public function loadPagesAction()
 	{
-		$data = $this->loadSitemapTree(PageLocalization::CN());
-
-		return new SupraJsonResponse($data);
+		return new SupraJsonResponse($this->loadData('Cms:PageLocalization'));
 	}
 
-	protected function loadSitemapTree($entity)
+	/**
+	 * @return SupraJsonResponse
+	 */
+	public function loadTemplatesAction()
+	{
+		return new SupraJsonResponse($this->loadData('Cms:TemplateLocalization'));
+	}
+
+	/**
+	 * @param string $entityName
+	 * @return array
+	 */
+	protected function loadData($entityName)
 	{
 		$response = array();
 
@@ -32,7 +45,8 @@ class RecycleController extends AbstractPagesController
 
 		$reader = $auditManager->createAuditReader($this->getEntityManager());
 
-		$localizationMeta = $this->container->getDoctrine()->getManager()->getClassMetadata('Cms:PageLocalization');
+		$localizationMeta = $this->container->getDoctrine()->getManager()->getClassMetadata($entityName);
+		/* @var $localizationMeta \Doctrine\ORM\Mapping\ClassMetadataInfo */
 
 		$query = 'SELECT l.id, l.title, l.'.$auditConfiguration->getRevisionFieldName().', l.template_id, l.path_part, '.
 			'r.username, r.timestamp '.
@@ -40,12 +54,14 @@ class RecycleController extends AbstractPagesController
 			'INNER JOIN '.$auditConfiguration->getRevisionTableName().' r '.
 			'ON r.id = l.'.$auditConfiguration->getRevisionFieldName().' '.
 			'WHERE l.'.$auditConfiguration->getRevisionTypeFieldName().' = ? '.
-				'AND l.locale = ? '
+				'AND l.locale = ?'
+				. 'AND l.discr = ?'
 		;
 
 		$params = array(
 			'DEL',
-			$locale->getId()
+			$locale->getId(),
+			$localizationMeta->discriminatorValue
 		);
 
 		$typeFilter = $this->getRequestParameter('filter');
@@ -54,21 +70,15 @@ class RecycleController extends AbstractPagesController
 			$params[] = $typeFilter;
 		}
 
-		$query .= 'ORDER BY l.'.$auditConfiguration->getRevisionTypeFieldName().' DESC';
+		$query .= 'ORDER BY l.' . $auditConfiguration->getRevisionFieldName() .' DESC';
 
 		foreach ($reader->getConnection()->fetchAll($query, $params) as $row) {
 			$response[] = array(
 				'id' => $row['id'],
+				'revision' => $row['rev'],
 				'date' => \DateTime::createFromFormat('Y-m-d H:i:s', $row['timestamp'])->format(DATE_ATOM),
 				'title' => $row['title'],
-				'revision' => $row['rev'],
 				'author' => $row['username'],
-				'path' => $row['path_part'],
-				'template' => $row['template_id'],
-				// TODO: do we need this?
-				'localized' => true,
-				'published' => false,
-				'scheduled' => false,
 			);
 		}
 

@@ -213,7 +213,7 @@ class PagesContentController extends AbstractPagesController
 			$templateLocalization = $localization->getTemplateLocalization();
 
 			if (! $templateLocalization->isPublished()) {
-				$templateLocalization->updatePublishTime();
+				$templateLocalization->setPublishTime();
 
 				$this->getEntityManager()
 					->flush($templateLocalization);
@@ -226,7 +226,7 @@ class PagesContentController extends AbstractPagesController
 			}
 		}
 
-		$localization->updatePublishTime();
+		$localization->setPublishTime();
 
 		$this->getEntityManager()
 				->flush($localization);
@@ -606,5 +606,50 @@ class PagesContentController extends AbstractPagesController
 				$localizationData
 		);
 	}
-	
+
+	/**
+	 * @param Block $block
+	 * @param bool $withResponse
+	 * @return array
+	 */
+	protected function getBlockData(Block $block, $withResponse = false)
+	{
+		$blockController = $this->getBlockCollection()
+			->createController($block);
+
+		$pageRequest = $this->createPageRequest();
+
+		$blockController->prepare($pageRequest);
+
+		$propertyData = array();
+
+		$configuration = $blockController->getConfiguration();
+
+		foreach ($configuration->getProperties() as $config) {
+			$propertyData[$config->name] = array(
+				'value' => $blockController->getPropertyEditorValue(
+					$config->name,
+					$blockController
+				)
+			);
+		}
+
+		$blockData = array(
+			'id'			=> $block->getId(),
+			'type'			=> $blockController->getConfiguration()->getName(),
+			'closed'		=> false, //@fixme
+			'locked'		=> $block->isLocked(),
+			'properties'	=> $propertyData,
+			// @TODO: check if this still is used somewhere, remove if not.
+			'owner_id'		=> $block->getPlaceHolder()
+				->getLocalization()->getId()
+		);
+
+		if ($withResponse) {
+			$blockController->execute();
+			$blockData['html'] = (string) $blockController->getResponse();
+		}
+
+		return $blockData;
+	}
 }

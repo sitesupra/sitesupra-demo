@@ -6,10 +6,8 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementUtils;
-//use Supra\Package\Cms\Entity\ReferencedElement\VideoReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
-//use Supra\Package\Cms\Entity\ReferencedElement\IconReferencedElement;
 use Supra\Package\Cms\Html\HtmlTagStart;
 use Supra\Package\Cms\Html\HtmlTagEnd;
 use Supra\Package\Cms\Html\HtmlTag;
@@ -33,6 +31,7 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 
 	/**
 	 * @param string $content
+	 * @param array $options
 	 * @return string
 	 */
 	public function filter($content, array $options = array())
@@ -179,13 +178,11 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 		}
 
 		$tag = new HtmlTag('img');
-		$width = $height = null;
 
 		if ($size->isCropped()) {
 			$width = $size->getCropWidth();
 			$height = $size->getCropHeight();
-		}
-		else {
+		} else {
 			$width = $size->getWidth();
 			$height = $size->getHeight();
 		}
@@ -222,7 +219,7 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 		$tag->setAttribute('alt', (!empty($alternativeText) ? $alternativeText : ''));
 
 		/*
-		 * Temporary hardcode version
+		 * Temporary hardcore version
 		 *
 		 * @TODO:
 		 * 1. use depending on 'htmlEditorPlugins' parameter in cms\configuration\config.pages.yml
@@ -240,80 +237,6 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 		return $tag;
 	}
 
-//	/**
-//	 * Parse supra.icon
-//	 * @param IconReferencedElement
-//	 * @return null|HtmlTag
-//	 */
-//	protected function parseSupraIcon(IconReferencedElement $iconElement)
-//	{
-//		throw new \Exception('Not supported.');
-//
-//		$iconId = $iconElement->getIconId();
-//
-//		// @FIXME: handle with FileStorage instead of Theme
-//		//		or with something else?
-//		$themeConfiguration = ObjectRepository::getThemeProvider($this)
-//				->getCurrentTheme()
-//				->getConfiguration();
-//
-//		$iconConfiguration = $themeConfiguration->getIconConfiguration();
-//
-//		if (!$iconConfiguration instanceof \Supra\Controller\Layout\Theme\Configuration\ThemeIconSetConfiguration) {
-//			$this->log->warn("No icons configuration object found");
-//			return null;
-//		}
-//
-//		$svgContent = $iconConfiguration->getIconSvgContent($iconId);
-//
-//		if (! empty($svgContent)) {
-//
-//			$tag = new HtmlTag('svg');
-//			$style = '';
-//
-//			$tag->setContent($svgContent);
-//
-//			$tag->setAttribute('version', '1.1');
-//			$tag->setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-//			$tag->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-//			$tag->setAttribute('x', '0px');
-//			$tag->setAttribute('y', '0px');
-//			$tag->setAttribute('viewBox', '0 0 512 512', true);
-//			$tag->setAttribute('enable-background', 'new 0 0 512 512');
-//			$tag->setAttribute('xml:space', 'preserve');
-//
-//			$color = $iconElement->getColor();
-//			if (!empty($color)) {
-//				$style = "fill: {$color};";
-//			}
-//
-//			$align = $iconElement->getAlign();
-//			if (!empty($align)) {
-//				$tag->addClass('align-' . $align);
-//			}
-//
-//			$width = $iconElement->getWidth();
-//			if (!empty($width)) {
-//				$tag->setAttribute('width', $width);
-//				$style .= "width: {$width}px;";
-//			}
-//
-//			$height = $iconElement->getHeight();
-//			if (!empty($height)) {
-//				$tag->setAttribute('height', $height);
-//				$style .= "height: {$height}px;";
-//			}
-//
-//			if (!empty($style)) {
-//				$tag->setAttribute('style', $style);
-//			}
-//
-//			return $tag;
-//		}
-//
-//		return null;
-//	}
-//
 //	/**
 //	 * @FIXME
 //	 *

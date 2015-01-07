@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\FileStorage\Exception;
 
-use Supra\Exception\LocalizedException;
+use Supra\Package\Cms\Exception\LocalizedException;
 
 /**
  * Thrown on upload filter exception

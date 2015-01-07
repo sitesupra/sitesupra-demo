@@ -2,7 +2,6 @@
 
 namespace Supra\Package\Cms\Entity;
 
-
 /**
  * @Entity
  * @Table(indexes={
@@ -14,7 +13,7 @@ class LocalizationTag extends Abstraction\Entity
 {
 	/**
 	 * @ManyToOne(targetEntity="Supra\Package\Cms\Entity\Abstraction\Localization", inversedBy="tags")
-	 * @var \Supra\Controller\Pages\Entity\Abstraction\Localization
+	 * @var Abstraction\Localization
 	 */
 	protected $localization;
 
@@ -24,9 +23,8 @@ class LocalizationTag extends Abstraction\Entity
 	 */
 	protected $name;
 
-	
 	/**
-	 * @param \Supra\Controller\Pages\Entity\Abstraction\Localization $localization
+	 * @param Abstraction\Localization $localization
 	 */
 	public function setLocalization(Abstraction\Localization $localization)
 	{
@@ -34,7 +32,7 @@ class LocalizationTag extends Abstraction\Entity
 	}
 	
 	/**
-	 * @return \Supra\Controller\Pages\Entity\Abstraction\Localization
+	 * @return Abstraction\Localization
 	 */
 	public function getLocalization()
 	{
@@ -55,13 +53,5 @@ class LocalizationTag extends Abstraction\Entity
 	public function getName()
 	{
 		return $this->name;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function getVersionedParent()
-	{
-		return $this->localization;
 	}
 }

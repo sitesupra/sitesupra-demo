@@ -1,6 +1,0 @@
-- _class: Supra\Controller\Pages\Configuration\BlockControllerConfiguration
-  class: Project\AjaxPoll\AjaxPollBlock
-  title: Ajax Poll
-  groupId: system
-  plugins:
-    - _class: Supra\Controller\Pages\Plugin\BlockRequestPlugin

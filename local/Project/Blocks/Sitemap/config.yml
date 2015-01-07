@@ -1,9 +1,0 @@
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    title: Sitemap
-    groupId: system
-    class: Project\Blocks\Sitemap\SitemapBlock
-    cache:
-      Supra\Controller\Pages\Configuration\BlockControllerCacheConfiguration:
-        enabled: false
-        groups:
-          - Supra\Controller\Pages

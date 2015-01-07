@@ -3,7 +3,11 @@
 namespace Supra\Package\Cms\Pages\Block;
 
 use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Pages\Block\Config\AbstractPropertyConfig;
+use Supra\Package\Cms\Pages\Block\Config\PropertyListConfig;
+use Supra\Package\Cms\Pages\Block\Config\PropertySetConfig;
 use Supra\Package\Cms\Pages\BlockController;
+use Supra\Package\Cms\Pages\Block\Config\PropertyCollectionConfig;
 
 class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \IteratorAggregate
 {
@@ -11,6 +15,11 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	 * @var BlockProperty
 	 */
 	private $collectionProperty;
+
+	/**
+	 * @var PropertyCollectionConfig
+	 */
+	private $collectionPropertyConfig;
 
 	/**
 	 * @var BlockController
@@ -29,15 +38,18 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 
 	/**
 	 * @param BlockProperty $collectionProperty
+	 * @param PropertyCollectionConfig $collectionPropertyConfig
 	 * @param BlockController $controller
 	 * @param array $options
 	 */
 	public function __construct(
 			BlockProperty $collectionProperty,
+			PropertyCollectionConfig $collectionPropertyConfig,
 			BlockController $controller,
 			array $options
 	) {
 		$this->collectionProperty = $collectionProperty;
+		$this->collectionPropertyConfig = $collectionPropertyConfig;
 		$this->controller = $controller;
 		$this->options = $options;
 	}
@@ -48,7 +60,9 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	 */
 	public function getPropertyValue($name)
 	{
-		if (! $this->offsetExists($name)) {
+		if ($this->collectionPropertyConfig instanceof PropertyListConfig
+				&& ! $this->offsetExists($name)) {
+
 			throw new \RuntimeException("Property [{$name}] is missing.");
 		}
 
@@ -76,6 +90,7 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	}
 
 	/**
+	 * {@inheritDoc}
 	 * @throws \BadMethodCallException
 	 */
 	public function offsetSet($offset, $value)
@@ -84,6 +99,7 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	}
 
 	/**
+	 * {@inheritDoc}
 	 * @throws \BadMethodCallException
 	 */
 	public function offsetUnset($offset)
@@ -118,19 +134,41 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 
 			$this->values = array();
 
-			foreach ($this->collectionProperty as $property) {
+			if ($this->collectionPropertyConfig instanceof PropertySetConfig) {
 
-				$value = $this->controller->getPropertyViewValue(
+				foreach ($this->collectionPropertyConfig as $config) {
+					/* @var $config AbstractPropertyConfig */
+					$this->values[$config->name] = $this->controller->getPropertyViewValue(
+						$config->getHierarchicalName(),
+						$this->options
+					);
+				}
+			} else {
+				foreach ($this->collectionProperty as $property) {
+					/* @var $property BlockProperty */
+
+					$value = $this->controller->getPropertyViewValue(
 						$property->getHierarchicalName(),
 						$this->options
-				);
+					);
 
-				if ($value !== null) {
-					$this->values[$property->getName()] = $value;
+					if ($value !== null) {
+						$this->values[$property->getName()] = $value;
+					}
 				}
 			}
 		}
 
 		return $this->values;
+	}
+
+	/**
+	 * @param string $name
+	 * @param array $arguments
+	 * @return mixed
+	 */
+	public function __call($name, $arguments)
+	{
+		return $this->getPropertyValue($name);
 	}
 }

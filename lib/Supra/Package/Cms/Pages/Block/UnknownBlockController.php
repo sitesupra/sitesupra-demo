@@ -20,5 +20,5 @@ class UnknownBlockController extends BlockController
 				"<p><span>Block [%s] is unknown.<br/>Maybe it was removed?</span></p>",
 				$this->block->getComponentClass()
 		));
-	}	
+	}
 }

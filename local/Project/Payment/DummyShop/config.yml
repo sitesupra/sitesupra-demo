@@ -1,7 +1,0 @@
-- Supra\Controller\Pages\Configuration\BlockControllerConfiguration:
-    class: Project\Payment\DummyShop\DummyShopController
-    title: Dummy Shop!
-    groupId: system
-    description: Buy moar! Buy moar!
-    cmsClassname: Editable
-    icon: icon.png

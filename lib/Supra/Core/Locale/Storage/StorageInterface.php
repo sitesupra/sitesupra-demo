@@ -12,17 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 interface StorageInterface
 {
 	/**
-	 * Store the detected locale
+	 * Store the detected locale.
+	 *
 	 * @param Request $request
 	 * @param Response $response
-	 * @param string $localeIdentifier
-	 * @return
+	 * @param string $localeId
+	 * @return void
 	 */
-	public function store(Request $request, Response $response, $localeIdentifier);
-
-	/**
-	 * Sets locale data provider
-	 * @param LocaleInterface $locale
-	 */
-	public function setLocale(LocaleInterface $locale);
+	public function store(Request $request, Response $response, $localeId);
 }

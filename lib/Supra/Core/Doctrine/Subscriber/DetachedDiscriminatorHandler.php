@@ -2,13 +2,13 @@
 
 namespace Supra\Core\Doctrine\Subscriber;
 
-use Doctrine\ORM\Events;
 use Doctrine\Common\EventSubscriber;
+use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Doctrine\ORM\Events;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\Common\Annotations\SimpleAnnotationReader;
-use Supra\Database\Annotation\DetachedDiscriminators;
-use Supra\Database\Annotation\DetachedDiscriminatorValue;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
+use Supra\Core\Doctrine\Annotation\DetachedDiscriminators;
+use Supra\Core\Doctrine\Annotation\DetachedDiscriminatorValue;
 
 class DetachedDiscriminatorHandler implements EventSubscriber
 {
@@ -36,19 +36,6 @@ class DetachedDiscriminatorHandler implements EventSubscriber
 	}
 
 	/**
-	 * @return SimpleAnnotationReader
-	 */
-	public function getAnnotationReader()
-	{
-		if (empty($this->annotationReader)) {
-			$this->annotationReader = new SimpleAnnotationReader();
-			$this->annotationReader->addNamespace('Supra\Database\Annotation');
-		}
-
-		return $this->annotationReader;
-	}
-
-	/**
 	 * * @param LoadClassMetadataEventArgs $eventArgs
 	 */
 	public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs)
@@ -63,20 +50,23 @@ class DetachedDiscriminatorHandler implements EventSubscriber
 		$reader = $this->getAnnotationReader();
 		
 		$annotation = $reader->getClassAnnotation($reflection, DetachedDiscriminatorValue::CN());
-		if ( ! empty($annotation)) {
+
+		if ($annotation instanceof DetachedDiscriminatorValue) {
 			$this->handleDetachedDisciminatorValue($eventArgs, $annotation);
 		} 
 
 		$annotation = $reader->getClassAnnotation($reflection, DetachedDiscriminators::CN());
-		if ( ! empty($annotation)) {
+
+		if ($annotation instanceof DetachedDiscriminators) {
 			$this->handleDetachedDiscriminators($eventArgs);
 		} 
 	}
 
 	/**
 	 * @param LoadClassMetadataEventArgs $eventArgs
+	 * @param DetachedDiscriminatorValue $annotation
 	 */
-	protected function handleDetachedDisciminatorValue(LoadClassMetadataEventArgs $eventArgs, $annotation)
+	protected function handleDetachedDisciminatorValue(LoadClassMetadataEventArgs $eventArgs, DetachedDiscriminatorValue $annotation)
 	{
 		$classMetadata = $eventArgs->getClassMetadata();
 		/* @var $classMetadata ClassMetadataInfo */
@@ -87,7 +77,7 @@ class DetachedDiscriminatorHandler implements EventSubscriber
 
 		$em = $eventArgs->getEntityManager();
 
-		$f = $em->getMetadataFactory();
+		$factory = $em->getMetadataFactory();
 
 		foreach ($classMetadata->parentClasses as $parentClass) {
 
@@ -98,11 +88,8 @@ class DetachedDiscriminatorHandler implements EventSubscriber
 			
 			$this->discriminatorMaps[$parentMetadata->name] = $parentMetadata->discriminatorMap;
 
-			$id = $parentClass . '$CLASSMETADATA';
-			$f->getCacheDriver()->save($id, $parentMetadata);
+			$factory->getCacheDriver()->save($parentClass . '$CLASSMETADATA', $parentMetadata);
 		}
-
-		
 	}
 
 	/**
@@ -125,11 +112,24 @@ class DetachedDiscriminatorHandler implements EventSubscriber
 		$this->ignoreDetachedDiscriminators = false;
 		
 		$classMetadata = $eventArgs->getClassMetadata();
+		/* @var $classMetadata ClassMetadataInfo */
 		
 		if (isset($this->discriminatorMaps[$classMetadata->name])) {	
 			$localDiscriminatorMap = $this->discriminatorMaps[$classMetadata->name];
 			$classMetadata->setDiscriminatorMap($localDiscriminatorMap);
 		}
 	}
-	
+
+	/**
+	 * @return SimpleAnnotationReader
+	 */
+	protected function getAnnotationReader()
+	{
+		if ($this->annotationReader === null) {
+			$this->annotationReader = new SimpleAnnotationReader();
+			$this->annotationReader->addNamespace('Supra\Core\Doctrine\Annotation');
+		}
+
+		return $this->annotationReader;
+	}
 }

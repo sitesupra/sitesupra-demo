@@ -45,6 +45,7 @@ class PageLocalizationLevelOrganizer extends AbstractResultOrganizer
 
         // prepares array $path => $localization
 		foreach ($results as $localization) {
+			/* @var $localization \Supra\Package\Cms\Entity\PageLocalization */
 
 			$path = $localization->getPathEntity();
 

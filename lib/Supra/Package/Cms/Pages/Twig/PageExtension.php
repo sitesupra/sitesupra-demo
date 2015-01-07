@@ -34,8 +34,21 @@ class PageExtension extends \Twig_Extension
 	public function getFunctions()
 	{
 		return array(
-			// @TODO: collection()
-			// @TODO: set()
+			new \Twig_SimpleFunction('collection', null, array(
+						'node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyListNode',
+						'is_safe' => array('html')
+				)
+			),
+			new \Twig_SimpleFunction('list', null, array(
+						'node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyListNode',
+						'is_safe' => array('html')
+				)
+			),
+			new \Twig_SimpleFunction('set', null, array(
+					'node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertySetNode',
+					'is_safe' => array('html')
+				)
+			),
 			new \Twig_SimpleFunction('property', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyNode', 'is_safe' => array('html'))),
 			new \Twig_SimpleFunction('isPropertyEmpty', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\BlockPropertyValueTestNode', 'is_safe' => array('html'))),
 			new \Twig_SimpleFunction('placeHolder', null, array('node_class' => 'Supra\Package\Cms\Pages\Twig\PlaceHolderNode', 'is_safe' => array('html'))),

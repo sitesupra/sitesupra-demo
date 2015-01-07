@@ -301,6 +301,11 @@ routes:
         controller:                     Cms:Recycle:loadPages
         options:
             frontend:                   true
+    recycle_templates_load:
+            pattern:                        %cms.prefix%/recycle/templates/load
+            controller:                     Cms:Recycle:loadTemplates
+            options:
+                frontend:                   true
     recycle_pages_restore:
         pattern:                        %cms.prefix%/recycle/pages/restore
         controller:                     Cms:Recycle:restore
