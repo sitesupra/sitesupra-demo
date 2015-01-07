@@ -2,7 +2,7 @@
 
 namespace Supra\Package\Cms\Entity\Blog;
 
-use Supra\User\Entity\User;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Supra\Package\Cms\Entity\Abstraction\Entity;
 
 /**
@@ -14,10 +14,10 @@ use Supra\Package\Cms\Entity\Abstraction\Entity;
 class BlogApplicationUser extends Entity
 {
 	/**
-	 * @Column(type="supraId20")
+	 * @Column(type="string")
 	 * @var string 
 	 */
-	protected $supraUserId;
+	protected $userId;
 	
 	/**
 	 * @Column(type="string", nullable=true)
@@ -38,24 +38,22 @@ class BlogApplicationUser extends Entity
 	protected $avatar;
 	
 	/**
-	 * @param string $name
+	 * @param UserInterface $user
 	 */
-	public function __construct(User $supraUser)
+	public function __construct(UserInterface $user)
 	{
 		parent::__construct();
-		
-		$this->supraUserId = $supraUser->getId();
-		$this->name = $supraUser->getName();
-		
-		$this->avatar = $supraUser->getGravatarUrl();
+
+		$this->userId = $user->getUsername();
+		$this->name = $user->getUsername();
 	}
-	
+
 	/**
 	 * @return string
 	 */
-	public function getSupraUserId()
+	public function getUserId()
 	{
-		return $this->supraUserId;
+		return $this->userId;
 	}
 	
 	/**
@@ -93,7 +91,6 @@ class BlogApplicationUser extends Entity
 	}
 	
 	/**
-	 *
 	 * @return string
 	 */
 	public function getAvatar()
@@ -102,7 +99,6 @@ class BlogApplicationUser extends Entity
 	}
 	
 	/**
-	 *
 	 * @param string $avatar
 	 */
 	public function setAvatar($avatar)

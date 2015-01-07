@@ -1,6 +1,6 @@
 <?php
 
-namespace Supra\Database\Annotation;
+namespace Supra\Core\Doctrine\Annotation;
 
 use Doctrine\Common\Annotations;
 
@@ -8,12 +8,13 @@ use Doctrine\Common\Annotations;
  * @Annotations\Annotation
  * @Annotations\Annotation\Target({"CLASS"})
  */
-class DetachedDiscriminators
+class DetachedDiscriminatorValue
 {
+	public $value;
 
 	public static function CN()
 	{
 		return get_called_class();
 	}
-
 }
+
