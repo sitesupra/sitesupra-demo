@@ -2,25 +2,19 @@
 
 namespace Supra\Package\Cms\Pages\Response;
 
-use Supra\Validator\FilteredInput;
-use Supra\Html\HtmlTag;
+use Supra\Package\Cms\Html\HtmlTag;
 
-class ResponseContext extends FilteredInput
+class ResponseContext extends \ArrayIterator
 {
 	/**
 	 * @var array
 	 */
 	protected $layoutSnippetResponses = array();
 
-	public function __construct($iterator = array())
-	{
-		parent::__construct($iterator);
-		$this->layoutSnippetResponses = array();
-	}
-
 	/**
 	 * @param string $key
 	 * @param mixed $value
+	 * @return ResponseContext
 	 */
 	public function setValue($key, $value)
 	{
@@ -30,9 +24,9 @@ class ResponseContext extends FilteredInput
 	}
 
 	/**
-	 *
 	 * @param string $key
 	 * @param mixed $defaultValue
+	 * @return mixed
 	 */
 	public function getValue($key, $defaultValue = null)
 	{
@@ -42,8 +36,6 @@ class ResponseContext extends FilteredInput
 
 		return $this[$key];
 	}
-
-
 
 	/**
 	 * @return array
@@ -55,7 +47,8 @@ class ResponseContext extends FilteredInput
 
 	/**
 	 * @param string $key
-	 * @param TwigResponse | string $value
+	 * @param mixed $snippet
+	 * @return ResponseContext
 	 */
 	public function addToLayoutSnippet($key, $snippet)
 	{
@@ -67,7 +60,7 @@ class ResponseContext extends FilteredInput
 			$this->layoutSnippetResponses[$key] = array();
 		}
 
-		if ( ! isset($this->layoutSnippetResponses[$key][$hash])) {
+		if (! isset($this->layoutSnippetResponses[$key][$hash])) {
 			$this->layoutSnippetResponses[$key][$hash] = $snippet;
 		}
 
@@ -82,11 +75,17 @@ class ResponseContext extends FilteredInput
 	{
 		if (isset($this->layoutSnippetResponses[$key])) {
 			return implode('', $this->layoutSnippetResponses[$key]);
-		} else {
-			return '';
 		}
+
+		return '';
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $js
+	 * @param string $type
+	 * @return ResponseContext
+	 */
 	public function addJsToLayoutSnippet($key, $js, $type = 'text/javascript')
 	{
 		$js = (string) $js;
@@ -99,6 +98,12 @@ class ResponseContext extends FilteredInput
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $url
+	 * @param string $type
+	 * @return ResponseContext
+	 */
 	public function addJsUrlToLayoutSnippet($key, $url, $type = 'text/javascript')
 	{
 		$scriptTag = new HtmlTag('script', '');
@@ -110,6 +115,11 @@ class ResponseContext extends FilteredInput
 		return $this;
 	}
 
+	/**
+	 * @param string $key
+	 * @param string $url
+	 * @return ResponseContext
+	 */
 	public function addCssLinkToLayoutSnippet($key, $url)
 	{
 		$linkTag = new HtmlTag('link');
@@ -138,5 +148,83 @@ class ResponseContext extends FilteredInput
 				$mainContext->addToLayoutSnippet($key, $snippet);
 			}
 		}
+	}
+
+	/**
+	 * Whether the value key exists.
+	 *
+	 * @param mixed $index
+	 * @return boolean
+	 */
+	public function has($index)
+	{
+		return $this->offsetExists($index);
+	}
+
+	/**
+	 * @param mixed $index
+	 * @param string $default
+	 * @return mixed
+	 *
+	 * @throws \RuntimeException
+	 */
+	public function get($index, $default = null)
+	{
+		if ($this->has($index)) {
+			return $this->offsetGet($index);
+		} elseif (! (func_num_args() > 1)) {
+			throw new \RuntimeException('No such offset.');
+		}
+
+		return $default;
+	}
+
+	/**
+	 * Loads next value in scalar value input and advances the iterator pointer.
+	 * @return mixed
+	 * @throws \OutOfBoundsException
+	 */
+	public function getNext()
+	{
+		if (! $this->valid()) {
+			throw new \OutOfBoundsException('End of iterator reached.');
+		}
+
+		$value = $this->get($this->key());
+
+		$this->next();
+
+		return $value;
+	}
+
+	/**
+	 * If the next value is scalar
+	 * @return bool
+	 */
+	public function hasNext()
+	{
+		return $this->has($this->key());
+	}
+
+	/**
+	 * Whether the value in the index is empty.
+	 * "0" is treated empty only if $strict is off.
+	 *
+	 * @param string $index
+	 * @param bool $strict
+	 * @return bool
+	 */
+	public function isEmpty($index, $strict = true)
+	{
+		$value = $this->get($index, null);
+		$empty = null;
+
+		if ($strict) {
+			$empty = ($value == '');
+		} else {
+			$empty = empty($value);
+		}
+
+		return $empty;
 	}
 }

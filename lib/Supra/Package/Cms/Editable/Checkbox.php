@@ -2,12 +2,6 @@
 
 namespace Supra\Package\Cms\Editable;
 
-use Supra\Validator\FilteredInput;
-use Supra\Validator\Type\AbstractType;
-
-/**
- * Checkbox with configurable Yes/No titles
- */
 class Checkbox extends Editable
 {
 	private $yesLabel = '{#buttons.yes#}';
@@ -61,28 +55,5 @@ class Checkbox extends Editable
 		);
 
 		return $output;
-	}
-	
-	/**
-	 * Validates and sanitizes the content
-	 * @param mixed $content
-	 */
-	public function setContent($content)
-	{
-		$content = FilteredInput::validate($content, AbstractType::BOOLEAN);
-		
-		parent::setContent($content);
-	}
-	
-	/**
-	 * Validates and sanitizes the content
-	 * @return boolean
-	 */
-	public function getContent()
-	{
-		$content = parent::getContent();
-		$content = FilteredInput::validate($content, AbstractType::BOOLEAN);
-		
-		return (string)$content;
 	}
 }
