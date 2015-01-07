@@ -2,39 +2,28 @@
 
 namespace Supra\Package\Cms\Controller;
 
-use Supra\Core\Cache\DoctrineCacheWrapper;
-use Supra\Package\Cms\Entity\EditLock;
+use Supra\Package\Cms\Pages\Application\PageApplicationManager;
+use Supra\Package\Cms\Repository\PageRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Exception\MethodNotAllowedException;
-use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\NestedSet\Node\EntityNodeInterface;
-use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
-use Supra\Package\Cms\Entity\Abstraction\Entity as AbstractEntity;
+use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Entity\EditLock;
 use Supra\Package\Cms\Entity;
 use Supra\Package\Cms\Entity\Abstraction\AbstractPage;
 use Supra\Package\Cms\Entity\Abstraction\Localization;
-use Supra\Package\Cms\Entity\Abstraction\Block;
-use Supra\Package\Cms\Entity\PageRevisionData;
 use Supra\Package\Cms\Entity\Page;
 use Supra\Package\Cms\Entity\GroupPage;
-use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\ApplicationLocalization;
+use Supra\Package\Cms\Exception\CmsException;
+use Supra\Package\Cms\Pages\Application\PageApplicationInterface;
 use Supra\Package\Cms\Pages\Exception\ObjectLockedException;
-use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Layout\Theme\ThemeInterface;
 use Supra\Package\Cms\Pages\Request\PageRequestEdit;
-use Supra\Package\Cms\Entity\BlockProperty;
-use Supra\Package\Cms\Exception\CmsException;
-use Supra\Package\Cms\Pages\BlockController;
-use Supra\Package\Cms\Uri\Path;
 use Supra\Package\Cms\Pages\Editable\Transformer;
-use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 
-/**
- * Controller containing common methods
- */
 abstract class AbstractPagesController extends AbstractCmsController
 {
 	protected $application = 'content-manager';
@@ -84,12 +73,13 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * @throws BadRequestException if request method is not POST
+	 * @throws MethodNotAllowedException if request method is not POST
 	 */
 	protected function isPostRequest()
 	{
 		if (! $this->container->getRequest()
 				->isMethod('post')) {
+
 			throw new MethodNotAllowedException(array('post'));
 		}
 	}
@@ -140,7 +130,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 * @TODO: rename to getLocalization();
 	 *
 	 * @return Localization
-	 * @throws ResourceNotFoundException
+	 * @throws CmsException
 	 */
 	protected function getPageLocalization()
 	{
@@ -159,7 +149,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 		/**
 		 * Set the system current locale if differs from 'locale' parameter received.
 		 * This is done for BACK button to work after navigating to page with different language.
-		 * NB! this change won't be saved in the currrent locale browser cookie storage.
+		 * NB! this change won't be saved in the current locale browser cookie storage.
 		 */
 		$expectedLocaleId = $this->pageData->getLocaleId();
 
@@ -235,18 +225,18 @@ abstract class AbstractPagesController extends AbstractCmsController
 	/**
 	 * Try loading localization by searching for received page/localization ID
 	 * @param string $key
-	 * @return Entity\Abstraction\Localization
+	 * @return Localization
 	 */
 	protected function getPageLocalizationByRequestKey($key)
 	{
 		$localization = $this->searchLocalizationByRequestKey($key);
 
-		if (is_null($localization)) {
+		if ($localization === null) {
+
 			$page = $this->searchPageByRequestKey($key);
 
-			if ( ! is_null($page)) {
-				$locale = $this->getLocale();
-				$localization = $page->getLocalization($locale);
+			if ($page !== null) {
+				return $page->getLocalization($this->getCurrentLocale()->getId());
 			}
 		}
 
@@ -254,41 +244,38 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Get first page localization ID to show in the CMS
-	 * @return Entity\Abstraction\Localization
+	 * Get first page localization ID to show in the CMS.
+	 *
+	 * @return Localization
 	 */
 	protected function getInitialPageLocalization()
 	{
-		$localeId = $this->getLocale()->getId();
 		$localization = null;
 
-		// Try cookie
-		if (isset($_COOKIE[self::INITIAL_PAGE_ID_COOKIE])) {
-			$pageLocalizationId = $_COOKIE[self::INITIAL_PAGE_ID_COOKIE];
-			$localization = $this->entityManager->find(Entity\Abstraction\Localization::CN(), $pageLocalizationId);
+		$cookieBag = $this->container->getRequest()->cookies;
+
+		if ($cookieBag->has(self::INITIAL_PAGE_ID_COOKIE)) {
+			$localization = $this->getEntityManager()->find(
+					Localization::CN(),
+					$cookieBag->get(self::INITIAL_PAGE_ID_COOKIE)
+			);
 		}
 
 		// Root page otherwise
-		if (empty($localization)) {
-			$page = null;
-			$pageDao = $this->entityManager->getRepository(Page::CN());
-			/* @var $pageDao PageRepository */
-			$pages = $pageDao->getRootNodes();
+		if ($localization === null) {
+			$pageRepository = $this->getEntityManager()
+				->getRepository(Page::CN());
+			/* @var $pageRepository PageRepository */
 
-			if (isset($pages[0])) {
-				$page = $pages[0];
-			}
+			$pages = $pageRepository->getRootNodes();
 
-			if ($page instanceof Entity\Abstraction\AbstractPage) {
-				$localization = $page->getLocalization($localeId);
+			if (! empty($pages)) {
+				/* @var $pages AbstractPage[] */
+				return $pages[0]->getLocalization($this->getCurrentLocale()->getId());
 			}
 		}
 
-		if (empty($localization)) {
-			return null;
-		}
-
-		return $localization;
+		return null;
 	}
 
 	/**
@@ -369,9 +356,12 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Checks, weither the page is locked by current user or not,
-	 * will throw an exception if no, and update lock modified time if yes
+	 * Checks, whether the page is locked by current user or not,
+	 * will throw an exception if no, and update lock modified time if yes.
+	 *
+	 * @param bool $createOnMiss
 	 * @throws ObjectLockedException if page is locked by another user
+	 * @return void
 	 */
 	protected function checkLock($createOnMiss = true)
 	{
@@ -380,7 +370,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 		$user = $this->getCurrentUser();
 
 		if (! $user) {
-			return null;
+			return;
 		}
 
 		$localization = $this->getPageLocalization();
@@ -409,7 +399,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 			}
 		} elseif ($createOnMiss) {
 
-			$entityManager = $this->getEntityManager();
+//			$entityManager = $this->getEntityManager();
 
 //			if ( ! $this->lockTransactionOpened) {
 //				$entityManager->beginTransaction();
@@ -542,7 +532,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 				foreach ($localizations as $_localization) {
 					/* @var $_localization Entity\Abstraction\Localization */
 					if (strcmp($_localization->getId(), $localization->getId()) < 0) {
-						$localeId = $_localization->getLocale();
+						$localeId = $_localization->getLocaleId();
 
 						if ($localeManager->hasLocale($localeId)) {
 							$localization = $_localization;
@@ -552,17 +542,17 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 				// collecting available localizations
 				foreach ($localizations as $_localization) {
-					$localeId = $_localization->getLocale();
+					$localeId = $_localization->getLocaleId();
 
 					if ($localeManager->hasLocale($localeId)) {
 
 						$data = array('title' => $_localization->getTitle());
 
-						if ($_localization instanceof Entity\PageLocalization) {
+						if ($_localization instanceof PageLocalization) {
 							$data['path'] = $_localization->getPathPart();
 						}
 
-						$array['localizations'][$_localization->getLocale()] = $data;
+						$array['localizations'][$_localization->getLocaleId()] = $data;
 					}
 				}
 			} else {
@@ -589,6 +579,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 	/**
 	 * Locks the nested set for entity.
+	 * @param EntityNodeInterface $entityNode
 	 */
 	protected function lockNestedSet(EntityNodeInterface $entityNode)
 	{
@@ -600,6 +591,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 	/**
 	 * Unlocks the nested set.
+	 * @param EntityNodeInterface $entityNode
 	 */
 	protected function unlockNestedSet(EntityNodeInterface $entityNode)
 	{
@@ -690,7 +682,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 	
 	/**
-	 * @return Supra\Package\Cms\Pages\Application\PageApplicationManager
+	 * @return PageApplicationManager
 	 */
 	protected function getPageApplicationManager()
 	{
@@ -932,10 +924,7 @@ abstract class AbstractPagesController extends AbstractCmsController
 	 */
 	protected function createPageRequest(Localization $localization = null)
 	{
-		$request = new PageRequestEdit(
-				Request::create(''),
-				$this->getMedia()
-		);
+		$request = new PageRequestEdit(Request::create(''), $this->getMedia());
 
 		$request->setContainer($this->container);
 
@@ -944,41 +933,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 		);
 
 		return $request;
-	}
-
-	/**
-	 * @TODO: Move to page content controller abstraction.
-	 *
-	 * @param Block $block
-	 * @param bool $withResponse
-	 * @return array
-	 */
-	protected function getBlockData(Block $block, $withResponse = false)
-	{
-		$blockController = $this->getBlockCollection()
-				->createController($block);
-
-		$pageRequest = $this->createPageRequest();
-
-		$blockController->prepare($pageRequest);
-
-		$blockData = array(
-			'id'			=> $block->getId(),
-			'type'			=> $blockController->getConfiguration()->getName(),
-			'closed'		=> false, //@fixme
-			'locked'		=> $block->isLocked(),
-			'properties'	=> $this->collectBlockPropertyData($blockController),
-			// @TODO: check if this still is used somewhere, remove if not.
-			'owner_id'		=> $block->getPlaceHolder()
-									->getLocalization()->getId()
-		);
-
-		if ($withResponse) {
-			$blockController->execute();
-			$blockData['html'] = (string) $blockController->getResponse();
-		}
-
-		return $blockData;
 	}
 
 	/**
@@ -1060,27 +1014,5 @@ abstract class AbstractPagesController extends AbstractCmsController
 
 			$localization->setTitle($title);
 		}
-	}
-
-	/**
-	 * @param BlockController $blockController
-	 * @return array
-	 */
-	private function collectBlockPropertyData(BlockController $blockController)
-	{
-		$propertyData = array();
-
-		$configuration = $blockController->getConfiguration();
-
-		foreach ($configuration->getProperties() as $config) {
-			$propertyData[$config->name] = array(
-				'value' => $blockController->getPropertyEditorValue(
-					$config->name,
-					$blockController
-				)
-			);
-		}
-
-		return $propertyData;
 	}
 }
