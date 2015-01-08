@@ -8,7 +8,6 @@ use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
-use Supra\Package\Cms\Pages\Html\ImageTag;
 use Supra\Package\Cms\Pages\Gallery\GalleryImage;
 
 class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAware
@@ -19,12 +18,17 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 	protected $container;
 
 	/**
-	 * @param mixed $content irrelevant here
-	 * @return HtmlTag[]
+	 * @var BlockProperty
+	 */
+	protected $blockProperty;
+
+	/**
+	 * {@inheritDoc}
+	 * @return \Supra\Package\Cms\Pages\Gallery\GalleryImage[]
 	 */
 	public function filter($content, array $options = array())
 	{
-		$tags = array();
+		$images = array();
 
 		$fileStorage = $this->container['cms.file_storage'];
 		/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
@@ -43,14 +47,11 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 			$image = $fileStorage->findImage($imageId);
 
 			if ($image) {
-
-				$tag = new GalleryImage($image, $fileStorage);
-
-				$tags[] = $tag;
+				$images[] = new GalleryImage($image, $fileStorage);;
 			}
 		}
 
-		return $tags;
+		return $images;
 	}
 
 	/**

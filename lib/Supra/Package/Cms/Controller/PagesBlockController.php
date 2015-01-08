@@ -83,7 +83,7 @@ class PagesBlockController extends AbstractPagesController
 
 			return array(
 				'id'		=> $property->name,
-				'type'		=> 'set',
+				'type'		=> 'Set',
 				'properties'	=> $setData,
 			);
 
@@ -91,7 +91,7 @@ class PagesBlockController extends AbstractPagesController
 
 			return array(
 				'id'			=> $property->name,
-				'type'			=> 'collection',
+				'type'			=> 'Collection',
 				'properties'	=> $this->getPropertyData($property->getListItem()),
 			);
 
