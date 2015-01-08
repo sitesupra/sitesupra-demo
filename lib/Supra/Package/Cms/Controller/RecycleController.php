@@ -48,15 +48,31 @@ class RecycleController extends AbstractPagesController
 		$localizationMeta = $this->container->getDoctrine()->getManager()->getClassMetadata($entityName);
 		/* @var $localizationMeta \Doctrine\ORM\Mapping\ClassMetadataInfo */
 
+		$abstractPageMeta = $this->container->getDoctrine()->getManager()->getClassMetadata('Cms:Abstraction\AbstractPage');
+		/* @var $abstractPageMeta \Doctrine\ORM\Mapping\ClassMetadataInfo */
+
 		$query = 'SELECT l.id, l.title, l.'.$auditConfiguration->getRevisionFieldName().', l.template_id, l.path_part, '.
 			'r.username, r.timestamp '.
 			'FROM '.$auditConfiguration->getTablePrefix().$localizationMeta->table['name'].$auditConfiguration->getTableSuffix().' l '.
 			'INNER JOIN '.$auditConfiguration->getRevisionTableName().' r '.
 			'ON r.id = l.'.$auditConfiguration->getRevisionFieldName().' '.
 			'WHERE l.'.$auditConfiguration->getRevisionTypeFieldName().' = ? '.
-				'AND l.locale = ?'
-				. 'AND l.discr = ?'
+				'AND l.locale = ?'.
+				'AND l.discr = ?'.
+				'AND NOT EXISTS ('.
+					'SELECT * FROM '.
+					$abstractPageMeta->table['name'].' ap '.
+					'WHERE ap.id = (SELECT master_id FROM '.
+						$auditConfiguration->getTablePrefix().$localizationMeta->table['name'].$auditConfiguration->getTableSuffix().' p '.
+						'WHERE p.'.$auditConfiguration->getRevisionFieldName().' < l.'.$auditConfiguration->getRevisionFieldName().' '.
+							'AND p.id = l.id '.
+						'ORDER BY p.'.$auditConfiguration->getRevisionFieldName().' DESC '.
+						'LIMIT 1'.
+					')'.
+				')'
 		;
+
+		print $query;
 
 		$params = array(
 			'DEL',

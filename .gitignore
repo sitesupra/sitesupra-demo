@@ -13,6 +13,7 @@ vendor/
 composer.lock
 
 supra/config.yml
+src/conf
 storage/files
 storage/cache
 storage/log
