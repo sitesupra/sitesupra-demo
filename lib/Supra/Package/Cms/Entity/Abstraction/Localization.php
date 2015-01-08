@@ -74,19 +74,19 @@ abstract class Localization extends Entity implements LocalizationInterface
 	protected $lock;
 
 	/**
-	 * Left here just because cascade in remove
-	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\BlockProperty", mappedBy="localization", cascade={"persist", "remove"}, fetch="LAZY")
-	 * @var Collection
-	 */
-	protected $blockProperties;
-
-	/**
 	 * Object's place holders. Doctrine requires this to be defined because
 	 * owning side references to this class with inversedBy parameter
 	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\Abstraction\PlaceHolder", mappedBy="localization", cascade={"persist", "remove"}, indexBy="name")
 	 * @var Collection
 	 */
 	protected $placeHolders;
+
+	/**
+	 * Left here just because cascade in remove
+	 * @OneToMany(targetEntity="Supra\Package\Cms\Entity\BlockProperty", mappedBy="localization", cascade={"persist", "remove"}, fetch="LAZY")
+	 * @var Collection
+	 */
+	protected $blockProperties;
 
 	/**
 	 * Flag for hiding page from sitemap.
