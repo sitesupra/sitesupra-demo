@@ -48,7 +48,7 @@ class PageRequestView extends PageRequest
 	 */
 	protected function detectRequestPageLocalization()
 	{
-		$pathString = $this->attributes->get('path');
+		$pathString = trim($this->attributes->get('path'), '/');
 
 		$entityManager = $this->getEntityManager();
 
