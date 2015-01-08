@@ -24,7 +24,7 @@ class EditableHtmlFilter extends HtmlFilter
 		return sprintf(
 					$wrap,
 					$this->blockProperty->getBlock()->getId(),
-					$this->blockProperty->getName(),
+					str_replace('.', '_', $this->blockProperty->getHierarchicalName()),
 					parent::filter($content)
 		);
 	}
