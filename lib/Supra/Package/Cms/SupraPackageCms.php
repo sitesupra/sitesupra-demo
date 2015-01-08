@@ -79,7 +79,9 @@ class SupraPackageCms extends AbstractSupraPackage
 			$frameworkConfiguration['doctrine']['event_managers']['public'],
 			array(
 				'subscribers' => array(
-					'supra.cms.file_storage.event_subscriber.file_path_change_listener'
+					'supra.cms.file_storage.event_subscriber.file_path_change_listener',
+					'supra.cms.pages.event_subscriber.page_path_generator',
+					'supra.cms.pages.event_subscriber.image_size_creator_listener',
 				)
 			)
 		);
