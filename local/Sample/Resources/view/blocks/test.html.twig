@@ -1,4 +1,20 @@
+List 1:
+<ul>
+    {% for item in collection(property('name', {'name': 'inline_string', 'label': 'Name'})) %}
+        <li>{{ item | raw }}</li>
+    {% endfor %}
+</ul>
+
+List 2:
+<div>
+    {% for item in collection(property('color', {'name': 'inline_string', 'label': 'Color'})) %}
+        {{ item | raw }}<br />
+    {% endfor %}
+</div>
+
+
 {# *** Plain set, loop through *** #}
+{#
 {% for item in set(
         property('plainSetItem1', 'inline_string'),
         property('plainSetItem2', 'inline_string')) %}
@@ -6,9 +22,10 @@
     {{ item | raw }}
 
 {% endfor %}
-
+#}
 
 {# *** Plain set, direct access *** #}
+{#
 {% set propertySet = set(
 property('fooBar', 'inline_string'),
 property('fooBar2', 'inline_string'),
@@ -17,9 +34,11 @@ property('fooBar3', 'inline_string')) %}
 {{ propertySet.fooBar | raw }}
 {{ propertySet.fooBar2 | raw }}
 {{ propertySet.fooBar3 | raw }}
+#}
 
 
 {# *** Set with a subset *** #}
+{#
 {% for item in set(
     set(
         property('foo', 'inline_string'),
@@ -39,15 +58,19 @@ property('fooBar3', 'inline_string')) %}
     {% endif %}
 
 {% endfor %}
+#}
 
 
 {# *** Plain collection  *** #}
+{#
 {% for item in collection(property('image', 'image')) %}
     {{ item | raw }}
 {% endfor %}
+#}
 
 
 {# *** Collection of sets *** #}
+{#
 {% for tab in collection(set(
         property('title', 'inline_string'),
         property('content', 'inline_text')
@@ -57,9 +80,11 @@ property('fooBar3', 'inline_string')) %}
     <p>{{ tab.content | raw }}</p>
 
 {% endfor %}
+#}
 
 
 {# *** Set of collections *** #}
+{#
 {% set portfolio = set(
     collection('web',       property('image', 'image')),
     collection('apps',      property('image', 'image')),
@@ -80,6 +105,7 @@ property('fooBar3', 'inline_string')) %}
 {% for image in portfolio.branding %}
     {{ image }}
 {% endfor %}
+#}
 
 
 {# ========================================================
@@ -109,4 +135,68 @@ property('fooBar3', 'inline_string')) %}
     <h3>{{ tab.title }}</h3>
     <div class="text">{{ tab.content }}</div>
 {% endfor %}
+#}
+
+
+{# Twig source #}
+{#
+<ul>
+    {% for item in collection('listofimages', property('image', 'image')) %}
+        <li>{{ item | raw }}</li>
+    {% endfor %}
+    
+    {% collectionTemplate 'listofimages' %}
+        <li>{{ property('image') }}</li>
+    {% endCollectionTemplate %}
+</ul>
+#}
+
+{# Html result #}
+{#
+<ul>
+    <li><img src="..." alt="" /></li>
+    
+    <script type="text/supra-template" data-id="listofimages">
+        <li>{{ property('image') }}</li>
+    </script>
+</ul>
+#}
+
+
+
+{# Nested collections #}
+
+{# Twig source #}
+
+{#
+{% set items = collection('listofitems', set(
+    property('title', 'inline_string'),
+    collection('listofimages', property('image', 'image'))
+)) %}
+
+<ul>
+    {% for item in items %}
+        <li>
+            <h2>{{ item.title|raw }}</h2>
+            <ul>
+                {% for image in item.images %}
+                    <li>{{ image | raw }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    {% endfor %}
+    
+    {% collectionTemplate 'listofitems' %}
+        <li>
+            <h2>{{ property('title') }}</h2>
+            <ul>
+                {{ property('listofimages') }}
+            </ul>
+        </li>
+    {% endCollectionTemplate %}
+    
+    {% collectionTemplate 'listofitems.listofimages' %}
+        <li>{{ property('image') }}</li>
+    {% endCollectionTemplate %}
+</ul>
 #}
