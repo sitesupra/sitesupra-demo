@@ -15,6 +15,7 @@ class EditableInlineStringFilter implements FilterInterface, BlockPropertyAware
 
 	/**
 	 * @param string $content
+	 * @param array $options
 	 * @return string
 	 */
 	public function filter($content, array $options = array())

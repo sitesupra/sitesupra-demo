@@ -3,7 +3,7 @@
 namespace Supra\Package\Cms\Pages\Editable\Filter;
 
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
-use Supra\Package\Cms\Html\HtmlTagAbstraction;
+use Supra\Package\Cms\Html\HtmlTag;
 
 /**
  * Filters the value to enable Html editing for CMS
@@ -13,7 +13,8 @@ class EditableHtmlFilter extends HtmlFilter
 	/**
 	 * Filters the editable content's data, adds Html Div node for CMS.
 	 *
-	 * @params string $content
+	 * @param string $content
+	 * @param array $options
 	 * @return string
 	 */
 	public function filter($content, array $options = array())
@@ -40,7 +41,7 @@ class EditableHtmlFilter extends HtmlFilter
 			return null;
 		}
 
-		if (! $tag instanceof HtmlTagAbstraction) {
+		if (! $tag instanceof HtmlTag) {
 			throw new \UnexpectedValueException(sprintf(
 					'Expecting HtmlTagAbstraction, [%s] recevied.',
 					get_class($tag)
