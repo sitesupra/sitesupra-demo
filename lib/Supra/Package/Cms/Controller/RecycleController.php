@@ -205,101 +205,101 @@ class RecycleController extends AbstractPagesController
 			}
 		}
 
-		return new SupraJsonResponse(true);
+		return new SupraJsonResponse($this->convertPageToArray($page, $this->getCurrentLocale()->getId()));
 
-		// We need it so later we can mark it as restored
-		$pageRevisionData = $draftEm->getRepository(PageRevisionData::CN())
-			->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'id' => $revisionId));
-
-		if ( ! ($pageRevisionData instanceof PageRevisionData)) {
-			throw new CmsException(null, 'Page revision data not found');
-		}
-
-		$masterId = $auditEm->createQuery("SELECT l.master FROM page:Abstraction\Localization l
-				WHERE l.id = :id AND l.revision = :revision")
-			->execute(
-				array('id' => $localizationId, 'revision' => $revisionId), ColumnHydrator::HYDRATOR_ID);
-
-		$page = null;
-
-		try {
-			$page = $auditEm->getRepository(AbstractPage::CN())
-				->findOneBy(array('id' => $masterId, 'revision' => $revisionId));
-		} catch (MissingResourceOnRestore $missingResource) {
-			$missingResourceName = $missingResource->getMissingResourceName();
-			throw new CmsException(null, "Wasn't able to load the page from the history because linked resource {$missingResourceName} is not available anymore.");
-		}
-
-		if (empty($page)) {
-			throw new CmsException(null, "Cannot find the page");
-		}
-
-		$localeId = $this->getLocale()->getId();
-		$media = $this->getMedia();
-
-		$pageLocalization = $page->getLocalization($localeId);
-
-		if (is_null($pageLocalization)) {
-			throw new CmsException(null, 'This page has no localization for current locale');
-		}
-
-		$request = new HistoryPageRequestEdit($localeId, $media);
-		$request->setDoctrineEntityManager($draftEm);
-		$request->setPageLocalization($pageLocalization);
-
-		$draftEventManager = $draftEm->getEventManager();
-		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
-
-		$parent = $this->getPageByRequestKey('parent_id');
-		$reference = $this->getPageByRequestKey('reference');
-
-		// Did not allowed to restore root page. Ask Aigars for details
-//		if (is_null($parent) && $page instanceof Page) {
-//			throw new CmsException('sitemap.error.parent_page_not_found');
+//		// We need it so later we can mark it as restored
+//		$pageRevisionData = $draftEm->getRepository(PageRevisionData::CN())
+//			->findOneBy(array('type' => PageRevisionData::TYPE_TRASH, 'id' => $revisionId));
+//
+//		if ( ! ($pageRevisionData instanceof PageRevisionData)) {
+//			throw new CmsException(null, 'Page revision data not found');
 //		}
-
-		$draftEm->beginTransaction();
-		try {
-			$request->restorePage();
-
-			// Read from the draft now
-			$page = $draftEm->find(AbstractPage::CN(), $page->getId());
-
-			/* @var $page AbstractPage */
-
-			try {
-				if ( ! is_null($reference)) {
-					$page->moveAsPrevSiblingOf($reference);
-				} elseif ( ! is_null($parent)) {
-					$parent->addChild($page);
-				}
-			} catch (DuplicatePagePathException $uniqueException) {
-
-				$this->getConfirmation('{#sitemap.confirmation.duplicate_path#}');
-
-				$localizations = $page->getLocalizations();
-				foreach ($localizations as $localization) {
-					$pathPart = $localization->getPathPart();
-
-					// some bad solution
-					$localization->setPathPart($pathPart . '-' . time());
-				}
-
-				if ( ! is_null($reference)) {
-					$page->moveAsPrevSiblingOf($reference);
-				} elseif ( ! is_null($parent)) {
-					$parent->addChild($page);
-				}
-			}
-
-			$pageRevisionData->setType(PageRevisionData::TYPE_RESTORED);
-			$draftEm->flush();
-
-			$localization = $page->getLocalization($localeId);
-			$this->pageData = $localization;
-		} catch (\Exception $e) {
-			$draftEm->rollback();
-			throw $e;
-		}
+//
+//		$masterId = $auditEm->createQuery("SELECT l.master FROM page:Abstraction\Localization l
+//				WHERE l.id = :id AND l.revision = :revision")
+//			->execute(
+//				array('id' => $localizationId, 'revision' => $revisionId), ColumnHydrator::HYDRATOR_ID);
+//
+//		$page = null;
+//
+//		try {
+//			$page = $auditEm->getRepository(AbstractPage::CN())
+//				->findOneBy(array('id' => $masterId, 'revision' => $revisionId));
+//		} catch (MissingResourceOnRestore $missingResource) {
+//			$missingResourceName = $missingResource->getMissingResourceName();
+//			throw new CmsException(null, "Wasn't able to load the page from the history because linked resource {$missingResourceName} is not available anymore.");
+//		}
+//
+//		if (empty($page)) {
+//			throw new CmsException(null, "Cannot find the page");
+//		}
+//
+//		$localeId = $this->getLocale()->getId();
+//		$media = $this->getMedia();
+//
+//		$pageLocalization = $page->getLocalization($localeId);
+//
+//		if (is_null($pageLocalization)) {
+//			throw new CmsException(null, 'This page has no localization for current locale');
+//		}
+//
+//		$request = new HistoryPageRequestEdit($localeId, $media);
+//		$request->setDoctrineEntityManager($draftEm);
+//		$request->setPageLocalization($pageLocalization);
+//
+//		$draftEventManager = $draftEm->getEventManager();
+//		$draftEventManager->dispatchEvent(AuditEvents::pagePreRestoreEvent);
+//
+//		$parent = $this->getPageByRequestKey('parent_id');
+//		$reference = $this->getPageByRequestKey('reference');
+//
+//		// Did not allowed to restore root page. Ask Aigars for details
+////		if (is_null($parent) && $page instanceof Page) {
+////			throw new CmsException('sitemap.error.parent_page_not_found');
+////		}
+//
+//		$draftEm->beginTransaction();
+//		try {
+//			$request->restorePage();
+//
+//			// Read from the draft now
+//			$page = $draftEm->find(AbstractPage::CN(), $page->getId());
+//
+//			/* @var $page AbstractPage */
+//
+//			try {
+//				if ( ! is_null($reference)) {
+//					$page->moveAsPrevSiblingOf($reference);
+//				} elseif ( ! is_null($parent)) {
+//					$parent->addChild($page);
+//				}
+//			} catch (DuplicatePagePathException $uniqueException) {
+//
+//				$this->getConfirmation('{#sitemap.confirmation.duplicate_path#}');
+//
+//				$localizations = $page->getLocalizations();
+//				foreach ($localizations as $localization) {
+//					$pathPart = $localization->getPathPart();
+//
+//					// some bad solution
+//					$localization->setPathPart($pathPart . '-' . time());
+//				}
+//
+//				if ( ! is_null($reference)) {
+//					$page->moveAsPrevSiblingOf($reference);
+//				} elseif ( ! is_null($parent)) {
+//					$parent->addChild($page);
+//				}
+//			}
+//
+//			$pageRevisionData->setType(PageRevisionData::TYPE_RESTORED);
+//			$draftEm->flush();
+//
+//			$localization = $page->getLocalization($localeId);
+//			$this->pageData = $localization;
+//		} catch (\Exception $e) {
+//			$draftEm->rollback();
+//			throw $e;
+//		}
 	}
 }

@@ -4,6 +4,7 @@ namespace Supra\Package\Cms\Controller;
 
 use Doctrine\ORM\EntityManager;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
+use Supra\Package\Cms\Entity\PageLocalization;
 use Supra\Package\Cms\Entity\TemplateLayout;
 use Supra\Package\Cms\Exception\CmsException;
 use Supra\Package\Cms\Entity\Template;
@@ -195,6 +196,32 @@ class PagesTemplateController extends AbstractPagesController
 	}
 
 	/**
+	 * Template delete action.
+	 *
+	 * @return SupraJsonResponse
+	 */
+	public function deleteAction()
+	{
+		$page = $this->getPageLocalization()
+				->getMaster();
+
+		$entityManager = $this->getEntityManager();
+
+		$count = (int) $entityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.template = ?0', PageLocalization::CN()))
+				->setParameters(array($page->getId()))
+				->getSingleScalarResult();
+
+		if ($count > 0) {
+			throw new CmsException(null, "Cannot remove template, {$count} page(s) still uses it.");
+		}
+
+		$entityManager->remove($page);
+		$entityManager->flush();
+
+		return new SupraJsonResponse();
+	}
+
+	/**
 	 * Settings save action handler.
 	 * Initiated when template title is changed via Sitemap.
 	 *
@@ -328,5 +355,22 @@ class PagesTemplateController extends AbstractPagesController
 		return new SupraJsonResponse(
 			$this->convertPageToArray($copiedTemplate, $this->getCurrentLocale()->getId())
 		);
+	}
+
+	/**
+	 * @return TemplateLocalization
+	 */
+	protected function getPageLocalization()
+	{
+		$localization = parent::getPageLocalization();
+
+		if (! $localization instanceof TemplateLocalization) {
+			throw new \UnexpectedValueException(sprintf(
+				'Expecting TemplateLocalization, [%s] received.',
+				get_class($localization)
+			));
+		}
+
+		return $localization;
 	}
 }

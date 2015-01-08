@@ -102,6 +102,11 @@ routes:
         controller:					Cms:PagesTemplate:create
         options:
             frontend:       true
+    cms_pages_template_delete:
+            pattern:					%cms.prefix%/content-manager/template/delete
+            controller:					Cms:PagesTemplate:delete
+            options:
+                frontend:               true
     cms_pages_template_copy:
         pattern:						%cms.prefix%/content-manager/template/copy
         controller:					Cms:PagesTemplate:copy
