@@ -72,8 +72,6 @@ class RecycleController extends AbstractPagesController
 				')'
 		;
 
-		print $query;
-
 		$params = array(
 			'DEL',
 			$locale->getId(),
