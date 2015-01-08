@@ -269,6 +269,7 @@ cms_resources:
         - public/cms/supra/build/input/media-inline.js
         - public/cms/supra/build/input/keywords.js
         - public/cms/supra/build/input/set.js
+        - public/cms/supra/build/input/collection.js
         - public/cms/supra/build/input/group.js
         - public/cms/supra/build/input/input.js
         - public/cms/supra/build/manager/action/plugin-form.js
