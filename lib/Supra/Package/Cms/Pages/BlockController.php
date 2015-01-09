@@ -305,8 +305,22 @@ abstract class BlockController extends Controller
 
 		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
 
-			if (! is_array($value)) {
-				throw new \UnexpectedValueException('Expecting property collection value to be array.');
+			if ($value !== '' && ! is_array($value)) {
+				throw new \UnexpectedValueException(sprintf(
+					'Expecting property collection value to be array or empty string, [%s] received.',
+					gettype($value)
+				));
+			}
+
+			if ($value === '') {
+				$collectionProperty = $this->getProperty($name);
+				foreach ($collectionProperty as $subProperty) {
+					$this->container->getDoctrine()
+						->getManager()
+						->remove($subProperty);
+				}
+
+				return;
 			}
 
 			foreach ($value as $subName => $subValue) {
