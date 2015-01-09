@@ -1,6 +1,6 @@
 List 1:
 <ul>
-    {% for item in collection(property('name', {'name': 'inline_string', 'label': 'Name'})) %}
+    {% for item in collection(property('name', {'name': 'string', 'label': 'Name'})) %}
         <li>{{ item | raw }}</li>
     {% endfor %}
 </ul>
