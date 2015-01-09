@@ -2,6 +2,12 @@
 
 namespace Supra\Package\Framework;
 
+use Assetic\AssetWriter;
+use Assetic\Extension\Twig\AsseticExtension;
+use Assetic\Factory\AssetFactory;
+use Assetic\Filter\CssRewriteFilter;
+use Assetic\Filter\LessphpFilter;
+use Assetic\FilterManager;
 use Doctrine\Common\EventManager;
 use Doctrine\DBAL\Connection;
 use Doctrine\DBAL\Driver\PDOMySql;
@@ -113,9 +119,19 @@ class SupraPackageFramework extends AbstractSupraPackage
 			};
 		}
 
-		//configure and register assetic
-		//$factory = new AssetFactory($container->getApplication()->getWebRoot());
-		//$container->getTemplating()->addExtension(new AsseticExtension($factory));
+//		// Setting up Assetic Twig extension
+//
+//		$filterManager = new FilterManager();
+//		$filterManager->set('less', new LessphpFilter());
+//		$filterManager->set('cssrewrite', new CssRewriteFilter());
+//
+//		$assetFactory = new AssetFactory($container->getApplication()->getWebRoot());
+//		$assetFactory->setFilterManager($filterManager);
+//
+//		$writer = new AssetWriter('/path/to/web');
+//		$writer->writeManagerAssets($am);
+//
+//		$container->getTemplating()->addExtension(new AsseticExtension($assetFactory));
 	}
 
 	public function finish(ContainerInterface $container)

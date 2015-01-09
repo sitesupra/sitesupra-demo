@@ -67,7 +67,7 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 		}
 
 		return $this->controller->getPropertyViewValue(
-				$this->collectionProperty->getName() . '.' . $name
+				$this->collectionProperty->getHierarchicalName() . '.' . $name
 		);
 	}
 	
@@ -76,9 +76,13 @@ class BlockPropertyCollectionValue implements \ArrayAccess, \Countable, \Iterato
 	 */
 	public function offsetExists($offset)
 	{
-		return $this->collectionProperty
-				->getProperties()
-				->offsetExists($offset);
+		foreach ($this->collectionProperty->getProperties() as $property) {
+			if ($property->getName() == $offset) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
