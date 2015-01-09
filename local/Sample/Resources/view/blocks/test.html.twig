@@ -1,6 +1,32 @@
-List 1:
+{% set people = collection(set(
+    property('firstname', {'name': 'string', 'label': 'First name'}),
+    property('lastname', {'name': 'string', 'label': 'Last name'})
+)) %}
+
 <ul>
-    {% for item in collection(property('name', {'name': 'string', 'label': 'Name'})) %}
+    {% for item in people %}
+        <li>
+            <b>First name:</b><br />
+            {{ item.firstname | raw }}<br /><br />
+            
+            <b>Last name:</b><br />
+            {{ item.lastname | raw }}<br /><br />
+            
+            {#
+            <b>Colors:</b>
+            <ul>
+                {% for color in item.colors %}
+                    <li>{{ loop.index }}: {{ color | raw }}</li>
+                {% endfor %}
+            </ul>
+            #}
+        </li>
+    {% endfor %}
+</ul>
+
+{#
+<ul>
+    {% for item in collection(property('name', {'name': 'inline_string', 'label': 'Name'})) %}
         <li>{{ item | raw }}</li>
     {% endfor %}
 </ul>
@@ -11,6 +37,7 @@ List 2:
         {{ item | raw }}<br />
     {% endfor %}
 </div>
+#}
 
 
 {# *** Plain set, loop through *** #}
