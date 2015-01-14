@@ -329,33 +329,6 @@ abstract class AbstractPagesController extends AbstractCmsController
 	}
 
 	/**
-	 * Page delete action
-	 */
-	protected function delete()
-	{
-		$page = $this->getPageLocalization()
-				->getMaster();
-
-		$entityManager = $this->getEntityManager();
-
-		if ($page instanceof Entity\Template) {
-
-			$count = (int) $entityManager->createQuery(sprintf('SELECT COUNT(p.id) FROM %s p WHERE p.template = ?0', PageLocalization::CN()))
-					->setParameters(array($page->getId()))
-					->getSingleScalarResult();
-
-			if ($count > 0) {
-				throw new CmsException(null, "Cannot remove template, [{$count}] pages still uses it.");
-			}
-		}
-
-		$entityManager->remove($page);
-		$entityManager->flush();
-
-		return new SupraJsonResponse();
-	}
-
-	/**
 	 * Checks, whether the page is locked by current user or not,
 	 * will throw an exception if no, and update lock modified time if yes.
 	 *

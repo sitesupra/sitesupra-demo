@@ -6,7 +6,6 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\UnitOfWork;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Events;
-use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\Common\EventSubscriber;
 use Supra\Core\NestedSet\Event\NestedSetEventArgs;
 use Supra\Core\NestedSet\Event\NestedSetEvents;
@@ -25,16 +24,6 @@ use Supra\Package\Cms\Pages\Application\PageApplicationManager;
  */
 class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 {
-//	/**
-//	 * Called after page structure changes
-//	 */
-//	const postPageMove = 'postPageMove';
-
-	/**
-	 * Called after page duplication
-	 */
-	const postPageClone = 'postPageClone';
-
 	/**
 	 * @var ContainerInterface
 	 */
@@ -51,18 +40,6 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 	private $unitOfWork;
 
 	/**
-	 * This class is used by path regeneration command as well
-	 * @param EntityManager $em
-	 */
-	public function __construct(EntityManager $em = null)
-	{
-		if ( ! is_null($em)) {
-			$this->em = $em;
-			$this->unitOfWork = $em->getUnitOfWork();
-		}
-	}
-
-	/**
 	 * {@inheritdoc}
 	 * @return array
 	 */
@@ -71,10 +48,12 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 		return array(
 			Events::onFlush,
 			NestedSetEvents::nestedSetPostMove,
-			self::postPageClone
 		);
 	}
 
+	/**
+	 * @param ContainerInterface $container
+	 */
 	public function setContainer(ContainerInterface $container)
 	{
 		$this->container = $container;
@@ -98,14 +77,7 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 		// Page path is not set from inserts, updates only
 		foreach ($this->unitOfWork->getScheduledEntityUpdates() as $entity) {
 			if ($entity instanceof PageLocalization) {
-
-				// Removed because news application needs to regenerate the path on creation time change
-//				$changeSet = $this->unitOfWork->getEntityChangeSet($entity);
-//
-//				// Run only if pathPart or page activity has changed. Run for all children.
-//				if (isset($changeSet['pathPart']) || isset($changeSet['active']) || isset($changeSet['limitedAccess']) || isset($changeSet['visibleInSitemap'])) {
-					$this->pageLocalizationChange($entity);
-//				}
+				$this->pageLocalizationChange($entity);
 			}
 
 			// this should be covered by the move trigger
@@ -134,27 +106,6 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 			}
 		}
 	}
-
-//	/**
-//	 * Finds Localizations without generated path, but with defined pathPart
-//	 * (happens when page is cloned, also is usable on page create action), and
-//	 * generates unique path.
-//	 *
-//	 * @param LifecycleEventArgs $eventArgs
-//	 */
-//	public function postPageClone(LifecycleEventArgs $eventArgs)
-//	{
-//		$entity = $eventArgs->getEntity();
-//		$this->em = $eventArgs->getEntityManager();
-//		$this->unitOfWork = $this->em->getUnitOfWork();
-//
-//		if ($entity instanceof PageLocalization) {
-//			$this->generatePath($entity, true);
-//		} else if ($entity instanceof Page) {
-//			// Run for all children, every locale
-//			$this->pageChange($entity, true);
-//		}
-//	}
 
 	/**
 	 * Called when page structure is changed
@@ -224,7 +175,7 @@ class PagePathGeneratorListener implements EventSubscriber, ContainerAware
 	 * @param PageLocalization $pageData
 	 * @return PageLocalization if changes were made
 	 */
-	public function generatePath(PageLocalization $pageData, $force = false)
+	protected function generatePath(PageLocalization $pageData, $force = false)
 	{
 		$page = $pageData->getMaster();
 

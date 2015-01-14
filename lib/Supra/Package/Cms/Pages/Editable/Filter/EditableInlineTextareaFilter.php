@@ -23,7 +23,7 @@ class EditableInlineTextareaFilter implements FilterInterface, BlockPropertyAwar
 		return sprintf(
 					$wrap,
 					$this->blockProperty->getBlock()->getId(),
-					$this->blockProperty->getName(),
+					str_replace('.', '_', $this->blockProperty->getHierarchicalName()),
 					$content
 		);
 	}

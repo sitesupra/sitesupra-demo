@@ -33,7 +33,7 @@ class PropertyListConfig extends AbstractPropertyConfig implements PropertyColle
 	 */
 	public function isMatchingProperty(BlockProperty $property)
 	{
-		return $property->getName() === $this->name;
+		return $property->getHierarchicalName() == $this->name;
 	}
 
 	/**

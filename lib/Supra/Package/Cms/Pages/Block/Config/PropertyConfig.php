@@ -60,10 +60,6 @@ class PropertyConfig extends AbstractPropertyConfig
 	 */
 	public function createProperty($name)
 	{
-		if ($this->parent instanceof PropertyListConfig) {
-			$name = (int) substr($name, strrpos($name, '.') + 1);
-		}
-
 		$property = new BlockProperty($name);
 		$property->setEditableClass(get_class($this->editable));
 

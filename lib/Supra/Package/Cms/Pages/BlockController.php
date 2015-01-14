@@ -197,8 +197,12 @@ abstract class BlockController extends Controller
 		$property = null;
 
 		foreach ($this->properties as $candidate) {
-			if ($propertyConfig->isMatchingProperty($candidate)
-					&& $name === $candidate->getHierarchicalName()) {
+
+//			$configMatches = $propertyConfig->isMatchingProperty($candidate);
+			$nameMatches = ($name == $candidate->getHierarchicalName());
+
+			// @TODO: dev
+			if ($nameMatches) {
 				
 				$property = $candidate;
 				break;
@@ -206,6 +210,17 @@ abstract class BlockController extends Controller
 		}
 
 		if ($property === null) {
+
+			$parentProperty = null;
+			if ($propertyConfig->hasParent()) {
+
+				$dotPos = strrpos($name, '.');
+
+				$parentName = substr($name, 0, $dotPos);
+				$name = substr($name, $dotPos + 1);
+
+				$parentProperty = $this->getProperty($parentName);
+			}
 
 			$property = $propertyConfig->createProperty($name);
 
@@ -215,9 +230,8 @@ abstract class BlockController extends Controller
 					$this->getRequest()->getLocalization()
 			);
 
-			if ($propertyConfig->hasParent()) {
-				$parent = $this->getProperty($propertyConfig->getParent()->getHierarchicalName());
-				$parent->addProperty($property);
+			if ($parentProperty) {
+				$parentProperty->addProperty($property);
 			}
 
 			$this->properties->append($property);
@@ -291,8 +305,22 @@ abstract class BlockController extends Controller
 
 		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
 
-			if (! is_array($value)) {
-				throw new \UnexpectedValueException('Expecting property collection value to be array.');
+			if ($value !== '' && ! is_array($value)) {
+				throw new \UnexpectedValueException(sprintf(
+					'Expecting property collection value to be array or empty string, [%s] received.',
+					gettype($value)
+				));
+			}
+
+			if ($value === '') {
+				$collectionProperty = $this->getProperty($name);
+				foreach ($collectionProperty as $subProperty) {
+					$this->container->getDoctrine()
+						->getManager()
+						->remove($subProperty);
+				}
+
+				return;
 			}
 
 			foreach ($value as $subName => $subValue) {

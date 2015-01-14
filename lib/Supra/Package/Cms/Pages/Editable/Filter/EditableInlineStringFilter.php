@@ -25,7 +25,7 @@ class EditableInlineStringFilter implements FilterInterface, BlockPropertyAware
 		return sprintf(
 				$wrap,
 				$this->blockProperty->getBlock()->getId(),
-				$this->blockProperty->getName(),
+				str_replace('.', '_', $this->blockProperty->getHierarchicalName()),
 				htmlspecialchars($content, ENT_QUOTES, 'UTF-8')
 		);
 	}

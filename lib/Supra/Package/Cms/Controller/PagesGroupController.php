@@ -70,27 +70,26 @@ class PagesGroupController extends AbstractPagesController
 		return new SupraJsonResponse($this->loadNodeMainData($localization));
 	}
 
-
 	/**
-	 * Action for delete virtual folder
+	 * Folder delete action.
+	 *
+	 * @return SupraJsonResponse
 	 */
 	public function deleteAction()
 	{
 		$this->checkLock();
 
 		$this->isPostRequest();
-		$folder = $this->getPageLocalization()->getMaster();
 
-		if( ! $folder instanceof GroupPage ) {
-			throw new CmsException(null, "Not a virtualfolder object");
-		}
-
+		$folder = $this->getPageLocalization()
+			->getMaster();
 
 		if ($folder->hasChildren()) {
-			throw new CmsException(null, "Cannot remove virtualfolder with children");
+			throw new CmsException(null, 'Cannot remove non-empty folder.');
 		}
 
-		$this->delete();
+		$this->getEntityManager()->remove($folder);
+		$this->getEntityManager()->flush();
 
 		return new SupraJsonResponse();
 	}
@@ -122,5 +121,22 @@ class PagesGroupController extends AbstractPagesController
 					->flush($localization->getMaster());
 
 		return new SupraJsonResponse();
+	}
+
+	/**
+	 * @return GroupLocalization
+	 */
+	protected function getPageLocalization()
+	{
+		$localization = parent::getPageLocalization();
+
+		if (! $localization instanceof GroupLocalization) {
+			throw new \UnexpectedValueException(sprintf(
+				'Expecting GroupLocalization, [%s] received.',
+				get_class($localization)
+			));
+		}
+
+		return $localization;
 	}
 }

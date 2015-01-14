@@ -139,51 +139,6 @@ class PagesContentController extends AbstractPagesController
 
 			$propertyArray = $input->get('properties', array());
 
-// @DEV: remove
-//			$propertyArray = array(
-//				'images' => array(
-//					array(
-//						'type'	=> 'image',
-//						'image'	=> '017rzqswi010s8co08o4',
-//						'id'	=> '017rzqswi010s8co08o4',
-//						'align'	=> null,
-//						'style'	=> null,
-//						'size_width' => 243,
-//						'size_height' => 162,
-//						'crop_top' => 0,
-//						'crop_left' => 21,
-//						'crop_width' => 186,
-//						'crop_height' => 162,
-//					),
-//					array(
-//						'type'	=> 'image',
-//						'image'	=> '017rzqt5a01ok08ocwgs',
-//						'id'	=> '017rzqt5a01ok08ocwgs',
-//						'align'	=> null,
-//						'style'	=> null,
-//						'size_width' => 243,
-//						'size_height' => 162,
-//						'crop_top' => 0,
-//						'crop_left' => 21,
-//						'crop_width' => 186,
-//						'crop_height' => 162,
-//					),
-//					array(
-//						'type'	=> 'image',
-//						'image'	=> '017rzqsj101w840kggck',
-//						'id'	=> '017rzqsj101w840kggck',
-//						'align'	=> null,
-//						'style'	=> null,
-//						'size_width' => 243,
-//						'size_height' => 162,
-//						'crop_top' => 0,
-//						'crop_left' => 21,
-//						'crop_width' => 186,
-//						'crop_height' => 162,
-//					),
-//				)
-//			);
-
 			foreach ($propertyArray as $name => $value) {
 				$blockController->savePropertyValue($name, $value);
 			}

@@ -32,7 +32,9 @@ class PagesPageController extends AbstractPagesController
 	}
 
 	/**
-	 * Called when page delete is requested
+	 * Page delete action.
+	 *
+	 * @return SupraJsonResponse
 	 */
 	public function deleteAction()
 	{
@@ -47,7 +49,11 @@ class PagesPageController extends AbstractPagesController
 			throw new CmsException(null, "Cannot remove page with children");
 		}
 
-		return $this->delete();
+		$entityManager = $this->getEntityManager();
+		$entityManager->remove($page);
+		$entityManager->flush();
+
+		return new SupraJsonResponse();
 	}
 
 	/**
@@ -552,5 +558,22 @@ class PagesPageController extends AbstractPagesController
 		}
 
 		return $redirectTarget;
+	}
+
+	/**
+	 * @return PageLocalization
+	 */
+	protected function getPageLocalization()
+	{
+		$localization = parent::getPageLocalization();
+
+		if (! $localization instanceof PageLocalization) {
+			throw new \UnexpectedValueException(sprintf(
+				'Expecting PageLocalization, [%s] received.',
+				get_class($localization)
+			));
+		}
+
+		return $localization;
 	}
 }

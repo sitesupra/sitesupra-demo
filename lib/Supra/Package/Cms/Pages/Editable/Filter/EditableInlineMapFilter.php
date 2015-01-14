@@ -18,7 +18,7 @@ class EditableInlineMapFilter implements FilterInterface, BlockPropertyAware
 	{
 		if ($content instanceof HtmlTag) {
 			$content->addClass('yui3-content-inline yui3-input-map-inline map')
-					->setAttribute('id', sprintf('content_%s_%s', $this->blockProperty->getBlock()->getId(), $this->blockProperty->getName()));
+					->setAttribute('id', sprintf('content_%s_%s', $this->blockProperty->getBlock()->getId(), str_replace('.', '_', $this->blockProperty->getHierarchicalName())));
 		}
 
 		return $content;

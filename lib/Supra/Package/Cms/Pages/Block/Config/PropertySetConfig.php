@@ -47,7 +47,7 @@ class PropertySetConfig extends AbstractPropertyConfig implements PropertyCollec
 	 */
 	public function isMatchingProperty(BlockProperty $property)
 	{
-		return $property->getName() === $this->name;
+		return $property->getHierarchicalName() == $this->name;
 	}
 
 	/**
