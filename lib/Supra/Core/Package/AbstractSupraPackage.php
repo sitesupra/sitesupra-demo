@@ -5,6 +5,7 @@ namespace Supra\Core\Package;
 use Doctrine\Common\Util\Inflector;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerAware
 {
@@ -21,6 +22,11 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 	 * @var string
 	 */
 	protected $name;
+
+	/**
+	 * @var ConfigurationInterface
+	 */
+	protected $configuration;
 
 	public function __construct()
 	{
@@ -50,6 +56,10 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 
 	public function getConfiguration()
 	{
+		if ($this->configuration) {
+			return $this->configuration;
+		}
+
 		$class = explode('\\', get_class($this));
 
 		$className = array_pop($class);
@@ -59,7 +69,7 @@ abstract class AbstractSupraPackage implements SupraPackageInterface, ContainerA
 
 		$class = '\\'.implode('\\', $class);
 
-		return new $class();
+		return $this->configuration = new $class();
 	}
 
 	public function loadConfiguration(ContainerInterface $container, $file = 'config.yml')

@@ -40,7 +40,7 @@ class Application extends BaseApplication implements ContainerAware
 		if (!$command instanceof SupraCommand && !$command instanceof ContainerAware &&
 			!($command instanceof ListCommand || $command instanceof HelpCommand)
 		) {
-			throw new \InvalidArgumentException('All commands must extend Supra\Core\Console\Command (or implement Supra\Core\DependencyInjection\ContainerAware)');
+			throw new \InvalidArgumentException('All commands must extend Supra\Core\Console\AbstractCommand (or implement Supra\Core\DependencyInjection\ContainerAware)');
 		}
 
 		if ($command instanceof ContainerAware) {
