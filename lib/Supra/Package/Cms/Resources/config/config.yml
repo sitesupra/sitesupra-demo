@@ -193,6 +193,7 @@ cms_resources:
         - public/cms/supra/build/input/string.js
         - public/cms/supra/build/input/text.js
         - public/cms/supra/build/input/string-clear.js
+        - public/cms/supra/build/input/property-element-locator.js
         - public/cms/supra/build/google-fonts/google-fonts.js
         - public/cms/supra/build/iframe/stylesheet-parser.js
         - public/cms/supra/build/htmleditor/htmleditor-base.js
@@ -270,7 +271,6 @@ cms_resources:
         - public/cms/supra/build/input/keywords.js
         - public/cms/supra/build/input/set.js
         - public/cms/supra/build/input/collection.js
-        - public/cms/supra/build/input/group.js
         - public/cms/supra/build/input/input.js
         - public/cms/supra/build/manager/action/plugin-form.js
         - public/cms/supra/build/manager/manager.js

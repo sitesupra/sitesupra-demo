@@ -1,18 +1,42 @@
 {% set people = collection(set(
     property('firstname', {'name': 'string', 'label': 'First name'}),
     property('lastname', {'name': 'string', 'label': 'Last name'}),
-    property('profileLink', {'name': 'link', 'label': 'Profile Link'})
+    property('about', {'name': 'inline_string', 'label': 'About'}),
+    property('profileLink', {'name': 'link', 'label': 'Profile Link'}),
+    collection(set(
+        property('color', {'name': 'string', 'label': 'Color'})
+    ))
 )) %}
 
 <ul>
     {% for person in people %}
-        <div>
+        <li>
             {{ person.profileLink | raw }}
             <h3>{{ person.firstname }} {{ person.lastname }}</h3>
-            <hr />
-        </div>
+            <p>
+                {{ person.about | raw }}
+            </p>
+            {% if not loop.last %}
+                <hr />
+            {% endif %}
+        </li>
     {% endfor %}
+    
+    {#
+    {% verbatim %}<script type="text/supra-template" data-id="firstnameLastnameAboutProfileLinkColorSetListSetList">
+        <li>
+            {{ property('profileLink') }}
+            <h3>{{ property('firstname') }} {{ property('lastname') }}</h3>
+            <p>
+                {{ property('about') | raw }}
+            </p>
+        </li>
+    </script>{% endverbatim %}
+    #}
 </ul>
+
+Text:
+{{ property('text', 'html') }}
 
 {#
 <ul>
