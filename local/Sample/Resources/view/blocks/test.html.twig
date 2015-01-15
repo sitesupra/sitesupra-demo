@@ -3,7 +3,7 @@
     property('lastname', {'name': 'string', 'label': 'Last name'}),
     property('about', {'name': 'inline_string', 'label': 'About'}),
     property('profileLink', {'name': 'link', 'label': 'Profile Link'}),
-    property('location', {'name': 'inline_map', 'label': 'Inline Map'}),
+    property('image', {'name': 'image', 'label': 'Image'}),
     collection(set(
         property('color', {'name': 'string', 'label': 'Color'})
     ))
@@ -13,15 +13,22 @@
     {% for person in people %}
         <li>
             {{ person.profileLink | raw }}
+            <div class="align-right">
+                {{ person.image | raw }}
+            </div>
             <h3>{{ person.firstname }} {{ person.lastname }}</h3>
             <p>
                 {{ person.about | raw }}
             </p>
-            <h3>Location:</h3>
-            {{ person.location | raw }}
             
-            {# Error when trying to output following #}
-            {# {% for color in person.colors %}{{ color }}{% endfor %} #}
+            <h3>Colors:</h3>
+            {% for colorSet in person.colorSetList %}
+                {{ colorSet.color }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+            
+            {% if not supraPage.cmsRequest %}
+                Nice
+            {% endif %}
             
             {% if not loop.last %}
                 <hr />
