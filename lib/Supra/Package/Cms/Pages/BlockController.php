@@ -445,6 +445,10 @@ abstract class BlockController extends Controller
 		}
 		elseif ($editable instanceof Editable\Gallery) {
 			$filters[] = new Filter\GalleryFilter();
+
+			if ($this->request instanceof PageRequestEdit){
+				$filters[] = new Filter\EditableGalleryFilter();
+			}
 		}
 		elseif ($editable instanceof Editable\InlineMap) {
 			$filters[] = new Filter\InlineMapFilter();
