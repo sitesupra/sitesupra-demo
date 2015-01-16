@@ -1,0 +1,61 @@
+/**
+ * Tabs block
+ */
+.tabs {
+	.tabs-headings {
+		position: relative;
+		margin-bottom: -1px;
+		
+		.tabs-heading {
+			background: #ccc;
+			float: left;
+			margin-right: 1px;
+			.transition (~'background-color @{animation-duration}');
+			
+			a,
+			div {
+				// DIV because in CMS mode editable content is wrapped in
+				// a DIV element
+				.transition (~'color @{animation-duration}');
+				display: block;
+				padding: 12px 30px 14px;
+				
+				color: #fff;
+				cursor: pointer;
+				font-size: @font-size-small;
+				font-family: @font-family-heading;
+				line-height: @line-height-base;
+				text-decoration: none;
+			}
+		}
+		
+		.tabs-heading.active {
+			background: #f56943;
+			
+			a {
+				cursor: default;
+			}
+		}
+	}
+	
+	.tabs-container {
+		.tabs-content {
+			display: none;
+			padding: 25px 0 0;
+		}
+		.tabs-content.active {
+			display: block;
+		}
+		
+	}
+}
+
+
+// CMS editing mode
+.editing .tabs {
+	.tabs-heading.active {
+		div {
+			cursor: text
+		}
+	}
+}
