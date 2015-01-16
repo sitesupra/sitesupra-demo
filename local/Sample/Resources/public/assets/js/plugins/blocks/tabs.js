@@ -39,12 +39,6 @@
 		
 		
 		headings.off('click.tabs').on('click.tabs', $.proxy(this._handleClick, this));
-		
-		// On resize check if tabs fit into view with default style
-		$.responsive.on('resize', $.proxy(this.update, this));
-		$(window).on('resize', $.throttle(this.update, this, 100, true));
-		
-		this.update();
 	};
 	
 	Tabs.defaultOptions = {
@@ -163,32 +157,6 @@
 			this.active(index);
 			
 			event.preventDefault();
-		},
-		
-		/**
-		 * Check if tabs with default style fit into view
-		 * and if not change to accordion like style
-		 * 
-		 * @private
-		 */
-		'update': function () {
-			var element = this._container,
-				headings = this._headings,
-				container = headings.parent(),
-				accordionMode = false;
-			
-			if ($.responsive.size == $.responsive.SIZE_DESKTOP || $.responsive.size == $.responsive.SIZE_TABLET) {
-				element.removeClass('tabs-accordion');
-				
-				if (Math.abs(headings.eq(0).outerHeight() - container.outerHeight()) > 10) {
-					// Doesn't fit
-					accordionMode = true;
-				}
-			} else {
-				accordionMode = true;
-			}
-			
-			element.toggleClass('tabs-accordion', accordionMode);
 		}
 		
 	};

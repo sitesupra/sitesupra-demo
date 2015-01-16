@@ -39,10 +39,12 @@ define(['jquery', 'app/refresh'], function ($) {
                     .text(info.propertyValue);
                 
                 // Swap "no-heading" and "has-heading" classnames on the block
+				/*
                 nodeBlock
                     .toggleClass('no-heading', !info.propertyValue)
                     .toggleClass('has-heading', info.propertyValue);
-                
+                */
+				
 				break;
             case "align":           // menu, social links, logotype
                 // Align property is a list with values ['left', 'center', 'right']

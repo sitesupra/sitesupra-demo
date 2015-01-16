@@ -26,6 +26,7 @@ class SamplePackage extends AbstractSupraCmsPackage
 			
 			new Blocks\CollectionGallery(),
 			new Blocks\Test(),
+			new Blocks\Tabs(),
 		);
 	}
 
