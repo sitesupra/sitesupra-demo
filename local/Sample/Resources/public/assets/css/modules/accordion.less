@@ -1,0 +1,67 @@
+/**
+ * Accordion block
+ */
+.accordion {
+	
+	.accordion-item {
+		position: relative; // fix for jQuery height detection
+	}
+	.accordion-heading {
+		position: relative;
+		margin: 0 0 1px;
+		background: #ccc;
+		.transition (~'background-color @{animation-duration}');
+		
+		.arrow {
+			position: absolute;
+			left: 14px;
+			top: 17px;
+			width: 12px;
+			height: 12px;
+			cursor: pointer;
+			background: url(../img/accordion/toggle.png) 0 -24px no-repeat;
+		}
+		
+		a,
+		div {
+			// DIV because in CMS mode editable content is wrapped in
+			// a DIV element
+			.transition (~'color @{animation-duration}');
+			display: block;
+			padding: 12px 14px 14px 40px;
+			
+			color: #fff;
+			cursor: pointer;
+			font-size: @font-size-small;
+			font-family: @font-family-heading;
+			line-height: @line-height-base;
+			text-decoration: none;
+		}
+	}
+	.accordion-content {
+		display: none;
+		padding: 25px 14px 25px 40px;
+	}
+	
+	.active {
+		.accordion-heading {
+			background: #f56943;
+			
+			.arrow {
+				background-position: 0 -12px;
+			}
+		}
+		.accordion-content {
+			display: block;
+		}
+	}
+}
+
+// CMS editing mode
+.editing .accordion {
+	.accordion-heading {
+		div {
+			cursor: text;
+		}
+	}
+}

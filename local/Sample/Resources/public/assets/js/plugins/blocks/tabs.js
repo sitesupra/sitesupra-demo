@@ -45,7 +45,7 @@
 		'headingSelector': '.tabs-heading',
 		'contentSelector': '.tabs-content',
 		'activeClassName': 'active',
-		'animationDuration': 'fast'
+		'animationDuration': 350
 	};
 	
 	Tabs.prototype = {

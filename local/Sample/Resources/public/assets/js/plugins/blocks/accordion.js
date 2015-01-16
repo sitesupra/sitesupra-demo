@@ -44,7 +44,7 @@
 		'headingSelector':   '.accordion-heading',
 		'contentSelector':   '.accordion-content',
 		'activeClassName':   'active',
-		'animationDuration': 'normal'
+		'animationDuration': 350
 	};
 	
 	Accordion.prototype = {
