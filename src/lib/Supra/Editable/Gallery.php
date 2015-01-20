@@ -1,13 +1,9 @@
 <?php
 
-namespace Supra\Editable;
+namespace Supra\Package\Cms\Editable;
 
-/**
- * Gallery property
- */
-class Gallery extends EditableAbstraction
+class Gallery extends Editable
 {
-	
 	protected $dummyController;
 	
 	public function getEditorType()

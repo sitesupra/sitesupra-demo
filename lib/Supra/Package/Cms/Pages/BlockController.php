@@ -301,44 +301,48 @@ abstract class BlockController extends Controller
 	 */
 	public function savePropertyValue($name, $value)
 	{
+		$entityManager = $this->container->getDoctrine()
+				->getManager();
+		/* @var $entityManager \Doctrine\ORM\EntityManager */
+
+		$property = $this->getProperty($name);
 		$propertyConfig = $this->config->getProperty($name);
 
 		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
 
-			if ($value !== '' && ! is_array($value)) {
+			if ($value === '') {
+				$property->getProperties()->clear();
+				return;
+			}
+
+			if (! is_array($value)) {
 				throw new \UnexpectedValueException(sprintf(
 					'Expecting property collection value to be array or empty string, [%s] received.',
 					gettype($value)
 				));
 			}
 
-			if ($value === '') {
-				$collectionProperty = $this->getProperty($name);
-				foreach ($collectionProperty as $subProperty) {
-					$this->container->getDoctrine()
-						->getManager()
-						->remove($subProperty);
-				}
-
-				return;
-			}
-
 			foreach ($value as $subName => $subValue) {
 				$this->savePropertyValue($name . '.' . $subName, $subValue);
+			}
+
+			$existingPropertyNames = array_keys($value);
+
+			foreach ($property->getProperties() as $subProperty) {
+				/* @var $subProperty BlockProperty */
+				if (! in_array($subProperty->getName(), $existingPropertyNames)) {
+					$entityManager->remove($subProperty);
+				}
 			}
 
 			return;
 		}
 
-		$property = $this->getProperty($name);
-
 		$editable = $propertyConfig->getEditable()->getInstance();
 
 		$this->configureValueTransformers($editable, $property);
 
-		$this->container->getDoctrine()
-				->getManager()
-				->persist($property);
+		$entityManager->persist($property);
 
 		$property->setValue($editable->fromEditorValue($value));
 	}

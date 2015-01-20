@@ -1,4 +1,4 @@
 <div class="block map-block">
-	{% set markerText = property('marker_text', {'name': 'text', 'label': 'Marker Text'}) %}
+	{% set markerText = property('marker_text', {'type': 'text', 'label': 'Marker Text'}) %}
 	{{ property('location', 'inline_map', {'markerText': markerText}) }}
 </div>

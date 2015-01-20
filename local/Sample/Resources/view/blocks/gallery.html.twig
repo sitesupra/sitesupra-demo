@@ -1,41 +1,8 @@
-<div class="block gallery gallery-grid" data-refresh-event="gallery">
-	<div class="gallery-inner">
-		<ul data-supra-container="true" class="clearfix">
-			{% for image in property('gallery', 'gallery') %}
-
-				{% set first = loop.index0 % 3 != 0 %}
-				{% set last = loop.index0 % 3 == 2 %}
-
-				<li class="one_third_perc type-image {% if first %}alpha{% elseif last %}omega{% endif %}">
-					<div class="media-wrapper">
-						<div class="media-image">
-							{{ image.tag(313, 208) | raw }}
-
-							{# @FIXME: getPath is obviously incorrect solution.
-								Probably some "resize" filter should be used. #}
-								
-							<a rel="lightbox" class="overlay" href="{{ image.tag.getPath(960, 700) }}"></a>
-						</div>
-						<span class="icon icon-image"></span>
-					</div>
-				</li>
-				
-				{% if last %}<li class="clear"></li>{% endif %}
-				
-			{% endfor %}
-		</ul>
+{% set itemTemplate %}
+	<div class="item">
+		<span>{{ title }}</span>
+		{{ image }}
 	</div>
-</div>
+{% endset %}
 
-{# Instructions how to render item in CMS Gallery manager edit mode #}
-{% if supraPage.cmsRequest %}{% raw %}
-<script type="text/supra-template" data-supra-container-selector="ul" data-supra-id="gallerymanager-item">
-	<li class="one_third">
-		<span class="outer">
-			<span class="img">
-				<img src="about:blank" alt="" />
-			</span>
-		</span>
-	</li>
-</script>
-{% endraw %}{% endif %}
+{{ property('gallery', 'gallery', {'itemTemplate': itemTemplate}) }}

@@ -72,8 +72,10 @@ abstract class BlockResponse extends ResponsePart
 
 	/**
 	 * Renders template and outputs it into response.
+	 *
+	 * @param array $parameters
 	 */
-	public function render()
+	public function render(array $parameters = array())
 	{
 		if ($this->templateName === null) {
 			throw new \RuntimeException('Template name was not specified, nothing to render.');
@@ -82,7 +84,7 @@ abstract class BlockResponse extends ResponsePart
 		$this->output(
 				$this->templating->render(
 						$this->templateName,
-						$this->parameters
+						array_merge($this->parameters, $parameters)
 				)
 		);
 	}

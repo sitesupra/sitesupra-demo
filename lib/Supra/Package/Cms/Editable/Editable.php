@@ -8,11 +8,9 @@ use Supra\Package\Cms\Editable\Filter\FilterInterface;
 abstract class Editable implements EditableInterface
 {
 	/**
-	 * Known editables class map.
-	 *
 	 * @var array
 	 */
-	private static $editableMap = array(
+	private static $aliases = array(
 		'string'		=> '\Supra\Package\Cms\Editable\String',
 		'inline_string'	=> '\Supra\Package\Cms\Editable\InlineString',
 		'text'			=> '\Supra\Package\Cms\Editable\Textarea',
@@ -25,11 +23,10 @@ abstract class Editable implements EditableInterface
 		'inline_map'	=> '\Supra\Package\Cms\Editable\InlineMap',
 		'gallery'		=> '\Supra\Package\Cms\Editable\Gallery',
 		'datetime'		=> '\Supra\Package\Cms\Editable\DateTime',
-
 		// @TODO: types listed below:
 //		'inline_image' => '',
-//		'video'		=> '',
 //		'inline_video'	=> '',
+//		'video'		=> '',
 //		'keywords' =>	'',
 //		'select' => 	'',
 //		'select_list' => '',
@@ -38,7 +35,7 @@ abstract class Editable implements EditableInterface
 	);
 
 	/**
-	 * @var FilterInterface[] 
+	 * @var FilterInterface[]
 	 */
 	protected $viewFilters = array();
 
@@ -85,7 +82,7 @@ abstract class Editable implements EditableInterface
 					"Value transformer [{$class}] is already in collection."
 			);
 		}
-		
+
 		$this->transformers[$class] = $transformer;
 	}
 
@@ -185,24 +182,6 @@ abstract class Editable implements EditableInterface
 		return null;
 	}
 
-//	/**
-//	 * @param string $label
-//	 */
-//	public function setLabel($label)
-//	{
-//		$this->op = $label;
-//	}
-//
-//
-//
-//	/**
-//	 * @param string $description
-//	 */
-//	public function setDescription($description)
-//	{
-//		$this->description = $description;
-//	}
-
 	/**
 	 * @return array
 	 */
@@ -210,29 +189,13 @@ abstract class Editable implements EditableInterface
 	{
 		return array();
 	}
-	
+
 //	/**
 //	 * @param mixed $value
 //	 */
 //	public function setDefaultValue($value)
 //	{
 //		$this->defaultValue = $value;
-//	}
-
-//	/**
-//	 * @return string
-//	 */
-//	public function getGroupId()
-//	{
-//		return $this->groupId;
-//	}
-//
-//	/**
-//	 * @param string $groupLabel
-//	 */
-//	public function setGroupId($groupId)
-//	{
-//		$this->groupId = $groupId;
 //	}
 
 	/**
@@ -258,14 +221,14 @@ abstract class Editable implements EditableInterface
 	 */
 	public static function getEditable($name)
 	{
-		if (! isset(self::$editableMap[$name])) {
+		if (! isset(self::$aliases[$name])) {
 			throw new \InvalidArgumentException(sprintf(
 					'Unknown editable [%s]',
 					$name
 			));
 		}
 
-		return new self::$editableMap[$name]();
+		return new self::$aliases[$name]();
 	}
 
 	/**
@@ -275,13 +238,13 @@ abstract class Editable implements EditableInterface
 	 */
 	public static function addEditable($name, $editableClass)
 	{
-		if (isset(self::$editableMap[$name])) {
+		if (isset(self::$aliases[$name])) {
 			throw new \InvalidArgumentException(sprintf(
 					'Editable with name [%s] already exists.',
 					$name
 			));
 		}
 
-		self::$editableMap[$name] = $editableClass;
+		self::$aliases[$name] = $editableClass;
 	}
 }

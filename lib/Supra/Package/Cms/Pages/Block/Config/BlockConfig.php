@@ -22,7 +22,7 @@ abstract class BlockConfig
 	protected $groupName;
 	protected $insertable = true;
 	protected $unique = false;
-	protected $cmsClassName = 'Editable';
+//	protected $cmsClassName = 'Editable';
 
 	/**
 	 * @var string
@@ -178,26 +178,26 @@ abstract class BlockConfig
 //		$this->unique = $unique;
 	}
 
-	/**
-	 * Frontend.
-	 * CMS class name for the block.
-	 *
-	 * @return string
-	 */
-	public function getCmsClassName()
-	{
-		$this->validate();
-
-		return $this->cmsClassName;
-	}
-
-	/**
-	 * @param string $cmsClassName
-	 */
-	public function setCmsClassName($cmsClassName)
-	{
-		$this->cmsClassName = $cmsClassName;
-	}
+//	/**
+//	 * Frontend.
+//	 * CMS class name for the block.
+//	 *
+//	 * @return string
+//	 */
+//	public function getCmsClassName()
+//	{
+//		$this->validate();
+//
+//		return $this->cmsClassName;
+//	}
+//
+//	/**
+//	 * @param string $cmsClassName
+//	 */
+//	public function setCmsClassName($cmsClassName)
+//	{
+//		$this->cmsClassName = $cmsClassName;
+//	}
 
 	public function getGroupName()
 	{

@@ -12,8 +12,7 @@ class SocialLinks extends BlockConfig
 	{
 		$mapper->title('Social links')
 				->icon('sample:blocks/social-links.png')
-				->template('sample:blocks/social-links.html.twig')
-				;
+		;
 	}
 
 	protected function configureProperties(PropertyMapper $mapper)

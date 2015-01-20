@@ -65,36 +65,36 @@ class BlockPropertyNodeVisitor implements \Twig_NodeVisitorInterface
 	{
 		if ($node instanceof BlockPropertyListNode) {
 
-			$name = $node->getPropertyName();
+			$listConfig = $this->propertyMapper->createPropertyList(
+				$node->getPropertyNameValue(),
+				$node->getLabelValue(),
+				$this->getPropertyConfigForNode($node->getListItemNode())
+			);
 
-			$listItemNode = $node->getListItemNode();
+			$node->setNode('arguments', new \Twig_Node());
 
-			$node->getNode('arguments')->setNode(0, null);
-
-			$config = $this->getPropertyConfigForNode($listItemNode);
-
-			return $this->propertyMapper->createPropertyList($name, $config);
+			return $listConfig;
 
 		} elseif ($node instanceof BlockPropertySetNode) {
 
 			$setItems = array();
 
-			$name = $node->getPropertyName();
-
-			foreach ($node->getNode('arguments') as $i => $argumentNode) {
-
-				$config = $this->getPropertyConfigForNode($argumentNode);
-
-				if ($config === null) {
-					throw new \RuntimeException("Failed to create config for [#{$i}] argument in set.");
+			foreach ($node->getNode('arguments') as $argumentNode) {
+				if ($argumentNode instanceof BlockPropertyNode) {
+					$config = $this->getPropertyConfigForNode($argumentNode);
+					$setItems[$config->name] = $config;
 				}
-
-				$setItems[$config->name] = $config;
-
-				$node->getNode('arguments')->setNode($i, null);
 			}
 
-			return $this->propertyMapper->createPropertySet($name, $setItems);
+			$setConfig = $this->propertyMapper->createPropertySet(
+				$node->getPropertyNameValue(),
+				$node->getLabelValue(),
+				$setItems
+			);
+
+			$node->setNode('arguments', new \Twig_Node());
+
+			return $setConfig;
 
 		} elseif ($node instanceof BlockPropertyNode) {
 
@@ -114,7 +114,7 @@ class BlockPropertyNodeVisitor implements \Twig_NodeVisitorInterface
 
 				foreach ($arguments[1]->getKeyValuePairs() as $pair) {
 
-					if (!$pair['key'] instanceof ConstantExpression
+					if (! $pair['key'] instanceof ConstantExpression
 						|| !$pair['value'] instanceof ConstantExpression
 					) {
 
@@ -126,20 +126,26 @@ class BlockPropertyNodeVisitor implements \Twig_NodeVisitorInterface
 					);
 				}
 			} elseif ($arguments[1] instanceof ConstantExpression) {
-				$editableDefinition['name'] = $arguments[1]->getAttribute('value');
+				// @FIXME: dev
+				$editableDefinition['type'] = $arguments[1]->getAttribute('value');
 
 			} else {
 				throw new NotConstantExpressionException;
 			}
 
-			if (empty($editableDefinition['name'])) {
-				throw new \RuntimeException('Editable name is not specified.');
+			// @FIXME: dev
+
+			if (! isset($editableDefinition['name'])
+					&& ! isset($editableDefinition['type'])) {
+
+				throw new \RuntimeException('Editable type is not specified.');
 			}
 
-			$editableName = $editableDefinition['name'];
+			// @FIXME: dev
+			$editableName = isset($editableDefinition['type']) ? $editableDefinition['type'] : $editableDefinition['name'];
 			unset($editableDefinition['name']);
 
-			return $this->propertyMapper->createProperty($node->getPropertyName(), $editableName, $editableDefinition);
+			return $this->propertyMapper->createProperty($node->getPropertyNameValue(), $editableName, $editableDefinition);
 		}
 	}
 }

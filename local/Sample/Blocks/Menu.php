@@ -12,8 +12,7 @@ class Menu extends BlockConfig
 	{
 		$mapper->title('Menu')
 				->icon('sample:blocks/menu.png')
-				->template('sample:blocks/menu.html.twig')
-				;
+		;
 	}
 
 	protected function configureProperties(PropertyMapper $mapper)

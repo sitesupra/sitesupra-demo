@@ -54,10 +54,6 @@ class PagesBlockController extends AbstractPagesController
 				'insertable'	=> $configuration->isInsertable(),
 				'icon'			=> $this->resolveWebPath($configuration->getIcon()),
 				'properties'	=> $propertyConfigData,
-				'property_groups'			=> array(), // @TODO
-				'preferred_property_group'	=> array(), // @TODO
-				// @TODO: sub-array with options for frontend?
-				'classname'		=> $configuration->getCmsClassName(),
 			);
 		}
 
@@ -84,6 +80,7 @@ class PagesBlockController extends AbstractPagesController
 			return array(
 				'id'		=> $property->name,
 				'type'		=> 'Set',
+				'label'		=> $property->getLabel(),
 				'properties'	=> $setData,
 			);
 
@@ -92,6 +89,7 @@ class PagesBlockController extends AbstractPagesController
 			return array(
 				'id'			=> $property->name,
 				'type'			=> 'Collection',
+				'label'			=> $property->getLabel(),
 				'properties'	=> $this->getPropertyData($property->getListItem()),
 			);
 

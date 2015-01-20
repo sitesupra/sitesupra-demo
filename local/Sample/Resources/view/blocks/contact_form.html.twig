@@ -1,0 +1,47 @@
+{% set email = property('email', {
+	'name': 'string',
+	'label': 'Submitted form recipient email address'
+}) %}
+
+{% if messageSent | default(false) %}
+	{{ property('successMessage',
+		{
+			'type': 'text',
+			'default': 'Thanks! We will contact you shortly!'
+		}
+	) }}
+{% endif %}
+
+<div class="block form-block">
+	<form class="form no-heading" method="post">
+		<label for="nameInput">
+			{{ property('nameLabel', {
+				'type': 'inline_string',
+				'default': 'Name'
+			}) }}
+		</label>
+		<input type="text" name="name" id="nameInput" />
+		
+		<label for="emailInput">
+			{{ property('emailLabel', {
+				'type': 'inline_string',
+				'default': 'E-mail'
+			}) }}
+		</label>
+		<input type="text" name="email" id="emailInput" />
+
+		<label for="emailInput">
+			{{ property('messageLabel', {
+				'type': 'inline_string',
+				'default': 'Message'
+			}) }}
+		</label>
+		<input type="textarea" name="message" id="messageInput" />
+
+		<button type="submit">
+			{{ property('buttonLabel', {
+				'type': 'inline_string',
+				'default': 'Submit'
+			}) }}</button>
+	</form>
+</div>

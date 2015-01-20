@@ -1,8 +1,8 @@
-{% set title = property('title', {'name': 'string', 'label': 'Title'}) %}
+{% set title = property('title', {'type': 'string', 'label': 'Title'}) %}
 
 {% set tabs = collection(set(
-    property('title', {'name': 'inline_string', 'label': 'Title'}),
-    property('text',  {'name': 'html', 'label': 'Text'})
+    property('title', {'type': 'inline_string', 'label': 'Title'}),
+    property('text',  {'type': 'html', 'label': 'Text'})
 )) %}
 
 <section class="tabs block" data-require="plugins/blocks/tabs" data-attach="$.fn.tabs" data-refresh-event="tabs">

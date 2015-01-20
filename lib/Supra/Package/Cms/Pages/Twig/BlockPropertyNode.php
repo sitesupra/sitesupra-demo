@@ -12,7 +12,7 @@ class BlockPropertyNode extends \Twig_Node_Expression_Function
 
 			$arguments = iterator_to_array($arguments->getIterator());
 
-			$compiler->raw('$this->env->getExtension(\'supraPage\')->getPropertyValue(\'' . $this->getPropertyName() . "'");
+			$compiler->raw('$this->env->getExtension(\'supraPage\')->getPropertyValue(\'' . $this->getPropertyNameValue() . "'");
 
 			if ($count === 3) {
 				$compiler->raw(',');
@@ -26,7 +26,7 @@ class BlockPropertyNode extends \Twig_Node_Expression_Function
 	/**
 	 * @return string
 	 */
-	public function getPropertyName()
+	public function getPropertyNameValue()
 	{
 		$arguments = iterator_to_array($this->getNode('arguments'));
 
