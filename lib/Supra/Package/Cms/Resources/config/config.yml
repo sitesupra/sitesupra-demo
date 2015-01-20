@@ -217,7 +217,6 @@ cms_resources:
         - public/cms/supra/build/htmleditor/plugins/plugin-history.js
         - public/cms/supra/build/htmleditor/plugins/plugin-image.js
         - public/cms/supra/build/htmleditor/plugins/plugin-icon.js
-        - public/cms/supra/build/htmleditor/plugins/plugin-gallery.js
         - public/cms/supra/build/htmleditor/plugins/plugin-link.js
         - public/cms/supra/build/htmleditor/plugins/plugin-video.js
         - public/cms/supra/build/htmleditor/plugins/plugin-table.js
