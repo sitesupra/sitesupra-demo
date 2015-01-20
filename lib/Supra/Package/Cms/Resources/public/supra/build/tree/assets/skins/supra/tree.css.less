@@ -1,21 +1,21 @@
 @import "../../../../../less/common.less";
 
-.yui3-tree > ul > .yui3-tree-node {
+.su-tree > ul > .su-tree-node {
 	background: url(/public/cms/supra/img/tree/background.png) 0 0 repeat;
 }
 
-.yui3-tree-node {
+.su-tree-node {
 	color: #323144;
 	list-style: none;
 	.text-shadow ();
 }
 
-.yui3-tree-loading .yui3-tree-content,
-.yui3-tree-loading .yui3-tree-draggable-content {
+.su-tree-loading .su-tree-content,
+.su-tree-loading .su-tree-draggable-content {
 	min-height: 200px;
 	background: url(/public/cms/supra/img/ajax-loader-24.png) 50% 50% no-repeat;
 }
-.yui3-tree-loading .yui3-tree-node {
+.su-tree-loading .su-tree-node {
 	display: none;
 }
 
@@ -38,7 +38,7 @@
 		height: 25px;
 	}
 	
-	.yui3-tree-node-draggable .tree-node div {
+	.su-tree-node-draggable .tree-node div {
 		padding-left: 26px;
 	}
 	.tree-node-root-expandable div {
@@ -82,17 +82,17 @@
 		visibility: hidden;
 	}
 	
-	.yui3-tree-content > .yui3-tree-node > .tree-node span.toggle,
-	.yui3-tree-draggable-content>.yui3-tree-node>.tree-node span.toggle {
+	.su-tree-content > .su-tree-node > .tree-node span.toggle,
+	.su-tree-draggable-content>.su-tree-node>.tree-node span.toggle {
 		display: none !important;
 	}
-	.yui3-tree-content > .yui3-tree-node > .tree-node-root-expandable span.toggle
-	.yui3-tree-draggable-content>.yui3-tree-node>.tree-node-root-expandable span.toggle {
+	.su-tree-content > .su-tree-node > .tree-node-root-expandable span.toggle
+	.su-tree-draggable-content>.su-tree-node>.tree-node-root-expandable span.toggle {
 		display: inline-block !important;
 	}
 	
-	.yui3-tree-node-draggable-focused>div label,
-	.yui3-tree-node-focused>div label,
+	.su-tree-node-draggable-focused>div label,
+	.su-tree-node-focused>div label,
 	.tree-node:hover label {
 		text-decoration: underline;
 		cursor: pointer;
@@ -106,26 +106,26 @@
 		font-style: italic;
 	}
 	
-	.yui3-tree-node-selected {
+	.su-tree-node-selected {
 		position: relative;
 	}
-	.yui3-tree-node-selected,
-	.yui3-tree-node-selected:hover {
+	.su-tree-node-selected,
+	.su-tree-node-selected:hover {
 		background: url(/public/cms/supra/img/tree/background-selected.png) 0 0 repeat-x;
 	}
-		.yui3-tree-node-selected>div label {
+		.su-tree-node-selected>div label {
 			color: #fff;
 			.text-shadow (0, 1px, 0, rgba(0, 15, 63, 0.4));
 		}
-		.yui3-tree-node-selected>div span.remove {
+		.su-tree-node-selected>div span.remove {
 			display: block;
 		}
-		.yui3-tree-node-selected.draggable:hover div {
+		.su-tree-node-selected.draggable:hover div {
 			background: url(/public/cms/supra/img/tree/drag.png) 2px 2px no-repeat;
 		}
 		
 	
-	.yui3-tree-node-loading {
+	.su-tree-node-loading {
 		div {
 			background: url(/public/cms/supra/img/tree/loading-ui-light-normal.gif) 6px 50% no-repeat;
 			
@@ -133,7 +133,7 @@
 				visibility: hidden;
 			}
 		}
-		&.yui3-tree-node-selected {
+		&.su-tree-node-selected {
 			div {
 				background-image: url(/public/cms/supra/img/tree/loading-ui-light-hover.gif), url(/public/cms/supra/img/tree/background-selected.png);
 				background-position: 6px 50%, 0 0;
@@ -169,44 +169,44 @@
 	}
 }
 
-.yui3-tree-draggable .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-node div {
 	padding-left: 26px;
 }
-.yui3-tree-draggable .tree-children .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-children .tree-node div {
 	padding-left: 46px;
 }
-.yui3-tree-draggable .tree-children .tree-children .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-children .tree-children .tree-node div {
 	padding-left: 66px;
 }
-.yui3-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-node div {
 	padding-left: 86px;
 }
-.yui3-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
 	padding-left: 106px;
 }
-.yui3-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
 	padding-left: 126px;
 }
-.yui3-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
 	padding-left: 146px;
 }
-.yui3-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
+.su-tree-draggable .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-children .tree-node div {
 	padding-left: 166px;
 }
 
 
-.yui3-tree-node-collapsed .tree-children {
+.su-tree-node-collapsed .tree-children {
 	display: none;
 }
-	.yui3-tree-node-collapsed .tree-node span.toggle {
+	.su-tree-node-collapsed .tree-node span.toggle {
 		background: url(/public/cms/supra/img/tree/expand.png) 0 0 no-repeat;
 	}
 	
-.yui3-dd-dragging.yui3-tree-node {
+.yui3-dd-dragging.su-tree-node {
 	opacity: 0.5;
 }
 
-.yui3-tree-node-draggable-avatar {
+.su-tree-node-draggable-avatar {
 	position: absolute;
 	display: none;
 }
@@ -229,7 +229,7 @@
 /**
  * Drag & drop marker
  */
-.yui3-tree-node-marker {
+.su-tree-node-marker {
 	position: absolute;
 	z-index: 1000;
 	border: 2px solid #CDECFF;
@@ -239,7 +239,7 @@
 /**
  * Drag & drop proxy
  */
-.yui3-tree-node-proxy {
+.su-tree-node-proxy {
 	opacity: 0.5 !important;
 	margin-left: 150px !important;
 	filter: alpha(opacity=5);

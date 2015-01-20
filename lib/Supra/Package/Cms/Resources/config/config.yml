@@ -49,6 +49,7 @@ cms_resources:
         - public/cms/supra/build/languagebar/assets/skins/supra/languagebar.css.less
         - public/cms/supra/build/slideshow/assets/skins/supra/slideshow.css.less
         - public/cms/supra/build/datagrid/assets/skins/supra/datagrid.css.less
+        - public/cms/supra/build/iframe/assets/skins/supra/iframe.css.less
     js_pack:
         - public/cms/yui.3.5.0/build/yui/yui-min.js
         - public/cms/yui.3.5.0/build/loader/loader-min.js
@@ -80,6 +81,7 @@ cms_resources:
         - public/cms/yui.3.5.0/build/selector/selector-min.js
         - public/cms/yui.3.5.0/build/node-core/node-core-min.js
         - public/cms/yui.3.5.0/build/node-base/node-base-min.js
+        - public/cms/yui.3.5.0/build/node-event-html5/node-event-html5-min.js
         - public/cms/yui.3.5.0/build/event-base/event-base-min.js
         - public/cms/yui.3.5.0/build/event-delegate/event-delegate-min.js
         - public/cms/yui.3.5.0/build/node-event-delegate/node-event-delegate-min.js
@@ -179,6 +181,7 @@ cms_resources:
         - public/cms/supra/build/datatype/datatype-date-parse.js
         - public/cms/supra/build/datatype/datatype-date-reformat.js
         - public/cms/supra/build/base/base.js
+        - public/cms/supra/build/ua/normalize.js
         - public/cms/supra/build/button/button.js
         - public/cms/supra/build/button/plugin-input.js
         - public/cms/supra/build/panel/panel.js
@@ -190,6 +193,7 @@ cms_resources:
         - public/cms/supra/build/template/template.js
         - public/cms/supra/build/input/proto.js
         - public/cms/supra/build/input/hidden.js
+        - public/cms/supra/build/input/gallery.js
         - public/cms/supra/build/input/string.js
         - public/cms/supra/build/input/text.js
         - public/cms/supra/build/input/string-clear.js
@@ -198,6 +202,7 @@ cms_resources:
         - public/cms/supra/build/iframe/iframe.js
         - public/cms/supra/build/iframe/stylesheet-parser.js
         - public/cms/supra/build/htmleditor/htmleditor-base.js
+        - public/cms/supra/build/htmleditor/htmleditor-nodes.js
         - public/cms/supra/build/htmleditor/htmleditor-parser.js
         - public/cms/supra/build/htmleditor/htmleditor-selection.js
         - public/cms/supra/build/htmleditor/htmleditor-dom.js
@@ -209,6 +214,7 @@ cms_resources:
         - public/cms/supra/build/htmleditor/toolbar.js
         - public/cms/supra/build/slider/slider.js
         - public/cms/supra/build/imageresizer/imageresizer.js
+        - public/cms/supra/build/htmleditor/plugins/plugin-history.js
         - public/cms/supra/build/htmleditor/plugins/plugin-image.js
         - public/cms/supra/build/htmleditor/plugins/plugin-icon.js
         - public/cms/supra/build/htmleditor/plugins/plugin-gallery.js
@@ -253,6 +259,7 @@ cms_resources:
         - public/cms/supra/build/panel/tooltip.js
         - public/cms/supra/build/input/fileupload.js
         - public/cms/supra/build/scrollable/scrollable.js
+        - public/cms/supra/build/input/file.js
         - public/cms/supra/build/input/select.js
         - public/cms/supra/build/input/slider.js
         - public/cms/supra/build/input/link.js

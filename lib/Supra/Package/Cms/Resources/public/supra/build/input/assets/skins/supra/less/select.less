@@ -3,12 +3,12 @@
 /**
  * UI Light style
  */
-.ui-light .yui3-input-select,
-.ui-dark .yui3-input-select,
-.ui-center-dark .yui3-input-select {
+.ui-light .su-input-select,
+.ui-dark .su-input-select,
+.ui-center-dark .su-input-select {
 	.input-select (url(input-select-light.png), 23px,     5px, 24px, 3px, 12px);
 	
-	.yui3-input-select-inner {
+	.su-input-select-inner {
 		.border-radius (3px);
 		.box-shadow (0, 2px, 4px, rgba(0, 0, 0, 0.3));
 		
@@ -16,7 +16,7 @@
 			color: #fff;
 		}
 		
-		.yui3-input-select-dropdown {
+		.su-input-select-dropdown {
 			.border-radius (3px);
 			.box-shadow (0 2px 4px rgba(0, 0, 0, 0.3), 0 2px 0 rgba(0, 0, 0, 0.3) inset);
 			
@@ -29,10 +29,10 @@
 				color: #C4C6D4;
 			}
 			
-			.yui3-input-select-dropdown-content {
+			.su-input-select-dropdown-content {
 				padding: 5px 24px 3px 0;
 			}
-			.yui3-input-select-item {
+			.su-input-select-item {
 				color: #C4C6D4;
 				line-height: 21px;
 				padding: 0 0 0 12px;
@@ -66,11 +66,11 @@
 		}
 	}
 	
-	&.yui3-input-select-scrollable .yui3-input-select-dropdown {
+	&.su-input-select-scrollable .su-input-select-dropdown {
 		padding-top: 5px;
 		padding-bottom: 3px;
 		
-		.yui3-input-select-dropdown-content {
+		.su-input-select-dropdown-content {
 			padding-top: 0;
 			padding-bottom: 0;
 		}
@@ -86,7 +86,7 @@
 		border-width: 3px;
 		.border-radius (12px);
 	}
-	.yui3-input-select-loading {
+	.su-input-select-loading {
 		p {
 			color: transparent !important;
 			text-shadow: none !important;
@@ -101,9 +101,9 @@
 /**
  * UI Dark style
  */
-.ui-dark .yui3-input-select,
-.ui-center-dark .yui3-input-select {
-	.yui3-input-select-inner {
+.ui-dark .su-input-select,
+.ui-center-dark .su-input-select {
+	.su-input-select-inner {
 		background-image: url(input-select-dark.png), url(input-select-dark.png), url(input-select-dark.png);
 		
 		.su-scrollable {
@@ -119,10 +119,10 @@
 /**
  * UI Top style
  */
-.ui-top .yui3-input-select {
+.ui-top .su-input-select {
 	.input-select (url(input-select-top.png), 26px,     8px, 23px, 8px, 8px);
 	
-	.yui3-input-select-inner {
+	.su-input-select-inner {
 		.border-radius (5px);
 		.box-shadow (0, 1px, 0px, rgba(163, 164, 185, 0.2));
 		display: inline-block;
@@ -144,7 +144,7 @@
 			}
 		}
 		
-		.yui3-input-select-dropdown {
+		.su-input-select-dropdown {
 			.border-radius (3px);
 			.box-shadow (0, 2px, 4px, rgba(4, 0, 16, 0.35));
 			
@@ -152,7 +152,7 @@
 			top: 39px;
 			background: #fff;
 			
-			.yui3-input-select-arrow {
+			.su-input-select-arrow {
 				position: absolute;
 				left: 50%;
 				top: -11px;
@@ -167,7 +167,7 @@
 				padding-right: 23px;
 			}
 			
-			.yui3-input-select-item {
+			.su-input-select-item {
 				color: #39394F;
 				line-height: 14px;
 				
@@ -180,8 +180,8 @@
 		}
 	}
 	
-	&.yui3-input-select-open {
-		.yui3-input-select-inner {
+	&.su-input-select-open {
+		.su-input-select-inner {
 			.box-shadow (none);
 			
 			& > p {
@@ -199,13 +199,13 @@
 	}
 	
 	&.align-center {
-		.yui3-input-select-inner {
-			.yui3-input-select-dropdown {
+		.su-input-select-inner {
+			.su-input-select-dropdown {
 				
-				.yui3-input-select-dropdown-content {
+				.su-input-select-dropdown-content {
 					padding-right: 0;
 				}
-				.yui3-input-select-item {
+				.su-input-select-item {
 					text-align: center;
 					padding-right: 10px;
 				}

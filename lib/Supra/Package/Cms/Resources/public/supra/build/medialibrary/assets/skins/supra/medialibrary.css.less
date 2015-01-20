@@ -1,6 +1,6 @@
 @import "../../../../../less/common.less";
 
-.yui3-medialist {
+.su-medialist {
 	font-size: 13px;
 	position: relative;
 }
@@ -8,14 +8,14 @@
 /**
  * Scrollbars
  */
-.yui3-medialist-content {
+.su-medialist-content {
 	.su-scrollable .su-scrollable-scrollbar-background {
 		top: 10px;
 		bottom: 8px;
 	}
 }
 
-.yui3-medialist {
+.su-medialist {
 	/**
 	 * Empty folder overlay
 	 */
@@ -49,7 +49,7 @@
 		margin-left: -70px;
 	}
 }
-.yui3-medialist-extended {
+.su-medialist-extended {
 	.su-slide-full-width {
 		width: auto !important;
 		right: 0;
@@ -74,8 +74,8 @@
 /**
  * Folder
 */
-.yui3-medialist ul.folder > li,
-.yui3-medialist li.type-folder-proxy {
+.su-medialist ul.folder > li,
+.su-medialist li.type-folder-proxy {
 	overflow: hidden;
 	cursor: pointer;
 	padding: 0;
@@ -126,7 +126,7 @@
 	}
 }
 
-.yui3-medialist ul.folder {
+.su-medialist ul.folder {
 	list-style: none;
 	padding: 9px 0 39px 10px;
 	.user-select (none);
@@ -140,12 +140,12 @@
 		label {
 			display: none;
 		}
-		.yui3-input,
+		.su-input,
 		input {
 			display: block;
 			vertical-align: middle;
 		}
-		.yui3-input {
+		.su-input {
 			padding: 12px 12px 12px 50px;
 		}
 		input {
@@ -311,7 +311,7 @@
 	}
 }
 
-.yui3-medialist li.type-folder-proxy {
+.su-medialist li.type-folder-proxy {
 	list-style: none;
 	z-index: 10;
 	
@@ -325,8 +325,8 @@
 /**
  * Image / File
  */
-.yui3-medialist div.image,
-.yui3-medialist div.file {
+.su-medialist div.image,
+.su-medialist div.file {
 	padding: 20px 20px 5px;
 	
 	div.preview {
@@ -394,7 +394,7 @@
 	.inp-description,
 	.inp-filename,
 	.inp-locale,
-	.meta > .yui3-input {
+	.meta > .su-input {
 		margin: 0 0 5px;
 		padding: 0;
 		display: block;
@@ -468,7 +468,7 @@
 	}
 }
 
-.yui3-medialist div.image div.preview {
+.su-medialist div.image div.preview {
 	img {
 		.transition (opacity 0.35s ease);
 		opacity: 1;
@@ -480,8 +480,8 @@
 }
 
 
-.yui3-medialist .inp-filename .yui3-input,
-.yui3-medialist .input-sortby .yui3-input {
+.su-medialist .inp-filename .su-input,
+.su-medialist .input-sortby .su-input {
 	label {
 		display: none;
 	}
@@ -490,10 +490,10 @@
 /**
  * Meta properties
  */
-.yui3-medialist .meta {
+.su-medialist .meta {
 	margin: 0;
 	
-	> .yui3-input {
+	> .su-input {
 		label {
 			color: #4D4D61;
 			font-weight: normal;
@@ -504,14 +504,14 @@
 /*
  * Info
  */
-.yui3-medialist .group {
+.su-medialist .group {
 	margin: 20px 0 0;
 }
 
 /**
  * Sidebar media list with sorting switch
  */
-.sidebar .yui3-medialist {
+.sidebar .su-medialist {
 	width: 100%;
 	height: 100%;
 	
@@ -534,11 +534,11 @@
 		margin: 0;
 		padding: 7px 19px;
 		
-		.yui3-input-select-list-content {
+		.su-input-select-list-content {
 			padding-left: @labelWidth;
 		}
 		
-		.yui3-input-select-list-buttons {
+		.su-input-select-list-buttons {
 			width: 100%;
 		}
 		
@@ -557,14 +557,14 @@
  * Drag & drop
  * HTML5 and folders
  */
-.yui3-medialist .su-slideshow-multiview {
-	.yui3-html5-dd-target,
+.su-medialist .su-slideshow-multiview {
+	.su-html5-dd-target,
 	.yui3-dd-drop-over {
 		.border-radius (3px);
 		.box-shadow (0, 0, 2px, #fff inset);
 	}
 	
-	ul.folder > li.yui3-html5-dd-target,
+	ul.folder > li.su-html5-dd-target,
 	ul.folder > li.yui3-dd-drop-over {
 		.box-shadow (0, 0, 2px, #fff);
 	}

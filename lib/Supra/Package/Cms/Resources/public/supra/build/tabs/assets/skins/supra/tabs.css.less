@@ -1,42 +1,42 @@
 @import "../../../../../less/common.less";
 
-.yui3-tabs-buttons {
+.su-tabs-buttons {
 	position: relative;
 	z-index: 1;
 	overflow: hidden;
 	padding-left: 5px;
 }
-	.yui3-tabs-item {
+	.su-tabs-item {
 		padding: 5px;
 		float: left;
 	}
-	.yui3-tabs-item-selected {
+	.su-tabs-item-selected {
 		.border-radius (4px, 4px, 0, 0);
 		.box-shadow (0, 1px, 1px, rgba(0, 0, 0, 0.35) inset);
 		padding: 4px 4px 5px;
 		background: #eee;
 		border-bottom: 0;
 	}
-		.yui3-tabs-item-selected .su-button,
-		.yui3-tabs-item-selected .su-button div,
-		.yui3-tabs-item-selected .su-button button {
+		.su-tabs-item-selected .su-button,
+		.su-tabs-item-selected .su-button div,
+		.su-tabs-item-selected .su-button button {
 			.box-shadow (none);
 			background: none;
 			cursor: default;
 		}
 		
-	.yui3-tabs-item p {
+	.su-tabs-item p {
 		padding: 0 10px 0 5px;
 		display: inline-block;
 		vertical-align: middle;
 	}
-	.yui3-tabs-item img {
+	.su-tabs-item img {
 		display: inline-block;
 		vertical-align: middle;
 		margin-left: 3px;
 	}
 	
-.yui3-tabs-contents {
+.su-tabs-contents {
 	.border-radius (4px);
 	position: relative;
 	margin-top: -1px;
@@ -45,27 +45,27 @@
 	min-height: 10px;
 }
 
-.yui3-tabs-dark {
-	.yui3-tabs-item-selected {
+.su-tabs-dark {
+	.su-tabs-item-selected {
 		background: #ccc;
 		border: 0;
 		padding: 5px;
 		.border-radius (6px, 6px, 0, 0);
 		-webkit-box-shadow: none;	/* buggy */
 	}
-	.yui3-tabs-contents {
+	.su-tabs-contents {
 		background: #ccc;
 		border: 0;
 		.border-radius (6px);
 	}
 }
 
-.yui3-tabs-vertical {
-	.yui3-tabs-content {
+.su-tabs-vertical {
+	.su-tabs-content {
 		overflow: hidden;
 		padding: 0;
 	}
-	.yui3-tabs-buttons {
+	.su-tabs-buttons {
 		width: 250px;
 		float: left;
 		padding: 5px 0;
@@ -74,11 +74,11 @@
 		overflow: visible;
 		.border-radius (4px);
 	}
-	.yui3-tabs-contents {
+	.su-tabs-contents {
 		padding: 0 0 0 285px;
 		border: 0;
 	}
-	.yui3-tabs-item {
+	.su-tabs-item {
 		float: none;
 		padding: 0 5px;
 	
@@ -99,7 +99,7 @@
 		}
 	}
 	
-	.yui3-tabs-item-selected {
+	.su-tabs-item-selected {
 		.box-shadow (none);
 		background: none;
 		

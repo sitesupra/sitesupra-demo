@@ -4,22 +4,22 @@
 .su-highlight-order {}
 
 .su-highlight-blocks {
-	.yui3-content {
+	.su-content {
 		min-height: 60px;
 	}
-	.yui3-content-list {
+	.su-content-list {
 		min-height: 0;
 	}
 }
 .su-highlight-placeholders {
-	.yui3-content-list {
+	.su-content-list {
 		min-height: 60px;
 	}
 }
 
 .su-highlight-insert,
 .su-highlight-order {
-	.yui3-content-proxy {
+	.su-content-proxy {
 		/* Proxy node */
 		opacity: 1;
 	}
@@ -32,7 +32,7 @@
 /**
  * Content highlight (used for lists)
  */
-.yui3-content.su-content-highlight {
+.su-content.su-content-highlight {
 	border: 2px solid #999 !important;
 	position: relative !important;
 	//margin: -2px !important;
@@ -46,13 +46,13 @@
 		cursor: default;
 		border-radius: 3px;
 	}
-	.yui3-content {
+	.su-content {
 		position: relative;
 		left: -2px;
 		top: -2px;
 	}
 	
-	.yui3-content-proxy {
+	.su-content-proxy {
 		/* Proxy node */
 		opacity: 1;
 	}
@@ -112,7 +112,7 @@
 }
 
 /* Overlay proxy element */
-.yui3-editable .yui3-content-proxy {
+.su-editable .su-content-proxy {
 	opacity: 1;
 	padding: 0;
 	background: none;
@@ -138,7 +138,7 @@
 /**
  *
  */
-.yui3-highlight .yui3-highlight-list {
+.su-highlight .su-highlight-list {
 	outline: 2px solid #009DF8;
 	
 	-moz-outline-radius: 5px;

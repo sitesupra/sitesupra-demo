@@ -20,7 +20,7 @@ class EditableGalleryFilter implements FilterInterface, BlockPropertyAware
      */
     public function filter($content, array $options = array())
     {
-        $wrap = '<div id="content_%s_%s" class="yui3-content-inline yui3-input-string-inline">%s</div>';
+        $wrap = '<div id="content_%s_%s" class="su-content-inline su-input-gallery-inline">%s</div>';
 
         return sprintf(
             $wrap,
