@@ -5,85 +5,56 @@ namespace Supra\Package\Cms\Pages\Twig;
 use Twig_Node_Expression_Constant as ConstantNode;
 use Twig_Node_Expression_Array as ArrayNode;
 
-class BlockPropertySetNode extends BlockPropertyNode
+class BlockPropertySetNode extends AbstractPropertyFunctionNode
 {
     /**
-     * @var array|null
+     * {@inheritDoc}
      */
-    private $options;
+    public function getType()
+    {
+        return 'property set';
+    }
 
     /**
      * {@inheritDoc}
      */
     public function compile(\Twig_Compiler $compiler)
     {
-        $compiler->raw('$this->env->getExtension(\'supraPage\')->getPropertyValue(\'' . $this->getPropertyNameValue() . "')");
+        $compiler->raw('$this->env->getExtension(\'supraPage\')->getPropertyValue(\'' . $this->getNameOptionValue() . "')");
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    public function getPropertyNameValue()
+    public function getOptions()
     {
-        $options = $this->getOptions();
+        $node = $this->getOptionsArgumentNode();
 
-        if (isset($options['name'])) {
-            return $options['name'];
+        if ($node === null) {
+            throw new \RuntimeException('No arguments for set provided.');
         }
 
-        // if name isn't set, we will generate it automatically
-        $nameParts = array();
-
-        foreach ($this->getNode('arguments') as $argument) {
-            if ($argument instanceof BlockPropertyNode) {
-                $nameParts[] = ucfirst($argument->getPropertyNameValue());
-            }
+        if (! $node instanceof ArrayNode) {
+            throw new \RuntimeException(sprintf(
+                'Expecting options argument to be an array, [%s] received.',
+                get_class($node)
+            ));
         }
 
-        return lcfirst(implode($nameParts)) . 'Set';
+        return $this->nodeToArray($node);
     }
 
     /**
      * @return string|null
      */
-    public function getLabelValue()
+    public function getLabelOptionValue()
     {
         $options = $this->getOptions();
 
-        return isset($options['label']) ? $options['label'] : null;
-    }
-
-    /**
-     * @return array
-     */
-    private function getOptions()
-    {
-        if ($this->options === null) {
-
-            foreach ($this->getNode('arguments') as $argumentNode) {
-
-                if ($argumentNode instanceof ConstantNode) {
-                    $this->options['name'] = $argumentNode->getAttribute('value');
-                    break;
-
-                } elseif ($argumentNode instanceof ArrayNode) {
-
-                    foreach ($argumentNode->getKeyValuePairs() as $pair) {
-
-                        if (! $pair['key'] instanceof ConstantNode
-                            || !$pair['value'] instanceof ConstantNode) {
-
-                            continue;
-                        }
-
-                        $this->options[$pair['key']->getAttribute('value')] = $pair['value']->getAttribute('value');
-                    }
-
-                    break;
-                }
-            }
+        if (isset($options['label']) && $options['label'] instanceof ConstantNode) {
+            return $options['label']->getAttribute('value');
         }
 
-        return $this->options;
+        return null;
     }
 }

@@ -5,4 +5,8 @@
 	</div>
 {% endset %}
 
-{{ property('gallery', 'gallery', {'itemTemplate': itemTemplate}) }}
+{{ property({
+	'name': 'gallery',
+	'type': 'gallery',
+	'itemTemplate': itemTemplate
+}) }}

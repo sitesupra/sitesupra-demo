@@ -1,11 +1,18 @@
-{% set persons = collection(
-    {'name': 'fooBarCollection', 'label': 'Foo Bar Collection'},
-    set(
-        {'name': 'fooBarSet', 'label': 'Foo Bar Set'},
-        property('fullname', 'string'),
-        collection('positions', property('position', 'string'))
-    )
-) %}
+{% set persons = collection({
+    'name': 'fooBarCollection',
+    'label': 'Foo Bar Collection',
+    'item': set({
+        'name': 'fooBarSet',
+        'label': 'Foo Bar Set',
+        'items': [
+            property({'name': 'fullname', 'type': 'string'}),
+            collection({
+                'name': 'positions',
+                'item': property({'name': 'position', 'type': 'string'})
+            })
+        ]
+    })
+}) %}
 
 
 <h3>Persons</h3>

@@ -1,9 +1,17 @@
-{% set title = property('title', {'type': 'string', 'label': 'Title'}) %}
+{% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
 
-{% set accordions = collection(set(
-    property('title', {'type': 'inline_string', 'label': 'Title'}),
-    property('text',  {'type': 'html', 'label': 'Text'})
-)) %}
+{% set accordions = collection({
+	'name': 'accordions',
+	'label': 'Accordions',
+	'item': set({
+		'name': 'accordion',
+		'items': [
+			property({'name': 'text','type': 'html', 'label': 'Text'}),
+			property({'name': 'title','type': 'inline_string', 'label': 'Title'})
+		]
+	})
+})
+%}
 
 <section class="accordion block" data-require="plugins/blocks/accordion" data-attach="$.fn.accordion" data-refresh-event="accordion">
 	
