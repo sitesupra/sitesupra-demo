@@ -1,0 +1,37 @@
+framework:
+    doctrine:
+        credentials:
+            hostname: db.vig
+            username: dev
+            password: dev
+            charset: utf8
+            database: supra9
+    locales:
+        locales:
+            -
+                id: lv
+                title: Latvian
+                country: Latvia
+                properties:
+                    flag: lv
+                    language: lv
+                active: true
+            -
+                id: ru
+                title: Russian
+                country: Russia
+                properties:
+                    flag: ru
+                    language: ru
+
+cms_authentication:
+  users:
+    default_domain: videinfra.com
+    shared_connection:
+        host: db.vig
+        user: dev
+        password: dev
+        charset: utf8
+        dbname: supra9_shared_users
+        driver: mysql
+        event_manager: public
