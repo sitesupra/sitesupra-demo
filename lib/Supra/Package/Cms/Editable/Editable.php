@@ -23,13 +23,13 @@ abstract class Editable implements EditableInterface
 		'inline_map'	=> '\Supra\Package\Cms\Editable\InlineMap',
 		'gallery'		=> '\Supra\Package\Cms\Editable\Gallery',
 		'datetime'		=> '\Supra\Package\Cms\Editable\DateTime',
+		'keywords'		=> '\Supra\Package\Cms\Editable\Keywords',
+		'select'		=> '\Supra\Package\Cms\Editable\Select',
+		'select_list'	=> '\Supra\Package\Cms\Editable\SelectList',
 		// @TODO: types listed below:
 //		'inline_image' => '',
 //		'inline_video'	=> '',
 //		'video'		=> '',
-//		'keywords' =>	'',
-//		'select' => 	'',
-//		'select_list' => '',
 //		'select_visual' => '',
 
 	);

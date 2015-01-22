@@ -2,34 +2,19 @@
 
 namespace Supra\Package\Cms\Entity\ReferencedElement;
 
-use Supra\ObjectRepository\ObjectRepository;
-
 /**
  * @Entity
  */
 class VideoReferencedElement extends ReferencedElementAbstract
 {
-
 	const TYPE_ID = 'video';
-	
-	const RESOURCE_SOURCE = 'source';
-	const RESOURCE_LINK	= 'link';
-	const RESOURCE_FILE	= 'file';
-	
-	const SOURCE_EMBED = 'embed';
-	const SOURCE_IFRAME = 'iframe';
-	
-	const SERVICE_YOUTUBE = 'youtube';
-	const SERVICE_VIMEO = 'vimeo';
-	
+
 	/**
-	 * MediaLibrary file Id
-	 * 
-	 * @Column(type="supraId20", nullable=true)
+	 * @Column(type="string")
 	 * @var string
 	 */
-	protected $fileId;
-		
+	protected $link;
+
 	/**
 	 * Type of video resource - link, local file or iframe/embed
 	 * 

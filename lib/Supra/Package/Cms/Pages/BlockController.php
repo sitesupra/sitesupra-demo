@@ -461,6 +461,9 @@ abstract class BlockController extends Controller
 				$filters[] = new Filter\EditableInlineMapFilter();
 			}
 		}
+		elseif ($editable instanceof Editable\Keywords) {
+			$filters[] = new Filter\KeywordsFilter();
+		}
 
 		foreach ($filters as $filter) {
 

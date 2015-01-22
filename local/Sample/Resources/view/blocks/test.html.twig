@@ -22,3 +22,21 @@
         {{ position }}<br/>
     {% endfor %}
 {% endfor %}
+
+{% for keyword in property({'name': 'keywords', 'type': 'keywords'}) %}
+    {{ keyword }}<br />
+{% endfor %}
+
+
+{{ property({
+    'name': 'gender',
+    'type': 'select',
+    'values': {'male': 'Male', 'female': 'Female'}
+}) }}
+
+
+{{ property({
+    'name': 'childCount',
+    'type': 'select_list',
+    'values': {'none': 'None', 'one': 'One', 'two': 'Two', 'more': ' >2'}
+}) }}

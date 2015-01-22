@@ -142,23 +142,50 @@ class BlockPropertyNodeVisitor implements \Twig_NodeVisitorInterface
 
 		} elseif ($node instanceof BlockPropertyNode) {
 
-			$plainOptions = array();
+			$optionsArgumentNode = $node->getOptionsArgumentNode();
 
-			foreach ($options as $optionName => $value) {
-				if ($value instanceof ConstantNode) {
-					$plainOptions[$optionName] = $value->getAttribute('value');
-				}
-			}
-
-			if (empty($plainOptions['type'])) {
+			if (! $optionsArgumentNode instanceof ArrayNode) {
 				return null;
 			}
 
-			return $this->propertyMapper->createProperty($name, $plainOptions['type'], $plainOptions);
+			$constantOptions = $this->collectConstantValues($optionsArgumentNode);
+
+			if (empty($constantOptions['type'])) {
+				return null;
+			}
+
+			return $this->propertyMapper->createProperty($name, $constantOptions['type'], $constantOptions);
 
 		} else {
 
 			throw new \UnexpectedValueException();
 		}
+	}
+
+	/**
+	 * @param ArrayNode $node
+	 * @return array
+	 */
+	private function collectConstantValues(ArrayNode $node)
+	{
+		$values = array();
+
+		foreach ($node->getKeyValuePairs() as $pair) {
+			if (! $pair['key'] instanceof ConstantNode) {
+				continue;
+			}
+
+			$value = null;
+
+			if ($pair['value'] instanceof ConstantNode) {
+				$value = $pair['value']->getAttribute('value');
+			} elseif ($pair['value'] instanceof ArrayNode) {
+				$value = $this->collectConstantValues($pair['value']);
+			}
+
+			$values[$pair['key']->getAttribute('value')] = $value;
+		}
+
+		return $values;
 	}
 }

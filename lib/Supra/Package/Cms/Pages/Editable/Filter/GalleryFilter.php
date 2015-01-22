@@ -7,7 +7,6 @@ use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
-use Supra\Package\Cms\Html\HtmlTag;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
 class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAware
