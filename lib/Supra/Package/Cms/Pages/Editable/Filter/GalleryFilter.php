@@ -24,56 +24,53 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 
 	/**
 	 * {@inheritDoc}
-	 * @return \Supra\Package\Cms\Pages\Gallery\GalleryImage[]
+	 * @return string
 	 */
 	public function filter($content, array $options = array())
 	{
+		$itemTemplate = ! empty($options['itemTemplate']) ? (string) $options['itemTemplate'] : '';
+		$wrapperTemplate = ! empty($options['wrapperTemplate']) ? (string) $options['wrapperTemplate'] : '';
+
 		$output = '';
 
 		$fileStorage = $this->container['cms.file_storage'];
 		/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
-
-		// @TODO: something not so hardcore
-
-		$itemTemplate = isset($options['item_template'])
-			? (string) $options['item_template']
-			: '';
-
-		$width = isset($options['width']) ? (int) $options['width'] : 300;
-		$height = isset($options['height']) ? (int) $options['height'] : null;
-
-		$crop = isset($options['crop']) ? $options['crop'] : false;
 
 		foreach ($this->blockProperty->getMetadata() as $metadata) {
 			/* @var $metadata \Supra\Package\Cms\Entity\BlockPropertyMetadata */
 
 			$element = $metadata->getReferencedElement();
 
-			if (! $element instanceof ImageReferencedElement) {
+			if (! $element instanceof ImageReferencedElement
+					|| $element->getSizeName() === null) {
+
 				continue;
 			}
 
-			$imageId = $element->getImageId();
-
-			$image = $fileStorage->findImage($imageId);
+			$image = $fileStorage->findImage($element->getImageId());
 
 			if ($image === null) {
 				continue;
 			}
 
-			$imageWebPath = $fileStorage->createResizedImage($image, $width, $height, $crop === true);
+			$imageWebPath = $fileStorage->getImagePath($image, $element->getSizeName());
 
-			$image = new HtmlTag('img');
-			$image->setAttribute('src', $imageWebPath);
+			$itemData = array(
+				'image' 		=> '<img src="' . $imageWebPath . '" alt="' . $element->getAlternativeText() . '" />',
+				'title' 		=> $element->getTitle(),
+				'description' 	=> $element->getDescription(),
+			);
 
-			$output .= str_replace(
-				array('{{ title }}', '{{ image }}'),
-				array('Title', $image),
+			$output .= preg_replace_callback(
+				'/{{\s*(?:image|title|description)\s*}}/g',
+				function ($matches) use ($itemData) {
+					return $itemData[$matches[0]];
+				},
 				$itemTemplate
 			);
 		}
 
-		return $output;
+		return preg_replace('/{{\s*items\s*/', $output, $wrapperTemplate);
 	}
 
 	/**

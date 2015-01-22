@@ -9,13 +9,10 @@ class ImageReferencedElement extends ReferencedElementAbstract
 {
 
 	const TYPE_ID = 'image';
-
 	const STYLE_LIGHTBOX = 'lightbox';
 
 	/**
-	 * Image ID to keep link data without existant real image.
-	 * SQL naming for CMS usage, should be fixed (FIXME).
-	 * @Column(type="supraId20", nullable=true)
+	 * @Column(type="supraId20")
 	 * @var string
 	 */
 	protected $imageId;
@@ -75,6 +72,12 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	protected $cropHeight;
 
 	/**
+	 * @Column(type="string", nullable=true)
+	 * @var string
+	 */
+	protected $alternateText;
+
+	/**
 	 *
 	 * @Column(type="string", nullable=true)
 	 * @var string
@@ -82,10 +85,10 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	protected $title;
 
 	/**
-	 * @Column(type="string", nullable=true)
+	 * @Column(type="text", nullable=true)
 	 * @var string
 	 */
-	protected $alternativeText;
+	protected $description;
 
 	/**
 	 * @return string
@@ -301,17 +304,17 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	/**
 	 * @return string
 	 */
-	public function getAlternativeText()
+	public function getAlternateText()
 	{
-		return $this->alternativeText;
+		return $this->alternateText;
 	}
 
 	/**
-	 * @param string $alternativeText
+	 * @param string $alternateText
 	 */
-	public function setAlternativeText($alternativeText)
+	public function setAlternateText($alternateText)
 	{
-		$this->alternativeText = $alternativeText;
+		$this->alternateText = $alternateText;
 	}
 
 	/**
@@ -331,74 +334,90 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getDescription()
+	{
+		return $this->description;
+	}
+
+	/**
+	 * @param string $description
+	 */
+	public function setDescription($description)
+	{
+		$this->description = $description;
+	}
+
+	/**
 	 * {@inheritdoc}
 	 * @return array
 	 */
 	public function toArray()
 	{
-		$array = array(
-			'type' => self::TYPE_ID,
-			'id' => $this->imageId,
-//			//TODO: Remove after JS change (#5686)
-//			'image' => $this->imageId,
-			'align' => $this->align,
-			'style' => $this->style,
-			'size_width' => $this->width,
-			'size_height' => $this->height,
-			'crop_top' => $this->cropTop,
-			'crop_left' => $this->cropLeft,
-			'crop_width' => $this->cropWidth,
-			'crop_height' => $this->cropHeight,
-			'title' => $this->title,
-			'description' => $this->alternativeText,
-			'size_name' => $this->sizeName,
-			'imageId' => $this->imageId,
-		);
+		return array(
+			'type' 			=> self::TYPE_ID,
+			'id' 			=> $this->imageId,
+			'align' 		=> $this->align,
+			'style' 		=> $this->style,
 
-		return $array;
+			'alternate_text'	=> $this->alternateText,
+			'title' 		=> $this->title,
+			'description' 	=> $this->description,
+
+			'size_width' 	=> $this->width,
+			'size_height' 	=> $this->height,
+			'crop_top' 		=> $this->cropTop,
+			'crop_left' 	=> $this->cropLeft,
+			'crop_width' 	=> $this->cropWidth,
+			'crop_height' 	=> $this->cropHeight,
+
+			'size_name' 	=> $this->sizeName,
+		);
 	}
 
 	/**
 	 * {@inheritdoc}
 	 * @param array $array
 	 */
-	public function fillArray(array $array)
+	public function fillArray(array $data)
 	{
-		$array = $array + array(
-			'align' => null,
-			'style' => null,
-			'size_width' => null,
-			'size_height' => null,
-			'crop_top' => null,
-			'crop_left' => null,
-			'crop_width' => null,
-			'crop_height' => null,
-			'title' => null,
-			'description' => null,
-			'size_name' => null,
-		);
+		$data = $data + array(
+				'style' 		=> null,
+				'align' 		=> null,
+				'alternate_text' 	=> null,
+				'title' 		=> null,
+				'description' 	=> null,
 
-		// TODO: should be removed after JS changes (#5686)
-		if (empty($array['id']) && ! empty($array['image'])) {
-			$array['id'] = $array['image'];
-		}
+				'size_width' 	=> null,
+				'size_name' 	=> null,
+				'crop_top' 		=> null,
+				'crop_left' 	=> null,
+				'crop_width' 	=> null,
+				'crop_height' 	=> null,
 
-		$this->imageId = $array['id'];
-		$this->align = $array['align'];
-		$this->style = $array['style'];
-		$this->setWidth($array['size_width']);
-		$this->setHeight($array['size_height']);
-		$this->setCropTop($array['crop_top']);
-		$this->setCropLeft($array['crop_left']);
-		$this->setCropWidth($array['crop_width']);
-		$this->setCropHeight($array['crop_height']);
-		$this->title = $array['title'];
-		$this->alternativeText = $array['description'];
-		$this->sizeName = $array['size_name'];
+				'size_height' 	=> null,
+			);
+
+		$this->imageId = $data['id'];
+		$this->align = $data['align'];
+		$this->style = $data['style'];
+		$this->alternateText = $data['alternate_text'];
+		$this->title = $data['title'];
+		$this->description = $data['description'];
+
+		$this->sizeName = $data['size_name'];
+
+		$this->setWidth($data['size_width']);
+		$this->setHeight($data['size_height']);
+		$this->setCropTop($data['crop_top']);
+		$this->setCropLeft($data['crop_left']);
+		$this->setCropWidth($data['crop_width']);
+		$this->setCropHeight($data['crop_height']);
 	}
 
 	/**
-	 *
+	 * @return bool
 	 */
 	public function isCropped()
 	{
