@@ -26,10 +26,12 @@ abstract class Editable implements EditableInterface
 		'keywords'		=> '\Supra\Package\Cms\Editable\Keywords',
 		'select'		=> '\Supra\Package\Cms\Editable\Select',
 		'select_list'	=> '\Supra\Package\Cms\Editable\SelectList',
+		'video'			=> '\Supra\Package\Cms\Editable\Video',
+		'inline_image'	=> '\Supra\Package\Cms\Editable\InlineImage',
 		// @TODO: types listed below:
 //		'inline_image' => '',
+//		'inline_media'	=> '',
 //		'inline_video'	=> '',
-//		'video'		=> '',
 //		'select_visual' => '',
 
 	);

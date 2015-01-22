@@ -44,7 +44,7 @@ class LinkEditorValueTransformer implements ValueTransformerInterface, BlockProp
 		$element = new LinkReferencedElement();
 
 		// @TODO: some data validation must happen here.
-		$element->fillArray($value);
+		$element->fillFromArray($value);
 
 		$metaItem->setReferencedElement($element);
 

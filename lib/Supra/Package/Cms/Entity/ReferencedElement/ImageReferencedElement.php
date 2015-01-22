@@ -380,7 +380,7 @@ class ImageReferencedElement extends ReferencedElementAbstract
 	 * {@inheritdoc}
 	 * @param array $array
 	 */
-	public function fillArray(array $data)
+	public function fillFromArray(array $data)
 	{
 		$data = $data + array(
 				'style' 		=> null,

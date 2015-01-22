@@ -11,7 +11,7 @@ use Supra\Package\Cms\Entity\Abstraction\Entity;
  * @DiscriminatorMap({
  *		"link" = "LinkReferencedElement", 
  *		"image" = "ImageReferencedElement",
- *		"video" = "VideoReferencedElement",
+ * 		"media" = "MediaReferencedElement"
  * })
  */
 abstract class ReferencedElementAbstract extends Entity
@@ -26,7 +26,7 @@ abstract class ReferencedElementAbstract extends Entity
 	 * Set properties from array
 	 * @param array $array
 	 */
-	abstract public function fillArray(array $array);
+	abstract public function fillFromArray(array $array);
 	
 	/**
 	 * @param array $array
@@ -49,15 +49,15 @@ abstract class ReferencedElementAbstract extends Entity
 				$element = new ImageReferencedElement();
 				break;
 			
-			case VideoReferencedElement::TYPE_ID:
-				$element = new VideoReferencedElement();
+			case MediaReferencedElement::TYPE_ID:
+				$element = new MediaReferencedElement();
 				break;
 
 			default:
 				throw new \RuntimeException(sprintf('Unrecognized element type [%].', $array['type']));
 		}
 		
-		$element->fillArray($array);
+		$element->fillFromArray($array);
 		
 		return $element;
 	}

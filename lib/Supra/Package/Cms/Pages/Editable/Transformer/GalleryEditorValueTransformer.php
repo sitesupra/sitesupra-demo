@@ -54,7 +54,7 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 
 				$element = new ImageReferencedElement();
 
-				$element->fillArray($imageData);
+				$element->fillFromArray($imageData);
 
 				$metadataCollection->set($key, new BlockPropertyMetadata($key, $this->property, $element));
 			}

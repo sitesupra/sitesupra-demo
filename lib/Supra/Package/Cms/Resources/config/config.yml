@@ -23,6 +23,8 @@ services:
         class: \Supra\Package\Cms\Pages\PageManager
     cms.pages.controller:
         class: \Supra\Package\Cms\Controller\PageController
+    cms.media_embed:
+        class: \MediaEmbed\MediaEmbed
 prefix: /backend
 cms_resources:
     css_pack:

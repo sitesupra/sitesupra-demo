@@ -123,26 +123,4 @@ class BlockPropertyMetadata extends Entity
 		$this->value = $value;
 	}
 
-	/**
-	 * @inehritDoc
-	 */
-	public function getVersionedParent()
-	{
-		return $this->blockProperty;
-	}
-
-//	/**
-//	 * Clones referenced element too.
-//	 */
-//	public function __clone()
-//	{
-//		parent::__clone();
-//
-//		if ( ! empty($this->id)
-//				&& $this->referencedElement !== null) {
-//
-//			$this->referencedElement = clone $this->referencedElement;
-//		}
-//	}
-
 }
