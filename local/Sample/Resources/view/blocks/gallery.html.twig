@@ -1,4 +1,4 @@
-{% set title = property('title', {'type': 'string', 'label': 'Title'}) %}
+{% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
 
 <section class="block gallery" data-refresh-event="gallery">
 	
@@ -19,13 +19,17 @@
 		    </li>
 		{% endverbatim %}{% endset %}
 		
-		{{ property({
-			'name': 'gallery',
-			'type': 'gallery',
-			'label': 'Gallery',
-			'itemTemplate': itemTemplate,
-			'wrapperTemplate': wrapperTemplate
-		}) }}
+		{{ property(
+			{
+				'name': 'gallery',
+				'type': 'gallery',
+				'label': 'Gallery'
+			},
+			{
+				'itemTemplate': itemTemplate,
+				'wrapperTemplate': wrapperTemplate
+			}
+		) }}
 		
 	</div>
 	

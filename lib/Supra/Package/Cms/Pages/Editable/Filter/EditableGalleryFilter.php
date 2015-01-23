@@ -21,12 +21,14 @@ class EditableGalleryFilter implements FilterInterface, BlockPropertyAware
     public function filter($content, array $options = array())
     {
         $itemTemplate = ! empty($options['itemTemplate']) ? $options['itemTemplate'] : null;
+        $wrapperTemplate = ! empty($options['wrapperTemplate']) ? $options['wrapperTemplate'] : null;
 
         return sprintf(
-            '<div id="content_%s_%s" class="su-content-inline su-input-gallery-inline" data-item-template="%s">%s</div>',
+            '<div id="content_%s_%s" class="su-content-inline su-input-gallery-inline" data-item-template="%s" data-wrapper-template="%s">%s</div>',
             $this->blockProperty->getBlock()->getId(),
             str_replace('.', '_', $this->blockProperty->getHierarchicalName()),
             htmlspecialchars($itemTemplate),
+            htmlspecialchars($wrapperTemplate),
             $content
         );
     }

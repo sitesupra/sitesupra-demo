@@ -69,7 +69,7 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 			);
 		}
 
-		return preg_replace('/{{\s*items\s*/', $output, $wrapperTemplate);
+		return preg_replace('/{{\s*items\s*}}/', $output, $wrapperTemplate);
 	}
 
 	/**

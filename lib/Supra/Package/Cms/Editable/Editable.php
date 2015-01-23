@@ -31,9 +31,7 @@ abstract class Editable implements EditableInterface
 		// @TODO: types listed below:
 //		'inline_image' => '',
 //		'inline_media'	=> '',
-//		'inline_video'	=> '',
 //		'select_visual' => '',
-
 	);
 
 	/**
