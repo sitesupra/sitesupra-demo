@@ -474,6 +474,13 @@ abstract class BlockController extends Controller
 		elseif ($editable instanceof Editable\Video) {
 			$filters[] = new Filter\VideoFilter();
 		}
+		elseif ($editable instanceof Editable\InlineMedia) {
+			$filters[] = new Filter\InlineMediaFilter();
+
+			if ($this->request instanceof PageRequestEdit) {
+				$filters[] = new Filter\EditableInlineMediaFilter();
+			}
+		}
 
 		foreach ($filters as $filter) {
 
@@ -513,6 +520,8 @@ abstract class BlockController extends Controller
 			$transformers[] = new Transformer\ArrayValueTransformer();
 		} elseif ($editable instanceof Editable\Video) {
 			$transformers[] = new Transformer\VideoEditorValueTransformer();
+		} elseif ($editable instanceof Editable\InlineMedia) {
+//			$transformers[] = ...;
 		}
 
 		foreach ($transformers as $transformer) {

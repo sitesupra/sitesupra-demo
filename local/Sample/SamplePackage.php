@@ -25,9 +25,7 @@ class SamplePackage extends AbstractSupraCmsPackage
 			new Blocks\SocialLinks(),
 			new Blocks\Tabs(),
 			new Blocks\Accordion(),
-
 			new Blocks\PageMenu(),
-
 			new Blocks\Test(),
 		);
 	}

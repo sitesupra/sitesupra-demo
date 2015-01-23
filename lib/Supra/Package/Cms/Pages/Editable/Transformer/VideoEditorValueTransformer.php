@@ -65,21 +65,11 @@ class VideoEditorValueTransformer implements ValueTransformerInterface, Containe
             ));
         }
 
-        $mediaElement = $this->getMediaElement();
+        $metadata = $this->property->getMetadata();
 
-        if ($mediaElement === null) {
-            $mediaElement = new MediaReferencedElement();
-            $mediaElement->setUrl($value['url']);
+        $mediaElement = new MediaReferencedElement();
 
-            $metaItem = $this->property->getMetadata()->get('media');
-
-            if ($metaItem === null) {
-                $metaItem = new BlockPropertyMetadata('media', $this->property);
-                $this->property->addMetadata($metaItem);
-            }
-
-            $metaItem->setReferencedElement($mediaElement);
-        }
+        $mediaElement->setUrl($value['url']);
 
         if (isset($value['width'])) {
 
@@ -107,6 +97,12 @@ class VideoEditorValueTransformer implements ValueTransformerInterface, Containe
             $mediaElement->setHeight($height);
         }
 
+        if (! isset($metadata['media'])) {
+            $this->property->addMetadata(new BlockPropertyMetadata('media', $this->property));
+        }
+
+        $metadata['media']->setReferencedElement($mediaElement);
+
         return $value['url'];
     }
 
@@ -116,7 +112,14 @@ class VideoEditorValueTransformer implements ValueTransformerInterface, Containe
      */
     public function transform($value)
     {
-        $element = $this->getMediaElement();
+        $metadata = $this->property->getMetadata();
+
+        if (! isset($metadata['media'])) {
+            return null;
+        }
+
+        $element = $metadata->getReferencedElement();
+
         return $element ? $element->toArray() : null;
     }
 
@@ -128,21 +131,4 @@ class VideoEditorValueTransformer implements ValueTransformerInterface, Containe
         $this->container = $container;
     }
 
-    /**
-     * @return MediaReferencedElement|null
-     */
-    private function getMediaElement()
-    {
-        if (! $this->property->getMetadata()->offsetExists('media')) {
-            return null;
-        }
-
-        $element = $this->property->getMetadata()->get('media');
-
-        if ($element instanceof MediaReferencedElement) {
-            return $element;
-        }
-
-        return null;
-    }
 }

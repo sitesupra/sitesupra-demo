@@ -43,7 +43,7 @@ class EditableHtmlFilter extends HtmlFilter
 
 		if (! $tag instanceof HtmlTag) {
 			throw new \UnexpectedValueException(sprintf(
-					'Expecting HtmlTagAbstraction, [%s] recevied.',
+					'Expecting HtmlTagAbstraction, [%s] received.',
 					get_class($tag)
 			));
 		}
@@ -52,7 +52,7 @@ class EditableHtmlFilter extends HtmlFilter
 		/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
 
 		$image = $fileStorage->findImage($imageElement->getImageId());
-		
+
 		if ($image !== null) {
 			
 			$exists = $fileStorage->fileExists($image);

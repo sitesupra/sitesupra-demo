@@ -28,7 +28,7 @@ abstract class Editable implements EditableInterface
 		'select_list'	=> '\Supra\Package\Cms\Editable\SelectList',
 		'video'			=> '\Supra\Package\Cms\Editable\Video',
 		'inline_image'	=> '\Supra\Package\Cms\Editable\InlineImage',
-//		'inline_media'	=> '',
+		'inline_media'	=> '\Supra\Package\Cms\Editable\InlineMedia',
 		// @TODO: types listed below:
 //		'select_visual' => '',
 	);
