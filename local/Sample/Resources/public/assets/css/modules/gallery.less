@@ -1,0 +1,23 @@
+/**
+ * Gallery displays list of images in a grid, where each image has a title
+ */
+.gallery {
+	.img {
+		display: block;
+		overflow: hidden;
+	}
+	
+	img {
+		display: block;
+		max-width: 100%;
+		height: auto;
+	}
+}
+
+// In CMS for image crop size to work properly there shouldn't be 
+// overflow: hidden;
+.supra-itemmanager .gallery {
+	.img {
+		overflow: visible;
+	}
+}

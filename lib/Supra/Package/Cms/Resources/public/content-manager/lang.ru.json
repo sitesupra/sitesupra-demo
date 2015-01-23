@@ -472,76 +472,10 @@
 			"title": "Сетка",
 			"button": "Сетка"
 		},
-
-		"gallerymanager": {
-			"title": "Управление",
-			"label_title": "Название",
-
-			"insert": "Вставить",
-			"manage": "Управление картинкой",
-			"manage_icon": "Управление иконкой",
-			"design": "Дизайн",
-			"animation": "Анимация",
-
-			"click_here": "Нажмите сюда, чтобы ввести{label}",
-			"click_here_edit": "Нажмите сюда, чтобы редактировать",
-			"drop_replace": "Drop here to replace image",
-
-			"edit_move": "Нажмите сюда, чтобы редактировать<br />или перетащите в другое место",
-
-			"empty": "У вас ещё нет добавленных объектов",
-			"drag_and_drop": "Перетащите сюда<br />папку или файлы",
-			"add_item": "Добавить",
-			"just_drag_and_drop": "или перетащите сюда файл",
-
-			"settings_title": "Свойства объекта",
-			"label": "Объекты",
-			"label_button": "Управление объектами",
-
-			"error_duplicate_image": "At this moment you can't use the same image twice for this block. Please select another image.",
-			"error_template": "Error occured in {block} block"
-		},
-
-		"slideshowmanager": {
-			"title": "Редактировать слайдшоу",
-
-			"label": "Слайды",
-			"label_button": "Редактировать слайды",
-
-			"sidebar_title": "Редактировать слайд",
-			"sidebar_title_numbered": "Редактировать слайд {nr}",
-			"delete_slide": "Удалить слайд",
-
-			"add_new": "Добавить",
-
-			"error_template": "Error occured in {block} block",
-
-			"slide_label": "Слайд {nr}",
-			
-			"media": {
-				"add_image": "Добавить картинку",
-				"add_video": "Добавить видео"
-			}
-		},
-
-		"gallery": {
-			"title": "Редактировать галерею",
-
-			"label": "Объекты",
-			"label_button": "Редактировать объекты",
-
-			"sidebar_title": "Редактировать",
-			"delete_slide": "Удалить",
-
-			"edit_move": "Нажмите, чтобы редактировать<br />или перетащите в другое место",
-
-			"empty": "Галерея пуста",
-			"drag_and_drop": "Перетащите сюда <br />папки или файлы",
-			"add_item": "Добавить",
-			"add": "Добавить ",
-			"just_drag_and_drop": "или преретащите файлы сюда",
-
-			"error_template": "Error occured in {block} block"
+		
+		"itemmanager": {
+			"empty": "You have no items<br />in the list yet",
+			"add_item": "Add item"
 		},
 
 		"linkmanager": {

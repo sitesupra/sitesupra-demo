@@ -486,77 +486,9 @@
 			"error_template": "Error occured"
 		},
 		
-		"gallerymanager": {
-			"title": "Manage items",
-			"label_title": "Title",
-			
-			"insert": "Insert",
-			"manage": "Manage image",
-			"manage_icon": "Manage icon",
-			"design": "Design",
-			"animation": "Animation",
-			
-			"click_here": "Click here to enter {label}",
-			"click_here_edit": "Click here to edit",
-			"drop_replace": "Drop here to replace image",
-			
-			"edit_move": "Click to edit<br />or drag to move",
-			
+		"itemmanager": {
 			"empty": "You have no items<br />in the list yet",
-			"drag_and_drop": "Drag and drop<br />folder or files here",
-			"add_item": "Add item",
-			"just_drag_and_drop": "or just drag-and-drop file here",
-			
-			"settings_title": "Item properties",
-			"label": "Items",
-			"label_button": "Manage items",
-			
-			"error_duplicate_image": "At this moment you can't use the same image twice for this block. Please select another image.",
-			"error_template": "Error occured in {block} block"
-		},
-		
-		"slideshowmanager": {
-			"title": "Edit slideshow slides",
-			
-			"label": "Slides",
-			"label_button": "Edit slides",
-			
-			"sidebar_title": "Edit slide",
-			"sidebar_title_numbered": "Edit slide {nr}",
-			"delete_slide": "Delete slide",
-			
-			"add_new": "Add New",
-			
-			"wide_layout_mask_description": "Masks are available only for Boxed design",
-			
-			"error_template": "Error occured in {block} block",
-			
-			"slide_label": "Slide {nr}",
-			
-			"media": {
-				"add_image": "Add overlay image",
-				"add_video": "Add overlay video"
-			}
-		},
-		
-		"gallery": {
-			"title": "Edit gallery items",
-			
-			"label": "Items",
-			"label_button": "Edit items",
-			
-			"sidebar_title": "Edit item",
-			"delete_slide": "Delete item",
-			
-			"edit_move": "Click to edit<br />or drag to move",
-			
-			"empty": "You have no items<br />in the list yet",
-			"drag_and_drop": "Drag and drop<br />folder or files here",
-			"add_item": "Add item",
-			"add": "Add ",
-			"just_drag_and_drop": "or just drag-and-drop file here",
-			
-			"error_template": "Error occured in {block} block"
+			"add_item": "Add item"
 		},
 		
 		"linkmanager": {

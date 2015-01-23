@@ -1,8 +1,25 @@
-{% set itemTemplate %}
-	<div class="item">
-		<span>{{ title }}</span>
-		{{ image }}
-	</div>
-{% endset %}
+{% set title = property('title', {'type': 'string', 'label': 'Title'}) %}
 
-{{ property('gallery', 'gallery', {'itemTemplate': itemTemplate}) }}
+<section class="block gallery" data-refresh-event="gallery">
+	
+	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
+		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">
+			{{ title }}
+		</h2>
+	{% endif %}
+	
+	<div class="gallery-inner">
+		{% set wrapperTemplate %}{% verbatim %}
+			<ul class="pure-g">{{ items }}</li>
+		{% endverbatim %}{% endset %}
+		{% set itemTemplate %}{% verbatim %}
+		    <li class="pure-u pure-u-1-4">
+		        <span class="img">{{ image }}</span>
+		        <h2>{{ title }}</h2>
+		    </li>
+		{% endverbatim %}{% endset %}
+		
+		{{ property('gallery', {'type': 'gallery', 'label': 'Gallery'},  {'itemTemplate': itemTemplate, 'wrapperTemplate': wrapperTemplate}) }}
+	</div>
+	
+</section>
