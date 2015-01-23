@@ -70,6 +70,7 @@ class Cache implements ContainerAware
 	/**
 	 * Generate, store and return
 	 *
+	 * @todo rename $default to $value?
 	 * @param $prefix
 	 * @param $key
 	 * @param $default
