@@ -11,9 +11,9 @@ use Doctrine\DBAL\Platforms\AbstractPlatform;
 class SupraIdType extends Type
 {
 	const CN = __CLASS__;
-	
+
 	const NAME = 'supraId20';
-	
+
 	/**
 	 * {@inheritdoc}
 	 * @return string
@@ -33,12 +33,17 @@ class SupraIdType extends Type
 	{
 		$fieldDeclaration['length'] = 20;
 		$fieldDeclaration['fixed'] = true;
-		
+
 		$sql = $platform->getVarcharTypeDeclarationSQL($fieldDeclaration);
-		
+
+		//todo: check if this is sane, at least
+		$sql .= ' COLLATE ascii_general_ci';
+
 		return $sql;
 	}
-	
+
+
+
 	public function requiresSQLCommentHint(AbstractPlatform $platform)
 	{
 		return true;

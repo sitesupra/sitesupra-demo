@@ -8,6 +8,7 @@ use Supra\Core\Templating\TwigTemplating;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Detector\ParameterDetector;
+use Supra\Package\Cms\Command\LoadFixturesCommand;
 use Supra\Package\Cms\FileStorage\Validation\ExtensionUploadFilter;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
 use Supra\Package\Cms\Application\CmsInternalUserManagerApplication;
@@ -35,6 +36,8 @@ class SupraPackageCms extends AbstractSupraPackage
 		$container->getRouter()->loadConfiguration(
 			$container->getApplication()->locateConfigFile($this, 'routes.yml')
 		);
+
+		$container->getConsole()->add(new LoadFixturesCommand());
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
@@ -232,7 +235,7 @@ class SupraPackageCms extends AbstractSupraPackage
 			array('pdf', 'xls', 'xlsx', 'doc', 'docx', 'swf'));
 
 		$container->setParameter($this->getName().'.media_library_check_file_existence', 'full');
-		
+
 	}
 
 	public function finish(ContainerInterface $container)

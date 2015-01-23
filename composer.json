@@ -36,7 +36,7 @@
         "myclabs/deep-copy": "*",
         "simplethings/entity-audit-bundle": "dev-single_joined_bug",
         "gedmo/doctrine-extensions": "v2.3.9",
-	"dereuromark/media-embed": "dev-master"
+        "dereuromark/media-embed": "dev-master"
     },
     "repositories": [
         {

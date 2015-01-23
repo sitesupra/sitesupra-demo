@@ -1,0 +1,22 @@
+group:
+  admins: { name: admins, isSuper: true }
+  supers: { name: supers, isSuper: false }
+  contribs: { name: contribs, isSuper: false }
+user:
+  admin:
+    name: admin@sitesupra.org
+    login: admin@sitesupra.org
+    password: admin
+    email: admin@sitesupra.org
+    active: true
+    group: admins
+    roles: [ROLE_USER]
+template:
+  demo_template_simple:
+    media: screen
+    layoutName: simple
+    localizations: { en: Simple, ru: Simple, lv: Simple }
+  demo_template_two_columns:
+    media: screen
+    layoutName: two_solumns
+    localizations: { en: Two columns, ru: Two columns, lv: Two columns }
