@@ -63,19 +63,11 @@ class LoadFixturesCommand extends AbstractCommand
                 $input->getArgument('filename'))
         );
 
-        //create groups
-        foreach ($data['group'] as $name => $definition) {
-            $this->createEntity('group', $name, $definition);
-        }
-
-        //create users
-        foreach ($data['user'] as $name => $definition) {
-            $this->createEntity('user', $name, $definition);
-        }
-
-        //create templates
-        foreach ($data['template'] as $name => $definition) {
-            $this->createEntity('template', $name, $definition);
+        //we need to maintain creation order
+        foreach (array('group', 'user', 'template') as $section) {
+            foreach ($data[$section] as $name => $definition) {
+                $this->createEntity($section, $name, $definition);
+            }
         }
 
         $this->em->flush();

@@ -8,6 +8,7 @@ use Supra\Core\Templating\TwigTemplating;
 use Supra\Core\Package\AbstractSupraPackage;
 use Supra\Core\Locale\LocaleManager;
 use Supra\Core\Locale\Detector\ParameterDetector;
+use Supra\Package\Cms\Command\DumpFixturesCommand;
 use Supra\Package\Cms\Command\LoadFixturesCommand;
 use Supra\Package\Cms\FileStorage\Validation\ExtensionUploadFilter;
 use Supra\Package\Cms\Application\CmsDashboardApplication;
@@ -38,6 +39,7 @@ class SupraPackageCms extends AbstractSupraPackage
 		);
 
 		$container->getConsole()->add(new LoadFixturesCommand());
+		$container->getConsole()->add(new DumpFixturesCommand());
 
 		$container->getApplicationManager()->registerApplication(new CmsDashboardApplication());
 		$container->getApplicationManager()->registerApplication(new CmsPagesApplication());
