@@ -133,27 +133,27 @@ class MediaLibraryController extends AbstractCmsController
 			}
 		}
 
-		// Custom Properties
-		$dirty = false;
-
-		$propertyConfigurations = $this->getFileStorage()->getCustomPropertyConfigurations();
-		foreach ($propertyConfigurations as $configuration) {
-			$propertyName = $configuration->name;
-
-			if ($request->request->has($propertyName)) {
-				$value = $request->request->get($propertyName);
-
-				$property = $this->getFileStorage()->getFileCustomProperty($file, $propertyName);
-
-				$property->setEditableValue($value, $configuration->getEditable());
-
-				$dirty = true;
-			}
-		}
-
-		if ($dirty) {
-			$this->container->getDoctrine()->getManager()->flush();
-		}
+//		// Custom Properties
+//		$dirty = false;
+//
+//		$propertyConfigurations = $this->getFileStorage()->getCustomPropertyConfigurations();
+//		foreach ($propertyConfigurations as $configuration) {
+//			$propertyName = $configuration->name;
+//
+//			if ($request->request->has($propertyName)) {
+//				$value = $request->request->get($propertyName);
+//
+//				$property = $this->getFileStorage()->getFileCustomProperty($file, $propertyName);
+//
+//				$property->setEditableValue($value, $configuration->getEditable());
+//
+//				$dirty = true;
+//			}
+//		}
+//
+//		if ($dirty) {
+//			$this->container->getDoctrine()->getManager()->flush();
+//		}
 
 		$response = array();
 
