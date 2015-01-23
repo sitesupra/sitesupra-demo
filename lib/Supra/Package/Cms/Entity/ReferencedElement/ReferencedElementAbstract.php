@@ -11,7 +11,7 @@ use Supra\Package\Cms\Entity\Abstraction\Entity;
  * @DiscriminatorMap({
  *		"link" = "LinkReferencedElement", 
  *		"image" = "ImageReferencedElement",
- *		"video" = "VideoReferencedElement",
+ * 		"media" = "MediaReferencedElement"
  * })
  */
 abstract class ReferencedElementAbstract extends Entity
@@ -21,6 +21,12 @@ abstract class ReferencedElementAbstract extends Entity
 	 * @return array
 	 */
 	abstract public function toArray();
+
+	/**
+	 * Set properties from array
+	 * @param array $array
+	 */
+	abstract public function fillFromArray(array $array);
 	
 	/**
 	 * @param array $array
@@ -29,6 +35,10 @@ abstract class ReferencedElementAbstract extends Entity
 	public static function fromArray(array $array)
 	{
 		$element = null;
+
+		if (empty($array['type'])) {
+			throw new \RuntimeException('Element type is not specified.');
+		}
 		
 		switch ($array['type']) {
 			case LinkReferencedElement::TYPE_ID:
@@ -38,27 +48,18 @@ abstract class ReferencedElementAbstract extends Entity
 			case ImageReferencedElement::TYPE_ID:
 				$element = new ImageReferencedElement();
 				break;
-			
-			case VideoReferencedElement::TYPE_ID:
-				$element = new VideoReferencedElement();
+
+			case 'video': // @TODO: BC. Remove.
+			case MediaReferencedElement::TYPE_ID:
+				$element = new MediaReferencedElement();
 				break;
-			
-			case IconReferencedElement::TYPE_ID:
-				$element = new IconReferencedElement();
-				break;
-			
+
 			default:
-				throw new \RuntimeException("Invalid metadata array: " . print_r($array, 1));
+				throw new \RuntimeException(sprintf('Unrecognized element type [%s].', $array['type']));
 		}
 		
-		$element->fillArray($array);
+		$element->fillFromArray($array);
 		
 		return $element;
 	}
-	
-	/**
-	 * Set properties from array
-	 * @param array $array
-	 */
-	abstract public function fillArray(array $array);
 }

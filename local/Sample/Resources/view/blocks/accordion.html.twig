@@ -1,10 +1,46 @@
-{% set item = set({'title', 'inline_string'}, {'content', 'html'}) %}
+{% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
 
-<div class="accordion">
-	{% for item in collection(set) %}
-		<div class="item">
-			<h3>{{ item.title }}</h3>
-			<p>{{ item.content }}<p>
-		</div>
-	{% endfor %}
-</div>
+{% set accordions = collection({
+	'name': 'accordions',
+	'label': 'Accordions',
+	'item': set({
+		'name': 'accordion',
+		'items': [
+			property({'name': 'text','type': 'html', 'label': 'Text'}),
+			property({'name': 'title','type': 'inline_string', 'label': 'Title'})
+		]
+	})
+})
+%}
+
+<section class="accordion block" data-require="plugins/blocks/accordion" data-attach="$.fn.accordion" data-refresh-event="accordion">
+	
+	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
+		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">
+			{{ title }}
+		</h2>
+	{% endif %}
+	
+	<div class="accordion-inner">
+		{% for accordion in accordions %}
+		
+			<div class="accordion-item">
+				<h5 class="accordion-heading">
+					<span class="arrow"></span>
+					
+					{% if supraPage.cmsRequest %}
+						{{ accordion.title | raw }}
+					{% else %}
+						<a href="#accordion-{{ loop.index }}">{{ accordion.title | raw }}</a>
+					{% endif %}
+				</h5>
+				
+				<div class="accordion-content text clearfix" name="accordion-{{ loop.index }}">
+					{{ accordion.text | raw }}
+				</div>
+			</div>
+			
+		{% endfor %}
+	</div>
+	
+</section>

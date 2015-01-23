@@ -31,17 +31,6 @@ class PropertyConfig extends AbstractPropertyConfig
 	}
 
 	/**
-	 * {@inheritDoc}
-	 */
-	public function createBlockProperty($name)
-	{
-		$property = new BlockProperty($name);
-		$property->setEditableClass(get_class($this->editable));
-
-		return $property;
-	}
-
-	/**
 	 * {@inhertitDoc}
 	 */
 	public function isMatchingProperty(BlockProperty $property)
@@ -62,6 +51,10 @@ class PropertyConfig extends AbstractPropertyConfig
 	{
 		$property = new BlockProperty($name);
 		$property->setEditableClass(get_class($this->editable));
+
+		// @TODO: value conversion
+		// @TODO: localized values
+		$property->setValue($this->editable->getDefaultValue());
 
 		return $property;
 	}

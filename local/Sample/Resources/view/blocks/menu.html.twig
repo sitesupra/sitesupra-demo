@@ -1,0 +1,11 @@
+<ul>
+{% for link in collection({
+    'name':  'linkCollection',
+    'label': 'Links',
+    'item': property({'name': 'link', 'type': 'link'})
+}) %}
+
+    <li>{{ link | raw }}</li>
+
+{% endfor %}
+</ul>

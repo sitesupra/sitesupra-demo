@@ -53,7 +53,7 @@ class NotFoundAssetExceptionListener implements RequestResponseListenerInterface
 
 					$content = $this->container->getCache()->fetch('assets_404', $path, function () use ($asset) {
 						return $asset->dump();
-					}, $asset->getLastModified());
+					}, $asset->getLastModified(), 0, true);
 
 					$event->setResponse(new Response($content, 200, array('Content-Type' => 'text/css')));
 

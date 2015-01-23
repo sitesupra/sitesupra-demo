@@ -71,13 +71,6 @@
 			"set_file": "Set file",
 			"set_link": "Set link",
 			"set_tree": "Set item",
-			"shared_property_description": "The value for this block has been taken from {{ localeTitle }} localization. Go there to manage it.",
-			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
-			"shared_slideshow_unavailable": "Images for the this slideshow have been taken from {{ localeTitle }} localization. Go there to manage them.",
-			"shared_slideshow_notice": "This slideshow has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
-			"shared_gallery_unavailable": "Images for the this gallery have been taken from {{ localeTitle }} localization. Go there to manage them.",
-			"shared_gallery_notice": "This gallery has shared slides and some of properties could be unavailable for editing. Would you like to continue?",
-			"shared_property_notice": "This gallery has shared images and some of properties could be unavailable for editing. Would you like to continue?",
 			
 			"block": {
 				"no_image": "No image",
@@ -86,6 +79,8 @@
 				"change_image": "Change image",
 				"edit_image": "Edit image",
 				"remove_image": "Remove image",
+				
+				"gallery_manager": "Manage ",
 				
 				"custom_icon": "Set icon",
 				"set_icon": "Set icon",
@@ -112,7 +107,6 @@
 			
 			"delete_block": "Delete block",
 			"delete_block_confirmation": "Are you sure you want to delete selected block",
-			"delete_block_shared_confirmation": "The block may contain data that is shared among other page localizations. By deleting the block you may lose this data. Do you wish to proceed?",
 			"delete_block_global_confirmation": "If you delete this Global block it would disappear from all pages it was placed on. To remove this block from the current page only try selecting a different page template from page settings or create a new page template. Remove the block anyway?",
 			
 			"description_block_global": "This is a Global block. Changes to a Global block affect all pages it is placed on.",
@@ -488,77 +482,13 @@
 			"button": "Layout"
 		},
 		
-		"gallerymanager": {
-			"title": "Manage items",
-			"label_title": "Title",
-			
-			"insert": "Insert",
-			"manage": "Manage image",
-			"manage_icon": "Manage icon",
-			"design": "Design",
-			"animation": "Animation",
-			
-			"click_here": "Click here to enter {label}",
-			"click_here_edit": "Click here to edit",
-			"drop_replace": "Drop here to replace image",
-			
-			"edit_move": "Click to edit<br />or drag to move",
-			
-			"empty": "You have no items<br />in the list yet",
-			"drag_and_drop": "Drag and drop<br />folder or files here",
-			"add_item": "Add item",
-			"just_drag_and_drop": "or just drag-and-drop file here",
-			
-			"settings_title": "Item properties",
-			"label": "Items",
-			"label_button": "Manage items",
-			
-			"error_duplicate_image": "At this moment you can't use the same image twice for this block. Please select another image.",
-			"error_template": "Error occured in {block} block"
+		"itemmanager": {
+			"error_template": "Error occured"
 		},
 		
-		"slideshowmanager": {
-			"title": "Edit slideshow slides",
-			
-			"label": "Slides",
-			"label_button": "Edit slides",
-			
-			"sidebar_title": "Edit slide",
-			"sidebar_title_numbered": "Edit slide {nr}",
-			"delete_slide": "Delete slide",
-			
-			"add_new": "Add New",
-			
-			"wide_layout_mask_description": "Masks are available only for Boxed design",
-			
-			"error_template": "Error occured in {block} block",
-			
-			"slide_label": "Slide {nr}",
-			
-			"media": {
-				"add_image": "Add overlay image",
-				"add_video": "Add overlay video"
-			}
-		},
-		
-		"gallery": {
-			"title": "Edit gallery items",
-			
-			"label": "Items",
-			"label_button": "Edit items",
-			
-			"sidebar_title": "Edit item",
-			"delete_slide": "Delete item",
-			
-			"edit_move": "Click to edit<br />or drag to move",
-			
+		"itemmanager": {
 			"empty": "You have no items<br />in the list yet",
-			"drag_and_drop": "Drag and drop<br />folder or files here",
-			"add_item": "Add item",
-			"add": "Add ",
-			"just_drag_and_drop": "or just drag-and-drop file here",
-			
-			"error_template": "Error occured in {block} block"
+			"add_item": "Add item"
 		},
 		
 		"linkmanager": {

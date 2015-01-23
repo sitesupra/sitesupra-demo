@@ -301,44 +301,48 @@ abstract class BlockController extends Controller
 	 */
 	public function savePropertyValue($name, $value)
 	{
+		$entityManager = $this->container->getDoctrine()
+				->getManager();
+		/* @var $entityManager \Doctrine\ORM\EntityManager */
+
+		$property = $this->getProperty($name);
 		$propertyConfig = $this->config->getProperty($name);
 
 		if ($propertyConfig instanceof Config\PropertyCollectionConfig) {
 
-			if ($value !== '' && ! is_array($value)) {
+			if ($value === '') {
+				$property->getProperties()->clear();
+				return;
+			}
+
+			if (! is_array($value)) {
 				throw new \UnexpectedValueException(sprintf(
 					'Expecting property collection value to be array or empty string, [%s] received.',
 					gettype($value)
 				));
 			}
 
-			if ($value === '') {
-				$collectionProperty = $this->getProperty($name);
-				foreach ($collectionProperty as $subProperty) {
-					$this->container->getDoctrine()
-						->getManager()
-						->remove($subProperty);
-				}
-
-				return;
-			}
-
 			foreach ($value as $subName => $subValue) {
 				$this->savePropertyValue($name . '.' . $subName, $subValue);
+			}
+
+			$existingPropertyNames = array_keys($value);
+
+			foreach ($property->getProperties() as $subProperty) {
+				/* @var $subProperty BlockProperty */
+				if (! in_array($subProperty->getName(), $existingPropertyNames)) {
+					$entityManager->remove($subProperty);
+				}
 			}
 
 			return;
 		}
 
-		$property = $this->getProperty($name);
-
 		$editable = $propertyConfig->getEditable()->getInstance();
 
 		$this->configureValueTransformers($editable, $property);
 
-		$this->container->getDoctrine()
-				->getManager()
-				->persist($property);
+		$entityManager->persist($property);
 
 		$property->setValue($editable->fromEditorValue($value));
 	}
@@ -441,10 +445,21 @@ abstract class BlockController extends Controller
 			$filters[] = new Editable\Filter\DateTimeFilter();
 		}
 		elseif ($editable instanceof Editable\Image) {
+
 			$filters[] = new Filter\ImageFilter();
+
+			if ($editable instanceof Editable\InlineImage
+					&& $this->request instanceof PageRequestEdit) {
+
+				$filters[] = new Filter\EditableInlineImageFilter();
+			}
 		}
 		elseif ($editable instanceof Editable\Gallery) {
 			$filters[] = new Filter\GalleryFilter();
+
+			if ($this->request instanceof PageRequestEdit){
+				$filters[] = new Filter\EditableGalleryFilter();
+			}
 		}
 		elseif ($editable instanceof Editable\InlineMap) {
 			$filters[] = new Filter\InlineMapFilter();
@@ -452,6 +467,12 @@ abstract class BlockController extends Controller
 			if ($this->request instanceof PageRequestEdit) {
 				$filters[] = new Filter\EditableInlineMapFilter();
 			}
+		}
+		elseif ($editable instanceof Editable\Keywords) {
+			$filters[] = new Filter\KeywordsFilter();
+		}
+		elseif ($editable instanceof Editable\Video) {
+			$filters[] = new Filter\VideoFilter();
 		}
 
 		foreach ($filters as $filter) {
@@ -490,6 +511,8 @@ abstract class BlockController extends Controller
 			$transformers[] = new Transformer\GalleryEditorValueTransformer();
 		} else if ($editable instanceof Editable\InlineMap) {
 			$transformers[] = new Transformer\ArrayValueTransformer();
+		} elseif ($editable instanceof Editable\Video) {
+			$transformers[] = new Transformer\VideoEditorValueTransformer();
 		}
 
 		foreach ($transformers as $transformer) {

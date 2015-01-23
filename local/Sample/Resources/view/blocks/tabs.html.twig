@@ -1,0 +1,46 @@
+{% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
+
+{% set tabs = collection({
+	'name': 'tabs',
+	'label': 'Tabs',
+	'item': set({
+		'name': 'tab',
+		'label': 'Tab',
+		'items': [
+			property({'name': 'title', 'type': 'inline_string', 'label': 'Title'}),
+			property({'name': 'text', 'type': 'html', 'label': 'Text'})
+		]
+	})
+}) %}
+
+<section class="tabs block" data-require="plugins/blocks/tabs" data-attach="$.fn.tabs" data-refresh-event="tabs">
+	
+	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
+		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">
+			{{ title }}
+		</h2>
+	{% endif %}
+	
+	<div class="tabs-inner">
+		<ul class="tabs-headings clearfix">
+			{% for tab in tabs %}
+				<li class="tabs-heading {% if loop.first %}active{% endif %}">
+					{% if supraPage.cmsRequest %}
+						{{ tab.title | raw }}
+					{% else %}
+						<a href="#tab-{{ loop.index }}">{{ tab.title | raw }}</a>
+					{% endif %}
+				</li>
+			{% endfor %}
+		</ul>
+        
+		<div class="tabs-container">
+			{% for tab in tabs %}
+				<div class="tabs-content text clearfix {% if loop.first %}active{% endif %}" name="tab-{{ loop.index }}">
+					{{ tab.text | raw }}
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+	
+</section>

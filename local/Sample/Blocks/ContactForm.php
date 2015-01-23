@@ -10,10 +10,10 @@ class ContactForm extends BlockConfig
 {
 	protected function configureAttributes(AttributeMapper $mapper)
 	{
-		$mapper->title('Contact Us form')
+		$mapper->title('Contact Form')
 				->icon('sample:blocks/contact-form.png')
-				->template('sample:blocks/contact-form.html.twig')
-				;
+				->controller('Sample\Blocks\ContactFormController')
+		;
 	}
 
 	protected function configureProperties(PropertyMapper $mapper)

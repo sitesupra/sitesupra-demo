@@ -22,9 +22,4 @@ class Text extends BlockConfig
 	{
 		$mapper->add('content', 'html');
 	}
-
-	protected function configureCache(CacheMapper $mapper)
-	{
-		$this->cache = $mapper;
-	}
 }

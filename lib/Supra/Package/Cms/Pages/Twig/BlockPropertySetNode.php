@@ -2,32 +2,59 @@
 
 namespace Supra\Package\Cms\Pages\Twig;
 
-class BlockPropertySetNode extends BlockPropertyNode
+use Twig_Node_Expression_Constant as ConstantNode;
+use Twig_Node_Expression_Array as ArrayNode;
+
+class BlockPropertySetNode extends AbstractPropertyFunctionNode
 {
-    public function compile(\Twig_Compiler $compiler)
+    /**
+     * {@inheritDoc}
+     */
+    public function getType()
     {
-        $compiler->raw('$this->env->getExtension(\'supraPage\')->getPropertyValue(\'' . $this->getPropertyName() . "')");
+        return 'property set';
     }
 
     /**
-     * @return string
+     * {@inheritDoc}
      */
-    public function getPropertyName()
+    public function compile(\Twig_Compiler $compiler)
     {
-        $arguments = iterator_to_array($this->getNode('arguments'));
+        $compiler->raw('$this->env->getExtension(\'supraPage\')->getPropertyValue(\'' . $this->getNameOptionValue() . "')");
+    }
 
-        if ($arguments[0] instanceof \Twig_Node_Expression_Constant) {
-            return $arguments[0]->getAttribute('value');
+    /**
+     * {@inheritDoc}
+     */
+    public function getOptions()
+    {
+        $node = $this->getOptionsArgumentNode();
+
+        if ($node === null) {
+            throw new \RuntimeException('No arguments for set provided.');
         }
 
-        $nameParts = array();
-
-        foreach ($arguments as $argument) {
-            if ($argument instanceof BlockPropertyNode) {
-                $nameParts[] = ucfirst($argument->getPropertyName());
-            }
+        if (! $node instanceof ArrayNode) {
+            throw new \RuntimeException(sprintf(
+                'Expecting options argument to be an array, [%s] received.',
+                get_class($node)
+            ));
         }
 
-        return lcfirst(implode($nameParts)) . 'Set';
+        return $this->nodeToArray($node);
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getLabelOptionValue()
+    {
+        $options = $this->getOptions();
+
+        if (isset($options['label']) && $options['label'] instanceof ConstantNode) {
+            return $options['label']->getAttribute('value');
+        }
+
+        return null;
     }
 }

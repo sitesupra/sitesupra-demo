@@ -277,7 +277,7 @@ class LinkReferencedElement extends ReferencedElementAbstract
 	 * {@inheritdoc}
 	 * @param array $array
 	 */
-	public function fillArray(array $array)
+	public function fillFromArray(array $array)
 	{
 		$array = $array + array(
 			'recource' => null,

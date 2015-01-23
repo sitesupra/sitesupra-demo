@@ -1,0 +1,121 @@
+@import "../../../supra/less/common.less";
+
+/*
+ * Additional CSS which is inserted into iframe
+ */
+
+/*
+ * New item
+ */
+.supra-itemmanager-new {
+
+	.supra-itemmanager-new-wrapper {
+		display: inline-block !important;
+		width: 100% !important;
+		min-width: 120px !important;
+		min-height: 205px !important;
+		text-align: center !important;
+		cursor: pointer !important;
+		margin: 0 !important;
+		padding: 5px !important;
+		border: 0 !important;
+		background: #e6e6e6 !important;
+		.box-sizing (border-box !important);
+		.user-select (none !important);
+	}
+	
+	.supra-itemmanager-new-first {
+		display: none !important;
+		padding: 4px 0 10px !important;
+		color: #54576b !important;
+		font: normal bold 14px/1.2em Arial, Helvetica, sans-serif !important;
+		text-align: center !important;
+	}
+	.supra-itemmanager-new-text {
+		display: block !important;
+		border: 5px solid #fff !important;
+		padding: 38px 0 34px !important;
+		color: #8b8c94 !important;
+		font: normal bold 18px/18px Arial, Helvetica, sans-serif !important;
+		text-align: center !important;
+		
+		// Button
+		span {
+			display: block !important;
+			background: url(../images/icon-add.png) 50% 0 no-repeat !important;
+			width: 100% !important;
+			height: 84px !important;
+			margin: 0 0 10px !important;
+		}
+	}
+	
+	.supra-itemmanager-new-wrapper:hover .supra-itemmanager-new-text span {
+		background-position: 50% -84px !important;
+	}
+	.supra-itemmanager-new-wrapper:active .supra-itemmanager-new-text span {
+		background-position: 50% -168px !important;
+	}
+	
+	&:first-child {
+		.supra-itemmanager-new-first {
+			display: block !important;
+		}
+	}
+}
+
+/*
+ * Active item
+ */
+.supra-itemmanager-active {
+	min-height: 1.5em;
+	outline: 2px solid #00A5F8 !important;
+}
+
+/*
+ * Inline editable styles
+ */
+.editing {
+	.su-content-inline {
+		outline: none !important;
+	}
+	.su-input-inline-image {
+		display: inline-block;
+		vertical-align: inherit;
+		width: 100%;
+	}
+	.su-input-string-inline-content,
+	.su-input-text-inline-content {
+		display: inline-block !important;
+		width: 100%;
+		.box-sizing (border-box);
+	}
+	
+	.su-input-string-inline-disabled,
+	.su-input-text-inline-disabled,
+	.su-input-html-inline-disabled {
+		cursor: text;
+	}
+	.su-input-inline-image {
+		cursor: pointer;
+	}
+}
+
+
+/*
+ * Drag and drop elements
+ */
+.supra-itemmanager-proxy {
+	z-index: 10000;
+	border: 2px solid #009DF8 !important;
+	outline: none !important;
+	border-radius: 5px !important;
+	list-style: none !important;
+	
+	> * {
+		visibility: hidden !important;
+		display: none !important;
+	}
+}
+.yui3-dd-dragging {
+	opacity: 0.5 !important;
+}

@@ -8,7 +8,6 @@ use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
-use Supra\Package\Cms\Pages\Gallery\GalleryImage;
 
 class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 {
@@ -24,34 +23,58 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 
 	/**
 	 * {@inheritDoc}
-	 * @return \Supra\Package\Cms\Pages\Gallery\GalleryImage[]
+	 * @return string
 	 */
 	public function filter($content, array $options = array())
 	{
-		$images = array();
+		$itemTemplate = ! empty($options['itemTemplate']) ? (string) $options['itemTemplate'] : '';
+		$wrapperTemplate = ! empty($options['wrapperTemplate']) ? (string) $options['wrapperTemplate'] : '';
+
+		$output = '';
 
 		$fileStorage = $this->container['cms.file_storage'];
 		/* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
 
 		foreach ($this->blockProperty->getMetadata() as $metadata) {
 			/* @var $metadata \Supra\Package\Cms\Entity\BlockPropertyMetadata */
-			
+
 			$element = $metadata->getReferencedElement();
 
-			if (! $element instanceof ImageReferencedElement) {
+			if (! $element instanceof ImageReferencedElement
+					|| $element->getSizeName() === null) {
+
 				continue;
 			}
 
-			$imageId = $element->getImageId();
+			$image = $fileStorage->findImage($element->getImageId());
 
-			$image = $fileStorage->findImage($imageId);
-
-			if ($image) {
-				$images[] = new GalleryImage($image, $fileStorage);;
+			if ($image === null) {
+				continue;
 			}
+
+			$imageWebPath = $fileStorage->getWebPath($image, $element->getSizeName());
+
+			// @FIXME:
+			$fullSizeWebPath = null;
+
+			$itemData = array(
+				'image' 		=> '<img src="' . $imageWebPath . '" alt="' . $element->getAlternateText() . '" />',
+				'imageUrl' 		=> $imageWebPath,
+				'imageFullSizeUrl' => $fullSizeWebPath,
+				'title' 		=> $element->getTitle(),
+				'description' 	=> $element->getDescription(),
+			);
+
+			$output .= preg_replace_callback(
+				'/{{\s*(image|title|description)\s*}}/',
+				function ($matches) use ($itemData) {
+					return $itemData[$matches[1]];
+				},
+				$itemTemplate
+			);
 		}
 
-		return $images;
+		return preg_replace('/{{\s*items\s*}}/', $output, $wrapperTemplate);
 	}
 
 	/**

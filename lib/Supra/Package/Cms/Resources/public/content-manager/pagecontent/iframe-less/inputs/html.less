@@ -27,17 +27,16 @@
 /**
  * Inline HTML editor content
  */
-.editing.yui3-content-inline-editable {
+.editing.su-content-inline-editable {
 	outline: none;
 	overflow: visible;
 }
 
 /* Images */
-.editing .yui3-input-html-inline img {
+.editing .su-input-html-inline img {
 	cursor: pointer !important;
 	
-	&.yui3-image-selected,
-	&.yui3-gallery-selected {
+	&.su-image-selected {
 		/* Image focused */
 		.box-shadow (0, 0, 4px, #39f);
 	}
@@ -45,17 +44,17 @@
 
 
 /* Table */
-.editing table.yui3-table-selected {
+.editing table.su-table-selected {
 	td, th {
 		/*outline: 1px dotted #ccc;*/
 	}
-	.yui3-cell-selected {
+	.su-cell-selected {
 		.box-shadow (0, 0, 4px, #39f);
 	}
 }
  
 @media screen and (-webkit-min-device-pixel-ratio:0) {
-	.editing table.yui3-table-selected .yui3-cell-selected {
+	.editing table.su-table-selected .su-cell-selected {
 		outline: 2px dotted #39f;
 		.box-shadow (none);
 	}
@@ -63,15 +62,17 @@
 
 /* Fix for cursor position in lists in IE */
 .standalone .editing li > div,
-.editing .yui3-input-html-inline li > div {
+.editing .su-input-html-inline li > div {
 	display: inline;
 	vertical-align: top;
 }
 
 /* Cursors */
-.su-uneditable, .su-uneditable * {
+.su-uneditable,
+.su-uneditable * {
 	cursor: default !important;
 }
-.su-editable, .su-editable * {
+body .su-editable,
+body .su-editable * {
 	cursor: text !important;
 }

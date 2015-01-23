@@ -12,9 +12,7 @@ class Gallery extends BlockConfig
 	{
 		$mapper->title('Gallery')
 				->icon('sample:blocks/gallery.png')
-				->cmsClassName('Gallery')
-				->template('sample:blocks/gallery.html.twig')
-				;
+		;
 	}
 
 	protected function configureProperties(PropertyMapper $mapper)

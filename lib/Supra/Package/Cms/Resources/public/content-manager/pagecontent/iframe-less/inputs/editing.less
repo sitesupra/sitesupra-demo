@@ -1,0 +1,10 @@
+.non-ie .editing {
+	.su-input-html-inline p,
+	.su-input-html-inline-content p,
+	.su-input-html-inline-content,
+	.su-input-string-inline-content,
+	.su-input-text-inline-content {
+		// Cross-browser normalize, except for IE which adds handles if element has 'layout'
+		min-height: 1em;
+	}
+}

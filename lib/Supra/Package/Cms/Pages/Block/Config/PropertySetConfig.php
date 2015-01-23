@@ -12,6 +12,27 @@ class PropertySetConfig extends AbstractPropertyConfig implements PropertyCollec
 	protected $items = array();
 
 	/**
+	 * @var string
+	 */
+	protected $label;
+
+	/**
+	 * @param string $label
+	 */
+	public function setLabel($label)
+	{
+		$this->label = $label;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getLabel()
+	{
+		return $this->label;
+	}
+
+	/**
 	 * @param AbstractPropertyConfig $item
 	 */
 	public function addSetItem(AbstractPropertyConfig $item)

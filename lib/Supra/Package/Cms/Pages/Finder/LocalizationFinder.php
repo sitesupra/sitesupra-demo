@@ -17,7 +17,7 @@ class LocalizationFinder extends AbstractFinder
 	 * @var PageFinder
 	 */
 	private $pageFinder;
-	private $active = true;
+//	private $active = true;
 	private $public = true;
 	private $visibleInMenu = true;
 	private $visibleInSitemap = false;
@@ -60,13 +60,13 @@ class LocalizationFinder extends AbstractFinder
 			$qb->join('l.path', 'p');
 			$qb->join('l.master', 'e2');
 
-			if ($this->active) {
-				$qb->andWhere('l.active = true AND p.path IS NOT NULL');
-			}
-
-//			if ($this->public) {
-//				$qb->andWhere('p.limited = false');
+//			if ($this->active) {
+//				$qb->andWhere('l.active = true AND p.path IS NOT NULL');
 //			}
+
+			if ($this->public) {
+				$qb->andWhere('l.publishedRevision IS NOT NULL');
+			}
 
 			if ($this->visibleInSitemap) {
 				$qb->andWhere('l.visibleInSitemap = true');
@@ -95,18 +95,18 @@ class LocalizationFinder extends AbstractFinder
 		return $qb;
 	}
 
-	public function isActive($active)
-	{
-		$this->active = $active;
-	}
+//	public function isActive($active)
+//	{
+//		$this->active = $active;
+//	}
 
 	public function isPublic($public)
 	{
 		$this->public = $public;
 
-		if ($public) {
-			$this->isActive(true);
-		}
+//		if ($public) {
+//			$this->isActive(true);
+//		}
 	}
 
 	public function isRedirect($redirect)
@@ -126,7 +126,7 @@ class LocalizationFinder extends AbstractFinder
 
 	public function removeDefaultFilters()
 	{
-		$this->active = null;
+//		$this->active = null;
 		$this->public = null;
 	}
 

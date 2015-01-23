@@ -115,7 +115,7 @@
 	}
 	
 	// Input
-	.yui3-input-string {
+	.su-input-string {
 		@inp_height = -44px;
 		text-align: center;
 		margin: 17px 0 10px;
@@ -149,16 +149,16 @@
 						url(images/input-background.png) 0 @inp_height*1 repeat-x;
 		}
 		
-		&.yui3-input-focused input {
+		&.su-input-focused input {
 			.border-radius (7px);
 			.box-shadow (0, 0, 10px, #41A0FC);
 			background-position: 0 @inp_height*3, 100% @inp_height*5, 0 @inp_height*4;
 		}
-		&.yui3-input-error input {
+		&.su-input-error input {
 			.border-radius (7px);
 			background-position: 0 @inp_height*6, 100% @inp_height*8, 0 @inp_height*7;
 		}
-		&.yui3-input-focused.yui3-input-error input {
+		&.su-input-focused.su-input-error input {
 			.box-shadow (0, 0, 10px, #D91600);
 		}
 		
@@ -183,12 +183,12 @@
 			opacity: 0;
 		}
 		
-		&.yui3-input-string-empty em.valid,
-		&.yui3-input-error em.valid {
+		&.su-input-string-empty em.valid,
+		&.su-input-error em.valid {
 			right: -34px;
 			opacity: 0;
 		}
-		&.yui3-input-error em.error {
+		&.su-input-error em.error {
 			right: 1px;
 			opacity: 1;
 		}

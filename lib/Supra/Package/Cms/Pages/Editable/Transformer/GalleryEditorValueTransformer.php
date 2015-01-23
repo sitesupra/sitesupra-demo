@@ -28,58 +28,53 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 	 */
 	public function reverseTransform($value)
 	{
-		$metadataArray = array();
-
 		$metadataCollection = $this->property->getMetadata();
 
-		// @TODO: not performance-wise.
-		foreach ($metadataCollection as $metaItem) {
-			$metadataCollection->removeElement($metaItem);
-		}
+		// @FIXME: absolutely not performance-wise
+		$metadataCollection->clear();
 
 		if ($value && is_array($value)) {
 
 			// @TODO: some input data validation is needed.
 
-			foreach (array_values($value) as $key => $imageData) {
+			foreach (array_values($value) as $key => $itemData) {
 
-//				if (! empty($imageData['image']['image'])) {
-//					$imageData = $imageData['image'];
-//				}
-
-				if (empty($imageData['imageId']) 
-						&& empty($imageData['id'])
-						&& empty($imageData['image']['image'])) {
-					
-					throw new TransformationFailedException("Image ID is missing for element [{$key}].");
+				if (! isset($itemData['image']) || ! is_array($itemData['image'])) {
+					throw new TransformationFailedException(sprintf(
+						'Missing image data for item [%s]', $key)
+					);
 				}
 
-				$imageId = ! empty($imageData['image']['image']) 
-						? $imageData['image']['image']
-						: (! empty($imageData['imageId']) ? $imageData['imageId'] : $imageData['id']);
+				$imageData = $itemData['image'];
 
-				$image = $this->getFileStorage()->findImage($imageId);
+				if (empty($imageData['id'])) {
+					throw new TransformationFailedException(sprintf(
+						'Image ID is missing for element [%s].', $key
+					));
+				}
+
+				$image = $this->getFileStorage()->findImage($imageData['id']);
 
 				if ($image === null) {
 					throw new TransformationFailedException(sprintf(
-							'Image [%s] not found in file storage.',
-							$imageData['imageId']
+							'Image [%s] not found in file storage.', $imageData['id']
 					));
 				}
 
 				$element = new ImageReferencedElement();
 
-				$elementData = (! empty($imageData['image']) && is_array($imageData['image']))
-						? $imageData['image'] : $imageData;
+				$element->fillFromArray($imageData);
 
-				$element->fillArray($elementData);
+				if (! empty($itemData['title'])) {
+					$element->setTitle($itemData['title']);
+				}
 
-				$metadataArray[] = new BlockPropertyMetadata($key, $this->property, $element);
+				if (! empty($itemData['description'])) {
+					$element->setDescription($itemData['description']);
+				}
+
+				$metadataCollection->set($key, new BlockPropertyMetadata($key, $this->property, $element));
 			}
-		}
-
-		foreach ($metadataArray as $key => $metadata) {
-			$metadataCollection->set($key, $metadata);
 		}
 
 		return null;
@@ -114,9 +109,13 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 				continue;
 			}
 
-			$imageDataArray[] = array_merge(
+			$imageDataArray[] = array(
+				'title' => $element->getTitle(),
+				'description' => $element->getDescription(),
+				'image' => array_merge(
 					$element->toArray(),
 					array('image' => $fileStorage->getFileInfo($image))
+				)
 			);
 		}
 
