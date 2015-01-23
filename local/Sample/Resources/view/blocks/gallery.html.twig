@@ -15,7 +15,10 @@
 		{% set itemTemplate %}{% verbatim %}
 		    <li class="pure-u pure-u-1-4">
 		        <span class="img">{{ image }}</span>
-		        <h2>{{ title }}</h2>
+				<div class="text">
+			        <h2>{{ title }}</h2>
+					<p>{{ description }}</p>
+				</div>
 		    </li>
 		{% endverbatim %}{% endset %}
 		

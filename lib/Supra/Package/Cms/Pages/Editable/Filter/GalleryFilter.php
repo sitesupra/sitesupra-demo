@@ -61,9 +61,9 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 			);
 
 			$output .= preg_replace_callback(
-				'/{{\s*(?:image|title|description)\s*}}/g',
+				'/{{\s*(image|title|description)\s*}}/',
 				function ($matches) use ($itemData) {
-					return $itemData[$matches[0]];
+					return $itemData[$matches[1]];
 				},
 				$itemTemplate
 			);

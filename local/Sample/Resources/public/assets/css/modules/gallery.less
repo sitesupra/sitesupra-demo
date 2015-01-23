@@ -2,15 +2,33 @@
  * Gallery displays list of images in a grid, where each image has a title
  */
 .gallery {
+	// Image
 	.img {
 		display: block;
 		overflow: hidden;
+		
+		img {
+			display: block;
+			max-width: 100%;
+			height: auto;
+		}
 	}
 	
-	img {
-		display: block;
-		max-width: 100%;
-		height: auto;
+	// Text
+	.text {
+		padding: 10px 0;
+		
+		h2 {
+			font-size: 18px;
+			font-weight: normal;
+			line-height: 1.5em;
+			margin: 0;
+		}
+		p {
+			font-size: 14px;
+			line-height: 1.5em;
+			margin: 3px 0 0;
+		}
 	}
 }
 
