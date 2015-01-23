@@ -1,21 +1,22 @@
-{% set email = property('email', {
-	'name': 'string',
+{% do property({
+	'name': 'email',
+	'type': 'string',
 	'label': 'Submitted form recipient email address'
 }) %}
 
 {% if messageSent | default(false) %}
-	{{ property('successMessage',
-		{
-			'type': 'text',
-			'default': 'Thanks! We will contact you shortly!'
-		}
-	) }}
+	{{ property({
+		'name': 'successMessage',
+		'type': 'text',
+		'default': 'Thanks! We will contact you shortly!'
+	}) }}
 {% endif %}
 
 <div class="block form-block">
 	<form class="form no-heading" method="post">
 		<label for="nameInput">
-			{{ property('nameLabel', {
+			{{ property({
+				'name': 'nameLabel',
 				'type': 'inline_string',
 				'default': 'Name'
 			}) }}
@@ -23,7 +24,8 @@
 		<input type="text" name="name" id="nameInput" />
 		
 		<label for="emailInput">
-			{{ property('emailLabel', {
+			{{ property({
+				'name': 'emailLabel',
 				'type': 'inline_string',
 				'default': 'E-mail'
 			}) }}
@@ -31,7 +33,8 @@
 		<input type="text" name="email" id="emailInput" />
 
 		<label for="emailInput">
-			{{ property('messageLabel', {
+			{{ property({
+				'name': 'messageLabel',
 				'type': 'inline_string',
 				'default': 'Message'
 			}) }}
@@ -39,7 +42,8 @@
 		<input type="textarea" name="message" id="messageInput" />
 
 		<button type="submit">
-			{{ property('buttonLabel', {
+			{{ property({
+				'name': 'buttonLabel',
 				'type': 'inline_string',
 				'default': 'Submit'
 			}) }}</button>

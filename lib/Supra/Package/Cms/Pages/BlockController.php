@@ -461,6 +461,12 @@ abstract class BlockController extends Controller
 				$filters[] = new Filter\EditableInlineMapFilter();
 			}
 		}
+		elseif ($editable instanceof Editable\Keywords) {
+			$filters[] = new Filter\KeywordsFilter();
+		}
+		elseif ($editable instanceof Editable\Video) {
+			$filters[] = new Filter\VideoFilter();
+		}
 
 		foreach ($filters as $filter) {
 
@@ -498,6 +504,8 @@ abstract class BlockController extends Controller
 			$transformers[] = new Transformer\GalleryEditorValueTransformer();
 		} else if ($editable instanceof Editable\InlineMap) {
 			$transformers[] = new Transformer\ArrayValueTransformer();
+		} elseif ($editable instanceof Editable\Video) {
+			$transformers[] = new Transformer\VideoEditorValueTransformer();
 		}
 
 		foreach ($transformers as $transformer) {

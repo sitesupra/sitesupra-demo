@@ -2,6 +2,7 @@
 
 namespace Supra\Package\Cms\Controller;
 
+use Supra\Package\Cms\Editable\Exception\TransformationFailedException;
 use Symfony\Component\HttpFoundation\Response;
 use Supra\Core\HttpFoundation\SupraJsonResponse;
 use Supra\Package\Cms\Pages\Exception\LayoutNotFound;
@@ -140,7 +141,11 @@ class PagesContentController extends AbstractPagesController
 			$propertyArray = $input->get('properties', array());
 
 			foreach ($propertyArray as $name => $value) {
-				$blockController->savePropertyValue($name, $value);
+				try {
+					$blockController->savePropertyValue($name, $value);
+				} catch (TransformationFailedException $e) {
+					throw new CmsException(null, $e->getMessage());
+				}
 			}
 		});
 

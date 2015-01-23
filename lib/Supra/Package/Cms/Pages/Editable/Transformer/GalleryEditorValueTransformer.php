@@ -28,14 +28,10 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 	 */
 	public function reverseTransform($value)
 	{
-		$metadataArray = array();
-
 		$metadataCollection = $this->property->getMetadata();
 
-		// @TODO: not performance-wise.
-		foreach ($metadataCollection as $metaItem) {
-			$metadataCollection->removeElement($metaItem);
-		}
+		// @FIXME: absolutely not performance-wise
+		$metadataCollection->clear();
 
 		if ($value && is_array($value)) {
 
@@ -43,22 +39,11 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 
 			foreach (array_values($value) as $key => $imageData) {
 
-//				if (! empty($imageData['image']['image'])) {
-//					$imageData = $imageData['image'];
-//				}
-
-				if (empty($imageData['imageId']) 
-						&& empty($imageData['id'])
-						&& empty($imageData['image']['image'])) {
-					
+				if (empty($imageData['id'])) {
 					throw new TransformationFailedException("Image ID is missing for element [{$key}].");
 				}
 
-				$imageId = ! empty($imageData['image']['image']) 
-						? $imageData['image']['image']
-						: (! empty($imageData['imageId']) ? $imageData['imageId'] : $imageData['id']);
-
-				$image = $this->getFileStorage()->findImage($imageId);
+				$image = $this->getFileStorage()->findImage($imageData['id']);
 
 				if ($image === null) {
 					throw new TransformationFailedException(sprintf(
@@ -69,17 +54,10 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 
 				$element = new ImageReferencedElement();
 
-				$elementData = (! empty($imageData['image']) && is_array($imageData['image']))
-						? $imageData['image'] : $imageData;
+				$element->fillFromArray($imageData);
 
-				$element->fillArray($elementData);
-
-				$metadataArray[] = new BlockPropertyMetadata($key, $this->property, $element);
+				$metadataCollection->set($key, new BlockPropertyMetadata($key, $this->property, $element));
 			}
-		}
-
-		foreach ($metadataArray as $key => $metadata) {
-			$metadataCollection->set($key, $metadata);
 		}
 
 		return null;

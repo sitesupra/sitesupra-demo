@@ -35,7 +35,8 @@
         "nelmio/alice": "1.*",
         "myclabs/deep-copy": "*",
         "simplethings/entity-audit-bundle": "dev-single_joined_bug",
-        "gedmo/doctrine-extensions": "v2.3.9"
+        "gedmo/doctrine-extensions": "v2.3.9",
+	"dereuromark/media-embed": "dev-master"
     },
     "repositories": [
         {
