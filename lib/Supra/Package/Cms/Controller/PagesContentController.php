@@ -144,7 +144,11 @@ class PagesContentController extends AbstractPagesController
 				try {
 					$blockController->savePropertyValue($name, $value);
 				} catch (TransformationFailedException $e) {
-					throw new CmsException(null, $e->getMessage());
+					throw new CmsException(null, sprintf(
+						'Failed to save [%s] property: %s',
+						$name,
+						$e->getMessage()
+					));
 				}
 			}
 		});

@@ -6,7 +6,7 @@ use Supra\Package\Cms\Entity\BlockProperty;
 use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Pages\Editable\BlockPropertyAware;
 
-class EditableInlineImageFilter implements FilterInterface, BlockPropertyAware
+class EditableInlineMediaFilter implements FilterInterface, BlockPropertyAware
 {
     /**
      * @var BlockProperty
@@ -20,10 +20,8 @@ class EditableInlineImageFilter implements FilterInterface, BlockPropertyAware
      */
     public function filter($content, array $options = array())
     {
-        $wrap = '<span id="content_%s_%s" class="su-content-inline su-input-image-inline">%s</span>';
-
         return sprintf(
-            $wrap,
+            '<div id="content_%s_%s" class="su-content-inline su-input-media-inline-content">%s</div>',
             $this->blockProperty->getBlock()->getId(),
             str_replace('.', '_', $this->blockProperty->getHierarchicalName()),
             $content

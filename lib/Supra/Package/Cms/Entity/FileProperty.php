@@ -3,6 +3,7 @@
 namespace Supra\Package\Cms\Entity;
 
 use Supra\Editable\EditableAbstraction;
+use Supra\Package\Cms\Editable\Editable;
 
 /**
  * @Entity
@@ -81,11 +82,9 @@ class FileProperty extends Abstraction\Entity
 	
 	/**
 	 * @param mixed $value
-	 * @param EditableAbstraction $editable
 	 */
-	public function setEditableValue($value, EditableAbstraction $editable)
+	public function setValue($value)
 	{
-		$editable->setContent($value);		
-		$this->value = $editable->getContent();
+		$this->value = $value;
 	}
 }

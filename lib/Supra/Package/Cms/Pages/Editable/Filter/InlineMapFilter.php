@@ -47,7 +47,7 @@ class InlineMapFilter implements FilterInterface
 			$tag->setAttribute('style', 'height: ' . (int) $mapData['height'] . 'px');
 		}
 
-		// @TODO: if height is supported natviely, marker text input also could be part of map editable.
+		// @TODO: if height is supported natively, marker text input also could be part of map editable.
 		if (! empty($options['markerText'])) {
 			$tag->setAttribute('data-marker-text', $options['markerText']);
 		}

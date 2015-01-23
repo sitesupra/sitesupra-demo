@@ -5,10 +5,10 @@
         'name': 'fooBarSet',
         'label': 'Foo Bar Set',
         'items': [
-            property({'name': 'fullname', 'type': 'string'}),
+            property({'name': 'fullname', 'type': 'string', 'label': 'Fullname'}),
             collection({
                 'name': 'positions',
-                'item': property({'name': 'position', 'type': 'string'})
+                'item': property({'name': 'position', 'type': 'string', 'label': 'Position'})
             })
         ]
     })
@@ -43,10 +43,10 @@
 
 
 
-{#{{ property({'name': 'myVideo', 'type': 'video'}) }}#}
+{{ property({'name': 'myVideo', 'type': 'video'}) }}
 
 
-{{ property({'name': 'logo', 'type': 'inline_image'}) }}
+{{ property({'name': 'logo', 'type': 'inline_image', 'label': 'Logo'}) }}
 
 
-{{ property({'name': 'logoPrint', 'type': 'image'}) }}
+{{ property({'name': 'logoPrint', 'type': 'image', 'label': 'Print logo'}) }}
