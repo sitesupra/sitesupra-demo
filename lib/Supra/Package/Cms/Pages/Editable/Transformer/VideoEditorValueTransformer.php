@@ -60,7 +60,7 @@ class VideoEditorValueTransformer implements ValueTransformerInterface, Containe
 
         if ($mediaObject === null) {
             throw new TransformationFailedException(sprintf(
-                'Failed to parse provided media URL [%s].',
+                'Failed to parse media URL [%s].',
                 $value['url']
             ));
         }
@@ -102,13 +102,6 @@ class VideoEditorValueTransformer implements ValueTransformerInterface, Containe
                 throw new TransformationFailedException(sprintf(
                     'Invalid height value: [%s]', $value['height']
                 ));
-            }
-
-            $metaItem = $this->property->getMetadata()->get('height');
-
-            if ($metaItem === null) {
-                $metaItem = new BlockPropertyMetadata('height', $this->property);
-                $this->property->addMetadata($metaItem);
             }
 
             $mediaElement->setHeight($height);

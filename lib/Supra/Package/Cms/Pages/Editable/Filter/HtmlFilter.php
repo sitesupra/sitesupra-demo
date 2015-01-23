@@ -1,10 +1,12 @@
 <?php
 namespace Supra\Package\Cms\Pages\Editable\Filter;
 
+use MediaEmbed\MediaEmbed;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\Editable\Filter\FilterInterface;
 use Supra\Package\Cms\Entity\BlockProperty;
+use Supra\Package\Cms\Entity\ReferencedElement\MediaReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementUtils;
 use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
@@ -68,29 +70,19 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 			} elseif ($element instanceof Markup\SupraMarkupImage) {
 
 				if (isset($metadataElements[$element->getId()])) {
-					$image = $metadataElements[$element->getId()];
-					$result[] = (string) $this->parseSupraImage($image);
+					$result[] = (string) $this->parseSupraImage($metadataElements[$element->getId()]);
 				}
+//
+			} elseif ($element instanceof Markup\SupraMarkupVideo) {
 
-//			} elseif ($element instanceof Markup\SupraMarkupIcon) {
-//
-//				if (isset($metadataElements[$element->getId()])) {
-//					$icon = $metadataElements[$element->getId()];
-//					$result[] = (string) $this->parseSupraIcon($icon);
-//				}
-//
-//			} elseif ($element instanceof Markup\SupraMarkupVideo) {
-//
-//				if (isset($metadataElements[$element->getId()])) {
-//					$video = $metadataElements[$element->getId()];
-//					$result[] = (string) $this->parseSupraVideo($video);
-//				}
+				if (isset($metadataElements[$element->getId()])) {
+					$result[] = (string) $this->parseSupraMedia($metadataElements[$element->getId()]);
+				}
 
 			} elseif ($element instanceof Markup\SupraMarkupLinkStart) {
 				
 				if (isset($metadataElements[$element->getId()])) {
-					$link = $metadataElements[$element->getId()];
-					$result[] = (string) $this->parseSupraLinkStart($link);
+					$result[] = (string) $this->parseSupraLinkStart($metadataElements[$element->getId()]);
 				}
 
 			} elseif ($element instanceof Markup\SupraMarkupLinkEnd) {
@@ -215,21 +207,10 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 			$tag->setAttribute('title', $title);
 		}
 
-		$alternativeText = trim($imageData->getAlternativeText());
-		$tag->setAttribute('alt', (!empty($alternativeText) ? $alternativeText : ''));
+		$tag->setAttribute('alt', trim($imageData->getAlternateText()));
 
-		/*
-		 * Temporary hardcore version
-		 *
-		 * @TODO:
-		 * 1. use depending on 'htmlEditorPlugins' parameter in cms\configuration\config.pages.yml
-		 * 1a. create parameter - 'style'?			 *
-		 * 2. add attributes depending on ImageReferencedElement style type
-		 * 2a. create style types (constants - lightbox,...)
-		 */
-		$style = $imageData->getStyle();
-
-		if ($style == ImageReferencedElement::STYLE_LIGHTBOX) {
+		// @FIXME: hardcoded to fancybox
+		if ($imageData->getStyle() == ImageReferencedElement::STYLE_LIGHTBOX) {
 			$tag->setAttribute('rel', 'lightbox');
 			$tag->setAttribute('data-fancybox-href', $fileStorage->getWebPath($image));
 		}
@@ -237,74 +218,26 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 		return $tag;
 	}
 
-//	/**
-//	 * @FIXME
-//	 *
-//	 * Parse supra.video
-//	 * @param VideoReferencedElement $videoElement
-//	 *
-//	 * @return string
-//	 */
-//	protected function parseSupraVideo(VideoReferencedElement $videoElement)
-//	{
-//		$html = null;
-//
-//		$resource = $videoElement->getResource();
-//
-//		$width = $videoElement->getWidth();
-//		$height = $videoElement->getHeight();
-//
-//		$align = $videoElement->getAlign();
-//		$alignClass = (!empty($align) ? "align-$align" : '');
-//
-//		if ($resource == VideoReferencedElement::RESOURCE_LINK) {
-//
-//			$service = $videoElement->getExternalService();
-//			$videoId = $videoElement->getExternalId();
-//
-//			$wmodeParam = null;
-//			if ($this->requestType == self::REQUEST_TYPE_EDIT) {
-//				$wmodeParam = 'wmode="opaque"';
-//			}
-//
-//			if ($service == VideoReferencedElement::SERVICE_YOUTUBE) {
-//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-//					<iframe src=\"//www.youtube.com/embed/{$videoId}?{$wmodeParam}&rel=0\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" allowfullscreen></iframe>
-//				</div>";
-//			}
-//			else if ($service == VideoReferencedElement::SERVICE_VIMEO) {
-//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-//				<iframe src=\"//player.vimeo.com/video/{$videoId}?title=0&amp;byline=0&amp;portrait=0&amp;color=0&amp;api=1&amp;player_id=player{$videoId}\" id=\"player{$videoId}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-//				</div>";
-//			}
-//		}
-//		else if ($resource == VideoReferencedElement::RESOURCE_SOURCE) {
-//
-//			$src = $videoElement->getExternalPath();
-//
-//			if ($videoElement->getExternalSourceType() == VideoReferencedElement::SOURCE_IFRAME) {
-//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-//					<iframe src=\"//{$src}\" width=\"{$width}\" height=\"{$height}\" frameborder=\"0\" webkitAllowFullScreen mozallowfullscreen allowFullScreen></iframe>
-//					</div>";
-//			}
-//			else if ($videoElement->getExternalSourceType() == VideoReferencedElement::SOURCE_EMBED) {
-//
-//				$wmodeParam = null;
-//				if ($this->requestType == self::REQUEST_TYPE_EDIT) {
-//					$wmodeParam = 'wmode="opaque"';
-//				}
-//
-//				$html = "<div class=\"video $alignClass\" data-attach=\"$.fn.resize\">
-//					<object width=\"{$width}\" height=\"{$height}\">
-//					<param name=\"movie\" value=\"//{$src}\"></param>
-//					<param name=\"allowFullScreen\" value=\"true\"></param><param name=\"allowscriptaccess\" value=\"always\"></param>
-//					<embed {$wmodeParam} src=\"//{$src}\" type=\"application/x-shockwave-flash\" width=\"{$width}\" height=\"{$height}\" allowscriptaccess=\"always\" allowfullscreen=\"true\"></embed>
-//				</object></div>";
-//			}
-//		}
-//
-//		return $html;
-//	}
+	/**
+	 * @param MediaReferencedElement $mediaElement
+	 * @return null|string
+	 */
+	protected function parseSupraMedia(MediaReferencedElement $mediaElement)
+	{
+		$mediaEmbed = $this->container['cms.media_embed'];
+		/* @var $mediaEmbed MediaEmbed */
+
+		$mediaObject = $mediaEmbed->parseUrl($mediaElement->getUrl());
+
+		if ($mediaObject === null) {
+			return null;
+		}
+
+		$mediaObject->setWidth($mediaElement->getWidth());
+		$mediaObject->setHeight($mediaElement->getHeight());
+
+		return $mediaObject->getEmbedCode();
+	}
 
 	/**
 	 * {@inheritDoc}

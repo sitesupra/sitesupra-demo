@@ -2,9 +2,13 @@
 
 namespace Supra\Package\Cms\Pages\Editable\Transformer;
 
+use MediaEmbed\MediaEmbed;
 use Supra\Core\DependencyInjection\ContainerAware;
 use Supra\Core\DependencyInjection\ContainerInterface;
+use Supra\Package\Cms\Editable\Exception\TransformationFailedException;
 use Supra\Package\Cms\Editable\Transformer\ValueTransformerInterface;
+use Supra\Package\Cms\Entity\ReferencedElement\LinkReferencedElement;
+use Supra\Package\Cms\Entity\ReferencedElement\MediaReferencedElement;
 use Supra\Package\Cms\Entity\ReferencedElement\ReferencedElementAbstract;
 use Supra\Package\Cms\Entity\ReferencedElement\ImageReferencedElement;
 use Supra\Package\Cms\Entity\BlockProperty;
@@ -44,18 +48,103 @@ class HtmlEditorValueTransformer implements ValueTransformerInterface, Container
 		$metadata = $this->property->getMetadata();
 
 		// @TODO: not performance-wise.
-		foreach ($metadata as $metaItem) {
-			$metadata->removeElement($metaItem);
-		}
+		$metadata->clear();
 
 		if (! empty($value['data'])) {
 			foreach ($value['data'] as $name => $itemData) {
 
-				$referencedElement = ReferencedElementAbstract::fromArray($itemData);
+				if (empty($itemData['type'])) {
+					throw new TransformationFailedException(sprintf(
+						'No type specified for HTML metadata element [%s].', $name
+					));
+				}
+
+				$element = null;
+
+				switch ($itemData['type']) {
+					case ImageReferencedElement::TYPE_ID:
+					case LinkReferencedElement::TYPE_ID:
+						$element = ReferencedElementAbstract::fromArray($itemData);
+						break;
+
+					case 'video': // @TODO: BC. Remove.
+					case MediaReferencedElement::TYPE_ID:
+
+						if (empty($itemData['url'])) {
+							throw new TransformationFailedException(sprintf(
+								'No media URL specified for item [%s].', $name
+							));
+						}
+
+						$mediaEmbed = $this->container['cms.media_embed'];
+						/* @var $mediaEmbed MediaEmbed */
+
+						$mediaObject = $mediaEmbed->parseUrl($itemData['url']);
+
+						if ($mediaObject === null) {
+							throw new TransformationFailedException(sprintf(
+								'Failed to parse media URL [%s].', $itemData['url']
+							));
+						}
+
+						$element = new MediaReferencedElement();
+						$element->setUrl($itemData['url']);
+
+						// align attribute
+						if (empty($itemData['align'])) {
+							throw new TransformationFailedException(sprintf(
+								'No align specified for media item [%s].', $name
+							));
+						}
+
+						$align = $itemData['align'];
+						if (! in_array($align, array('middle', 'left', 'right'))) {
+							throw new TransformationFailedException(sprintf(
+								'Unrecognized align value [%s] for media element [%s].', $align, $name
+							));
+						}
+
+						$element->setAlign($align);
+
+						// width attribute
+						if (isset($itemData['width'])) {
+
+							$width = (int) $itemData['width'];
+
+							if ($width < 1 ) {
+								throw new TransformationFailedException(sprintf(
+									'Invalid width value: [%s]', $itemData['width']
+								));
+							}
+
+							$element->setWidth($width);
+						}
+
+						// height attribute
+						if (isset($itemData['height'])) {
+
+							$height = (int) $itemData['height'];
+
+							if ($height < 1 ) {
+								throw new TransformationFailedException(sprintf(
+									'Invalid height value: [%s]', $itemData['height']
+								));
+							}
+
+							$element->setHeight($height);
+						}
+
+						break;
+
+					default:
+						throw new TransformationFailedException(sprintf(
+							'Unrecognized HTML metadata element type [%s].', $itemData['type']
+						));
+				}
 
 				$metaItem = new BlockPropertyMetadata($name, $this->property);
 
-				$metaItem->setReferencedElement($referencedElement);
+				$metaItem->setReferencedElement($element);
 
 				$metadata->set($name, $metaItem);
 			}
@@ -116,6 +205,7 @@ class HtmlEditorValueTransformer implements ValueTransformerInterface, Container
 	{
 		$elementData = $element->toArray();
 
+		// we need to provide image data in addition for Image elements
 		if ($element instanceof ImageReferencedElement) {
 
 			$fileStorage = $this->container['cms.file_storage'];

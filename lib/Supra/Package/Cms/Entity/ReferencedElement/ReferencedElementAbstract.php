@@ -48,13 +48,14 @@ abstract class ReferencedElementAbstract extends Entity
 			case ImageReferencedElement::TYPE_ID:
 				$element = new ImageReferencedElement();
 				break;
-			
+
+			case 'video': // @TODO: BC. Remove.
 			case MediaReferencedElement::TYPE_ID:
 				$element = new MediaReferencedElement();
 				break;
 
 			default:
-				throw new \RuntimeException(sprintf('Unrecognized element type [%].', $array['type']));
+				throw new \RuntimeException(sprintf('Unrecognized element type [%s].', $array['type']));
 		}
 		
 		$element->fillFromArray($array);

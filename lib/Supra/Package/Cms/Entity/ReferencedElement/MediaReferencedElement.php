@@ -30,6 +30,12 @@ class MediaReferencedElement extends ReferencedElementAbstract
     protected $height;
 
     /**
+     * @Column(type="string", nullable=true)
+     * @var string
+     */
+    protected $align;
+
+    /**
      * Sets media url.
      *
      * @param string $url
@@ -80,6 +86,22 @@ class MediaReferencedElement extends ReferencedElementAbstract
     }
 
     /**
+     * @param string $align
+     */
+    public function setAlign($align)
+    {
+        $this->align = $align;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAlign()
+    {
+        return $this->align;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function toArray()
@@ -89,6 +111,7 @@ class MediaReferencedElement extends ReferencedElementAbstract
             'url'       => $this->url,
             'width'     => $this->width,
             'height'    => $this->height,
+            'align'     => $this->align,
         );
     }
 
@@ -100,5 +123,6 @@ class MediaReferencedElement extends ReferencedElementAbstract
         $this->url = ! empty($array['url']) ? $array['url'] : null;
         $this->width = ! empty($array['width']) ? $array['width'] : null;
         $this->height = ! empty($array['height']) ? $array['height'] : null;
+        $this->align = ! empty($array['align']) ? $array['align'] : null;
     }
 }
