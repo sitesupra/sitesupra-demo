@@ -20,7 +20,7 @@ class EditableInlineImageFilter implements FilterInterface, BlockPropertyAware
      */
     public function filter($content, array $options = array())
     {
-        $wrap = '<div id="content_%s_%s" class="su-content-inline su-input-image-inline">%s</div>';
+        $wrap = '<span id="content_%s_%s" class="su-content-inline su-input-image-inline">%s</span>';
 
         return sprintf(
             $wrap,
