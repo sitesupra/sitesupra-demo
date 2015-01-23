@@ -37,24 +37,41 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 
 			// @TODO: some input data validation is needed.
 
-			foreach (array_values($value) as $key => $imageData) {
+			foreach (array_values($value) as $key => $itemData) {
+
+				if (! isset($itemData['image']) || ! is_array($itemData['image'])) {
+					throw new TransformationFailedException(sprintf(
+						'Missing image data for item [%s]', $key)
+					);
+				}
+
+				$imageData = $itemData['image'];
 
 				if (empty($imageData['id'])) {
-					throw new TransformationFailedException("Image ID is missing for element [{$key}].");
+					throw new TransformationFailedException(sprintf(
+						'Image ID is missing for element [%s].', $key
+					));
 				}
 
 				$image = $this->getFileStorage()->findImage($imageData['id']);
 
 				if ($image === null) {
 					throw new TransformationFailedException(sprintf(
-							'Image [%s] not found in file storage.',
-							$imageData['imageId']
+							'Image [%s] not found in file storage.', $imageData['id']
 					));
 				}
 
 				$element = new ImageReferencedElement();
 
 				$element->fillFromArray($imageData);
+
+				if (! empty($itemData['title'])) {
+					$element->setTitle($itemData['title']);
+				}
+
+				if (! empty($itemData['description'])) {
+					$element->setDescription($itemData['description']);
+				}
 
 				$metadataCollection->set($key, new BlockPropertyMetadata($key, $this->property, $element));
 			}
@@ -92,9 +109,13 @@ class GalleryEditorValueTransformer implements ValueTransformerInterface, Contai
 				continue;
 			}
 
-			$imageDataArray[] = array_merge(
+			$imageDataArray[] = array(
+				'title' => $element->getTitle(),
+				'description' => $element->getDescription(),
+				'image' => array_merge(
 					$element->toArray(),
 					array('image' => $fileStorage->getFileInfo($image))
+				)
 			);
 		}
 
