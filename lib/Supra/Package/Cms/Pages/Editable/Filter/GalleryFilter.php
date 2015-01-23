@@ -55,7 +55,7 @@ class GalleryFilter implements FilterInterface, BlockPropertyAware, ContainerAwa
 			$imageWebPath = $fileStorage->getImagePath($image, $element->getSizeName());
 
 			$itemData = array(
-				'image' 		=> '<img src="' . $imageWebPath . '" alt="' . $element->getAlternativeText() . '" />',
+				'image' 		=> '<img src="' . $imageWebPath . '" alt="' . $element->getAlternateText() . '" />',
 				'title' 		=> $element->getTitle(),
 				'description' 	=> $element->getDescription(),
 			);
