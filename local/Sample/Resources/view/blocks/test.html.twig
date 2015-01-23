@@ -28,19 +28,25 @@
 {% endfor %}
 
 
-{{ property({
-    'name': 'gender',
-    'type': 'select',
-    'values': {'male': 'Male', 'female': 'Female'}
-}) }}
+{#{{ property({#}
+    {#'name': 'gender',#}
+    {#'type': 'select',#}
+    {#'values': {'male': 'Male', 'female': 'Female'}#}
+{#}) }}#}
 
 
-{{ property({
-    'name': 'childCount',
-    'type': 'select_list',
-    'values': {'none': 'None', 'one': 'One', 'two': 'Two', 'more': ' >2'}
-}) }}
+{#{{ property({#}
+    {#'name': 'childCount',#}
+    {#'type': 'select_list',#}
+    {#'values': {'none': 'None', 'one': 'One', 'two': 'Two', 'more': ' >2'}#}
+{#}) }}#}
 
 
 
-{{ property({'name': 'myVideo', 'type': 'video'}) }}
+{#{{ property({'name': 'myVideo', 'type': 'video'}) }}#}
+
+
+{{ property({'name': 'logo', 'type': 'inline_image'}) }}
+
+
+{{ property({'name': 'logoPrint', 'type': 'image'}) }}

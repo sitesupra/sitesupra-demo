@@ -445,7 +445,14 @@ abstract class BlockController extends Controller
 			$filters[] = new Editable\Filter\DateTimeFilter();
 		}
 		elseif ($editable instanceof Editable\Image) {
+
 			$filters[] = new Filter\ImageFilter();
+
+			if ($editable instanceof Editable\InlineImage
+					&& $this->request instanceof PageRequestEdit) {
+
+				$filters[] = new Filter\EditableInlineImageFilter();
+			}
 		}
 		elseif ($editable instanceof Editable\Gallery) {
 			$filters[] = new Filter\GalleryFilter();

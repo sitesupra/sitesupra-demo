@@ -192,8 +192,6 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 			}
 		}
 
-		$tag->addClass($imageData->getStyle());
-
 		if (!empty($width)) {
 			$tag->setAttribute('width', $width);
 		}
@@ -208,12 +206,6 @@ class HtmlFilter implements FilterInterface, BlockPropertyAware, ContainerAware
 		}
 
 		$tag->setAttribute('alt', trim($imageData->getAlternateText()));
-
-		// @FIXME: hardcoded to fancybox
-		if ($imageData->getStyle() == ImageReferencedElement::STYLE_LIGHTBOX) {
-			$tag->setAttribute('rel', 'lightbox');
-			$tag->setAttribute('data-fancybox-href', $fileStorage->getWebPath($image));
-		}
 
 		return $tag;
 	}

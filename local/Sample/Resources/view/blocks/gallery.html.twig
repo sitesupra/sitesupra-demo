@@ -10,7 +10,7 @@
 	
 	<div class="gallery-inner">
 		{% set wrapperTemplate %}{% verbatim %}
-			<ul class="pure-g">{{ items }}</li>
+			<ul class="pure-g">{{ items }}</ul>
 		{% endverbatim %}{% endset %}
 		{% set itemTemplate %}{% verbatim %}
 		    <li class="pure-u pure-u-1-4">
@@ -29,8 +29,11 @@
 				'label': 'Gallery'
 			},
 			{
-				'itemTemplate': itemTemplate,
-				'wrapperTemplate': wrapperTemplate
+				'itemTemplate': 	itemTemplate,
+				'wrapperTemplate': 	wrapperTemplate,
+				'fullSizeMaxWidth': 800,
+				'fullSizeMaxHeigh': 300,
+				'fullSizeCrop':		true
 			}
 		) }}
 		
