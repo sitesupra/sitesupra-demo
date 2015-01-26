@@ -57,6 +57,8 @@ class LoadFixturesCommand extends AbstractCommand
             'Cms:Abstraction\PlaceHolder',
             'Cms:Abstraction\Localization',
 
+            'Cms:PageLocalizationPath',
+
             'Cms:Page',
 
             'Cms:TemplateLayout',
