@@ -521,7 +521,7 @@ abstract class BlockController extends Controller
 		} elseif ($editable instanceof Editable\Video) {
 			$transformers[] = new Transformer\VideoEditorValueTransformer();
 		} elseif ($editable instanceof Editable\InlineMedia) {
-//			$transformers[] = ...;
+			$transformers[] = new Transformer\InlineMediaEditorValueTransformer();
 		}
 
 		foreach ($transformers as $transformer) {

@@ -21,7 +21,7 @@ class InlineMedia extends Editable
             'allowVideo'    => isset($this->options['allowVideo']) ? $this->options['allowVideo'] : true,
             'allowImage'    => isset($this->options['allowImage']) ? $this->options['allowImage'] : true,
             'fixedMaxCropWidth'     => isset($this->options['fixedMaxCropWidth']) ? $this->options['fixedMaxCropWidth'] : true,
-            'fixedMaxCropHeight'    => isset($this->options['fixedMaxCropHeight']) ? $this->options['fixedMaxCropHeight'] : true,
+            'fixedMaxCropHeight'    => isset($this->options['fixedMaxCropHeight']) ? $this->options['fixedMaxCropHeight'] : false,
             'allowCropZooming'      => isset($this->options['allowCropZooming']) ? $this->options['allowCropZooming'] : true,
         );
     }

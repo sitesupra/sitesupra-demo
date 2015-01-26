@@ -102,6 +102,8 @@ class InlineMediaEditorValueTransformer implements ValueTransformerInterface, Co
 
         $mediaElement = new MediaReferencedElement();
 
+        $mediaElement->setUrl($data['url']);
+
         $this->getMediaMetadata()->setReferencedElement($mediaElement);
 
         if (isset($data['width'])) {
