@@ -7,7 +7,7 @@
         'item': property({'name': 'link', 'type': 'link'})
     }) %}
 
-        <li {% if supraPage.isActive(link) %}class="active"{% endif %}>{{ link | raw }}</li>
+        <li {% if supraPage.isActive(link.href) %}class="active"{% endif %}>{{ link | raw }}</li>
 
     {% endfor %}
     </ul>
