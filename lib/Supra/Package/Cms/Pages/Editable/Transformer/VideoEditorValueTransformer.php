@@ -118,7 +118,7 @@ class VideoEditorValueTransformer implements ValueTransformerInterface, Containe
             return null;
         }
 
-        $element = $metadata->getReferencedElement();
+        $element = $metadata['media']->getReferencedElement();
 
         return $element ? $element->toArray() : null;
     }
