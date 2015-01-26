@@ -90,22 +90,6 @@ class HtmlEditorValueTransformer implements ValueTransformerInterface, Container
 						$element = new MediaReferencedElement();
 						$element->setUrl($itemData['url']);
 
-						// align attribute
-						if (empty($itemData['align'])) {
-							throw new TransformationFailedException(sprintf(
-								'No align specified for media item [%s].', $name
-							));
-						}
-
-						$align = $itemData['align'];
-						if (! in_array($align, array('middle', 'left', 'right'))) {
-							throw new TransformationFailedException(sprintf(
-								'Unrecognized align value [%s] for media element [%s].', $align, $name
-							));
-						}
-
-						$element->setAlign($align);
-
 						// width attribute
 						if (isset($itemData['width'])) {
 
