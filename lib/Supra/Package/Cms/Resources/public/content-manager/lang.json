@@ -38,8 +38,8 @@
 			
 			"image_label": "Edit image",
 			
-			"video_label": "Paste the URL of a video or embed code",
-			"video_description": "Paste the URL of the video page on Youtube or Vimeo or paste the HTML embed code",
+			"video_label": "Paste the URL of a video",
+			"video_description": "Paste the URL of the video page on Youtube or Vimeo",
 			
 			"media": {
 				"add_image": "Add image",
@@ -242,8 +242,8 @@
 			"icon_delete": "Delete icon",
 			
 			"video_properties": "Video properties",
-			"video_source": "Paste the URL of a video or embed code",
-			"video_description": "Paste the URL of the video page on Youtube or Vimeo or paste the HTML embed code",
+			"video_source": "Paste the URL of a video",
+			"video_description": "Paste the URL of the video page on Youtube or Vimeo",
 			"video_delete": "Delete video",
 			
 			"table_style": "Table style",

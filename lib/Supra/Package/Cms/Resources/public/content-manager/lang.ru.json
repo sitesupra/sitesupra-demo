@@ -34,8 +34,8 @@
 
 			"image_label": "Редактировать",
 
-			"video_label": "Скопируйте URL видео или EMBED код",
-			"video_description": "Скопируйте URL страницы на Youtube или Vimeo или скопируйтe HTML embed код",
+			"video_label": "Скопируйте URL видео",
+			"video_description": "Скопируйте URL страницы на Youtube или Vimeo",
 
 			"media": {
 				"add_image": "Добавить картинку",
@@ -233,8 +233,8 @@
 			"icon_delete": "Удалить икноку",
 
 			"video_properties": "Настройки видео",
-			"video_source": "Скопируйте URL видео или EMBED код",
-			"video_description": "Скопируйте URL страницы на Youtube или Vimeo или скопируйтe HTML embed код",
+			"video_source": "Скопируйте URL видео",
+			"video_description": "Скопируйте URL страницы на Youtube или Vimeo",
 			"video_delete": "Удалить видео",
 
 			"table_style": "Стиль таблицы",
