@@ -1,5 +1,28 @@
-<ul class="menu">
-    {% for localization in localizations %}
-    <li><a href="/{{ localization.fullPath }}">{{ localization.title }}</a></li>
-    {% endfor %}
-</ul>
+{# Desktop version of menu, render as list #}
+<nav class="menu block pure-xs-hidden pure-sm-hidden">
+    <ul class="clearfix first-level">
+        {% for localization in localizations %}
+            <li {% if supraPage.isActive(localization.path) %}class="active"{% endif %}>
+                <a href="/{{ localization.fullPath }}">{{ localization.title }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</nav>
+
+{# Mobile version of menu, render as dropdown #}
+<nav class="menu block pure-md-hidden pure-lg-hidden pure-xl-hidden">
+    <div class="select">
+        <a class="select-item"><span>{{ supraPage.page.title }}</span></a>
+        <div class="select-popup hidden">
+            <ul class="select-list">
+                {% for localization in localizations %}
+                    <li class="select-list-item" data="/{{ localization.fullPath }}">
+                        <a href="/{{ localization.fullPath }}">{{ localization.title }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="clear"></div>

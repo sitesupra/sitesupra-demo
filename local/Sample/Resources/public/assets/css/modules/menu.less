@@ -1,0 +1,60 @@
+// Menu for desktop
+.menu.pure-xs-hidden {
+	font-family: @font-family-heading;
+}
+
+// Menu for mobile
+.menu-pure-xl-hidden {
+	
+}
+
+// Menu in the header / footer
+.header .menu.pure-xs-hidden,
+.footer .menu.pure-xs-hidden {
+	margin: 9px 0 21px;
+	float: right;
+	font-size: 18px;
+	text-align: center;
+	
+	li {
+		float: left;
+		max-width: 100%;
+		padding: 0 0 0 1px;
+	}
+	
+	a {
+		display: block;
+		padding: 5px 15px;
+		
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-transform: uppercase;
+	}
+	.active a,
+	a:hover {
+		color: @color-primary;
+		text-decoration: none;
+	}
+}
+
+// Menu in the main content / sidebar
+.content .menu.pure-xs-hidden {
+	a {
+		display: block;
+		padding: 5px 0;
+		
+		color: @color-heading;
+		font-size: 14px;
+		text-decoration: none;
+	}
+	a:hover,
+	.active a {
+		color: @color-primary;
+	}
+}
+
+// Menu in the footer
+.footer .menu.pure-xs-hidden {
+	margin: 0 0 20px;
+	float: none;
+}

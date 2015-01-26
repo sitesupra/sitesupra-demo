@@ -1,11 +1,23 @@
-<ul>
-{% for link in collection({
-    'name':  'linkCollection',
-    'label': 'Links',
-    'item': property({'name': 'link', 'type': 'link'})
-}) %}
+{# Desktop version of menu, render as list #}
+<nav class="menu block pure-xs-hidden pure-sm-hidden">
+    <ul class="clearfix first-level">
+    {% for link in collection({
+        'name':  'linkCollection',
+        'label': 'Links',
+        'item': property({'name': 'link', 'type': 'link'})
+    }) %}
 
-    <li>{{ link | raw }}</li>
+        <li {% if supraPage.isActive(link) %}class="active"{% endif %}>{{ link | raw }}</li>
 
-{% endfor %}
-</ul>
+    {% endfor %}
+    </ul>
+</nav>
+
+{# Mobile version of menu, render as dropdown #}
+<nav class="menu block pure-md-hidden pure-lg-hidden pure-xl-hidden">
+    <div class="select">
+        <a class="select-item"><span></span></a>
+    </div>
+</nav>
+
+<div class="clear"></div>
