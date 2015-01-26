@@ -8,48 +8,15 @@
             "email": "info@sitesupra.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
     "require": {
-        "doctrine/common": "2.4.*",
-        "doctrine/dbal": "2.4.*",
-        "doctrine/orm": "2.4.*",
-        "twig/twig": "1.*",
-        "twig/extensions": "1.1.*",
-        "symfony/twig-bridge": "2.2.*",
-        "symfony/form": "2.2.*",
-        "symfony/translation": "2.2.*",
-        "symfony/security": "2.2.*",
-        "symfony/yaml": "2.2.*",
-        "symfony/console": "2.5.*",
-        "symfony/debug": "2.3.*",
-        "symfony/routing": "2.2.*",
-        "symfony/config": "2.2.*",
-        "swiftmailer/swiftmailer": "5.2",
-        "solarium/solarium": "2.4.*",
-        "kriswallsmith/assetic": "1.1.*",
-        "leafo/lessphp": "0.4.*",
-        "pimple/pimple": "~3.0",
-        "d11wtq/boris": "1.0.*",
-        "maximebf/debugbar": "1.*",
-        "monolog/monolog": "1.*",
-        "nelmio/alice": "1.*",
-        "myclabs/deep-copy": "*",
-        "simplethings/entity-audit-bundle": "dev-single_joined_bug",
-        "gedmo/doctrine-extensions": "v2.3.9",
-        "dereuromark/media-embed": "dev-master"
+        "php": ">=5.4",
+        "sitesupra/sitesupra": "dev-master"
     },
-    "repositories": [
-        {
-            "type": "git",
-            "url":  "https://github.com/SiteSupra/EntityAudit.git"
-        }
-    ],
     "autoload": {
         "psr-0": {
-            "Supra\\": "src\\lib",
-            "Sample\\": "local",
-            "Supra\\Core": "lib",
-            "Supra\\Package": "lib"
+            "Sample\\": "local"
         },
         "classmap": ["supra/"]
     },
