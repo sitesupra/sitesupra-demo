@@ -1,6 +1,6 @@
 {
-    "name": "sitesupra/sitesupra-standard",
-    "description": "A standard installation of SiteSupra CMS - use it to bootstrap your project!",
+    "name": "sitesupra/sitesupra-demo",
+    "description": "A demo installation of SiteSupra CMS - use it to bootstrap your project!",
     "license": "GPL-2.0",
     "authors": [
         {
