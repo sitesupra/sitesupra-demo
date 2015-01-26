@@ -69,20 +69,24 @@ class LoadFixturesCommand extends AbstractCommand
             'CmsAuthentication:User',
             'CmsAuthentication:Group',
 
+            'Cms:ApplicationLocalizationParameter',
+
             'Cms:BlockPropertyMetadata',
             'Cms:ReferencedElement\ReferencedElementAbstract',
             'Cms:BlockProperty',
             'Cms:Abstraction\Block',
             'Cms:Abstraction\PlaceHolder',
+            'Cms:LocalizationTag',
             'Cms:Abstraction\Localization',
-
+            'Cms:Abstraction\RedirectTarget',
             'Cms:PageLocalizationPath',
-
             'Cms:Page',
+            'Cms:EditLock',
 
             'Cms:TemplateLayout',
             'Cms:Template',
 
+            'Cms:FileProperty',
             'Cms:ImageSize',
             'Cms:Image',
             'Cms:File',

@@ -19,7 +19,9 @@
  *
  */
 
-namespace Supra\Package\Cms\Entity;
+namespace Supra\Package\Cms\FileStorage;
+
+use Supra\Package\Cms\Entity\Folder;
 
 /**
  * This class represent synthetic root folder and is used only 
@@ -30,15 +32,15 @@ final class SlashFolder extends Folder
 	const DUMMY_ROOT_ID = 'slash';
 	const DUMMY_ROOT_NAME = '/';
 	
-	function __construct() 
+	public function __construct()
 	{
 		parent::__construct();
 		$this->id = self::DUMMY_ROOT_ID;
 		$this->fileName = self::DUMMY_ROOT_NAME;
 	}
 	
-	public function getAuthorizationAncestors() {
-		
+	public function getAuthorizationAncestors()
+	{
 		return array();
 	}
 }

@@ -27,10 +27,7 @@ use Supra\Core\NestedSet\Exception\BadMethodCall;
 use Supra\Core\NestedSet\Node\DoctrineNode;
 use Supra\Core\NestedSet\Node\EntityNodeInterface;
 use Supra\Package\Cms\Entity\FilePath;
-use Supra\Package\Cms\Entity\SlashFolder;
 use Supra\Package\Cms\Entity\FileProperty;
-use Supra\Package\CmsAuthentication\Entity\AbstractUser;
-
 
 /**
  * File abstraction
@@ -277,7 +274,7 @@ abstract class File extends Entity implements EntityNodeInterface, Timestampable
 	/**
 	 * Set left value
 	 * @param int $left
-	 * @return Product
+	 * @return File
 	 */
 	public function setLeftValue($left)
 	{
@@ -291,7 +288,7 @@ abstract class File extends Entity implements EntityNodeInterface, Timestampable
 	/**
 	 * Set right value
 	 * @param int $right
-	 * @return Product
+	 * @return File
 	 */
 	public function setRightValue($right)
 	{
@@ -305,7 +302,7 @@ abstract class File extends Entity implements EntityNodeInterface, Timestampable
 	/**
 	 * Set depth level
 	 * @param int $level
-	 * @return Product
+	 * @return File
 	 */
 	public function setLevel($level)
 	{
@@ -320,7 +317,7 @@ abstract class File extends Entity implements EntityNodeInterface, Timestampable
 	/**
 	 * Move left value by the difference
 	 * @param int $diff
-	 * @return Product
+	 * @return File
 	 */
 	public function moveLeftValue($diff)
 	{
@@ -334,7 +331,7 @@ abstract class File extends Entity implements EntityNodeInterface, Timestampable
 	/**
 	 * Move right value by the difference
 	 * @param int $diff
-	 * @return Product
+	 * @return File
 	 */
 	public function moveRightValue($diff)
 	{
@@ -348,7 +345,7 @@ abstract class File extends Entity implements EntityNodeInterface, Timestampable
 	/**
 	 * Move depth level by the difference
 	 * @param int $diff
-	 * @return Product
+	 * @return File
 	 */
 	public function moveLevel($diff)
 	{
@@ -540,55 +537,6 @@ abstract class File extends Entity implements EntityNodeInterface, Timestampable
 		);
 
 		return $info;
-	}
-
-	/**
-	 * @param AbstractUser $user
-	 * @param Permission $permission
-	 * @param boolean $grant
-	 * @return boolean
-	 */
-	public function authorize(AbstractUser $user, $permission, $grant)
-	{
-		return $grant;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getAuthorizationId()
-	{
-		return $this->getId();
-	}
-
-	/**
-	 * @return string
-	 */
-	public static function getAuthorizationClass()
-	{
-		return __CLASS__;
-	}
-
-	/**
-	 * @return array
-	 */
-	public function getAuthorizationAncestors()
-	{
-		$ancestors = $this->getAncestors(0, false);
-
-		// Append synthetic "slash" folder to the beginng of ancestors list.
-		$ancestors[] = new SlashFolder();
-
-		return $ancestors;
-	}
-
-	/**
-	 * @param AuthorizationProvider $ap 
-	 */
-	public static function registerPermissions(AuthorizationProvider $ap)
-	{
-		$ap->registerGenericEntityPermission(self::PERMISSION_DELETE_NAME, self::PERMISSION_DELETE_MASK, __CLASS__);
-		$ap->registerGenericEntityPermission(self::PERMISSION_UPLOAD_NAME, self::PERMISSION_UPLOAD_MASK, __CLASS__);
 	}
 
 	/**
