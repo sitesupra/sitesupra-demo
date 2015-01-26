@@ -26,7 +26,7 @@ class SamplePackage extends AbstractSupraCmsPackage
 		$config = $container->getApplication()->getConfigurationSection('sample');
 
 		foreach ($config['layouts'] as $name => $layout) {
-			$theme->addLayout($name, $layout['fileName'], $layout['title']);
+			$theme->addLayout($name, $layout['title'], $layout['fileName']);
 		}
 
 		$container['cms.pages.theme.provider']->registerTheme($theme);
