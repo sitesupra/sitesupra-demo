@@ -1,0 +1,20 @@
+layouts:
+  index:
+    title: Index Page
+    fileName: SamplePackage:layouts/welcome.html.twig
+
+  inner_simple:
+    title: Inner Page
+    fileName: SamplePackage:layouts/inner_simple.html.twig
+
+  inner_left_sidebar:
+    title: Inner Page with Sidebar on Left
+    fileName: SamplePackage:layouts/inner_left_sidebar.html.twig
+
+  inner_right_sidebar:
+    title: Inner Page with Sidebar on Right
+    fileName: SamplePackage:layouts/inner_right_sidebar.html.twig
+
+  inner_contacts:
+    title: Inner Contacts Page
+    fileName: SamplePackage:layouts/inner_contacts.html.twig

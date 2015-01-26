@@ -18,16 +18,6 @@ abstract class Theme implements ThemeInterface
 	protected $layouts = array();
 
 	/**
-	 * @param array $layouts
-	 */
-	public function __construct(array $layouts = array())
-	{
-		foreach ($layouts as $layout) {
-			$this->addLayout($layout);
-		}
-	}
-
-	/**
 	 * @return ThemeLayoutInterface[]
 	 */
 	public function getLayouts()
@@ -36,20 +26,21 @@ abstract class Theme implements ThemeInterface
 	}
 
 	/**
-	 * @param ThemeLayoutInterface $themeLayout
-	 * @throws \LogicException
+	 * @param string $name
+	 * @param string $title
+	 * @param string $fileName
 	 */
-	public function addLayout(ThemeLayoutInterface $themeLayout)
+	public function addLayout($name, $title, $fileName)
 	{
-		$name = $themeLayout->getName();
-
 		if ($this->hasLayout($name)) {
-			throw new \LogicException(
-					"Layout with name [{$name}] already exists."
-			);
+			throw new \RuntimeException(sprintf(
+				'Theme [%s] already has layout [%s]',
+				$this->getName(),
+				$name
+			));
 		}
-		
-		$this->layouts[$name] = $themeLayout;
+
+		$this->layouts[$name] = new Layout($name, $title, $fileName);
 	}
 
 	/**
