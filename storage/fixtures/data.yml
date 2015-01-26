@@ -20,3 +20,8 @@ template:
     media: screen
     layoutName: two_solumns
     localizations: { en: Two columns, ru: Two columns, lv: Two columns }
+
+
+image:
+  leo.jpg:            { name: leo.jpg,            fileName: "files/99199940_leo_237813c.jpg" }
+  berries.jpg:        { name: berries.jpg,        fileName: "files/berries.jpg" }

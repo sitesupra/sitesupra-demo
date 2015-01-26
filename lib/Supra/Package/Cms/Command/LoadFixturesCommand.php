@@ -4,6 +4,7 @@
 namespace Supra\Package\Cms\Command;
 
 use Supra\Core\Console\AbstractCommand;
+use Supra\Package\Cms\Entity\Image;
 use Supra\Package\Cms\Entity\Template;
 use Supra\Package\Cms\Entity\TemplateLayout;
 use Supra\Package\Cms\Entity\TemplateLocalization;
@@ -13,6 +14,7 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Yaml\Yaml;
 use Doctrine\ORM\EntityManager;
 
@@ -24,6 +26,11 @@ class LoadFixturesCommand extends AbstractCommand
      * @var EntityManager
      */
     protected $em;
+
+    /**
+     * @var string
+     */
+    private $dataDir;
 
     protected function configure()
     {
@@ -39,14 +46,31 @@ class LoadFixturesCommand extends AbstractCommand
 
         $this->em->beginTransaction();
 
+        $entities = array(
+            'CmsAuthentication:User',
+            'CmsAuthentication:Group',
+
+            'Cms:BlockPropertyMetadata',
+            'Cms:ReferencedElement\ReferencedElementAbstract',
+            'Cms:BlockProperty',
+            'Cms:Abstraction\Block',
+            'Cms:Abstraction\PlaceHolder',
+            'Cms:Abstraction\Localization',
+
+            'Cms:Page',
+
+            'Cms:TemplateLayout',
+            'Cms:Template',
+
+            'Cms:ImageSize',
+            'Cms:Image',
+            'Cms:File',
+            'Cms:Folder',
+            'Cms:FilePath',
+        );
+
         if ($input->getOption('clear')) {
-            foreach (array(
-                         'CmsAuthentication:User',
-                         'CmsAuthentication:Group',
-                         'Cms:TemplateLocalization',
-                         'Cms:TemplateLayout',
-                         'Cms:Template',
-                     ) as $entity) {
+            foreach ($entities as $entity) {
                 //todo: also clean audit tables here
                 $this->em->createQueryBuilder()
                     ->delete($entity)
@@ -55,16 +79,22 @@ class LoadFixturesCommand extends AbstractCommand
             }
         }
 
+        $dataFile = $this->container->getParameter('directories.project_root')
+            . DIRECTORY_SEPARATOR . $input->getArgument('filename');
+
+        if (! is_file($dataFile)) {
+            throw new \RuntimeException(sprintf(
+                'The file [%s] does not exists.', $dataFile
+            ));
+        }
+
+        $this->dataDir = dirname($dataFile);
+
         //todo: validate it
-        $data = Yaml::parse(
-            file_get_contents(
-                $this->container->getParameter('directories.project_root') .
-                '/' .
-                $input->getArgument('filename'))
-        );
+        $data = Yaml::parse(file_get_contents($dataFile));
 
         //we need to maintain creation order
-        foreach (array('group', 'user', 'template') as $section) {
+        foreach (array('group', 'user', 'image', 'template') as $section) {
             foreach ($data[$section] as $name => $definition) {
                 $this->createEntity($section, $name, $definition);
             }
@@ -145,5 +175,46 @@ class LoadFixturesCommand extends AbstractCommand
         $this->em->persist($group);
 
         return $group;
+    }
+
+    protected function createEntityImage($data)
+    {
+        if (strpos($data['fileName'], '..')) {
+            throw new \RuntimeException('Invalid file name.');
+        }
+
+        $fileName = $this->dataDir . DIRECTORY_SEPARATOR . $data['fileName'];
+
+        $imageFile = new UploadedFile($fileName, $data['name']);
+
+        $fileStorage = $this->container['cms.file_storage'];
+        /* @var $fileStorage \Supra\Package\Cms\FileStorage\FileStorage */
+
+        if (! $fileStorage->isSupportedImageFormat($fileName)) {
+            throw new \RuntimeException(sprintf(
+                'The file [%s] format is not supported image file format [%s].', $fileName, $imageFile->getMimeType())
+            );
+        }
+
+        $entity = new Image();
+        $this->em->persist($entity);
+
+        $entity->setFileName($data['name']);
+        $entity->setSize($imageFile->getSize());
+        $entity->setMimeType($imageFile->getMimeType());
+
+        // store original size
+        $imageProcessor = $fileStorage->getImageResizer();
+        $imageInfo = $imageProcessor->getImageInfo($fileName);
+        $entity->setWidth($imageInfo->getWidth());
+        $entity->setHeight($imageInfo->getHeight());
+
+        $fileStorage->validateFileUpload($entity, $fileName);
+
+        $this->em->flush($entity);
+
+        $fileStorage->storeFileData($entity, $fileName);
+
+        return $entity;
     }
 }
