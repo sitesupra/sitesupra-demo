@@ -1,0 +1,43 @@
+{% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
+
+{% set services = collection({
+	'name': 'servicesCollection',
+    'label': 'Services',
+    'item': set({
+		'name': 'servicesCollectionSet',
+        'items': [
+            property({'name': 'image', 'type': 'inline_image', 'label': 'Image'}),
+            property({'name': 'title', 'type': 'inline_string', 'label': 'Title'}),
+			property({'name': 'description', 'type': 'inline_text', 'label': 'Description'})
+        ]
+    })
+}) %}
+
+<section class="block gallery services" data-refresh-event="services">
+	
+	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
+		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">
+			{{ title }}
+		</h2>
+	{% endif %}
+	
+	<div class="gallery-inner">
+		<div class="pure-g">
+			
+			{% set count = services | length %}
+			{% set columns = min(max(count, 1), 4) %}
+			
+			{% for service in services %}
+			    <div class="pure-u pure-u-1-1 pure-u-sm-1-1 pure-u-md-1-{{ columns }} pure-u-lg-1-{{ columns }} pure-u-xl-1-{{ columns }}">
+			        <div class="img">{{ service.image | raw }}</div>
+					<div class="text">
+				        <h2>{{ service.title | raw }}</h2>
+						<p>{{ service.description | raw }}</p>
+					</div>
+			    </div>
+			{% endfor %}
+			
+		</div>
+	</div>
+	
+</section>

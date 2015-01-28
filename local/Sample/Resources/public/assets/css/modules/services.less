@@ -17,14 +17,28 @@
  */
 
 /*
- * Form layout
+ * Services displays list of images in a grid, where each image has a title
+ * and description. Extends .gallery
+ * 
+ * /local/Sample/Resources/view/blocks/services.html.twig
  */
-.form {
-	.row {
-		margin-bottom: 10px;
+.services {
+	.img {
+		width: 170px;
+		margin: 0 auto 5px;
 	}
-	.form-footer {
-		margin-top: 15px;
-		margin-bottom: 0;
+}
+
+.supra-cms .services {
+	// In CMS while editing image there are handles, which user can drag,
+	// for them to be visible, there can't be "overflow: hidden"
+	.img {
+		overflow: visible;
+	}
+	
+	// To detect correct container size we need this element to take
+	// full cantainer width
+	.su-input-image-inline {
+		display: block;
 	}
 }
