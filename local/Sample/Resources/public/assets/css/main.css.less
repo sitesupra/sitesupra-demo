@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) SiteSupra SIA, Riga, Latvia, 2015
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 /*
  * This file includes all your components and modules. It shouldn’t contain any
  * CSS rules.
@@ -21,12 +39,15 @@
  * - Library
  *   - External libraries
  */
- 
+
 @import "configuration.less";
 
 @import "lib/pure-base-grids.less";
 @import "lib/pure-grids-responsive.less";
 @import "lib/pure-grids-hidden.less";
+
+@import "lib/photoswipe.less";
+@import "lib/photoswipe-default-skin.less";
 
 @import "base/mixins/css2.less";
 @import "base/mixins/css3.less";
@@ -54,3 +75,7 @@
 @import "modules/gallery.less";
 @import "modules/menu.less";
 @import "modules/logo.less";
+
+@import "modules/landing/content.less";
+@import "modules/landing/slideshow.less";
+@import "modules/landing/decoration.less";

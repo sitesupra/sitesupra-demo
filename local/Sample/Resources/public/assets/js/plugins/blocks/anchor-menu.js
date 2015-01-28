@@ -1,21 +1,10 @@
 /**
  * Menu block
+ * 
  * @version 1.0.0
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'app/refresh', 'plugins/helpers/throttle'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery', 'app/refresh', 'plugins/helpers/debounce'], function ($) {
+    'use strict';
 	
 	var DATA_INSTANCE_PROPERTY = 'anchorMenu',
 		NAMESPACE_COUNTER = 1;
@@ -35,7 +24,7 @@
 		}
 		
 		this.update();
-		$(document).on('scroll' + this.eventNameSpace, $.throttle(this.update, this, 60));
+		$(document).on('scroll' + this.eventNameSpace, $.debounce(this.update, this, 60));
 	}
 	AnchorMenu.prototype = {
 		
@@ -162,9 +151,9 @@
 			var instance = info.target.data(DATA_INSTANCE_PROPERTY);
 			if (instance && instance.destroy) {
 				instance.destroy();
-				info.target.data(DATA_INSTANCE_PROPERTY, null)
+				info.target.data(DATA_INSTANCE_PROPERTY, null);
 			}
 		});
 	}
 
-}));
+});

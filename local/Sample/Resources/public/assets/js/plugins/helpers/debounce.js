@@ -8,28 +8,16 @@
  * @type {Function}
  * @version 1.0.1
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery'], function ($) {
+    'use strict';
 	
-	return $.throttle = function (callback, context, threshold, delay) {
+	$.debounce = function (callback, context, _threshold, delay) {
 		if (typeof context === 'number') {
 			threshold = context;
 			context = null;
 		}
 		
-		var threshold = threshold || 50;
+		var threshold = _threshold || 50;
 		var last_time = 0;
 		var timeout = null;
 		var args = [];
@@ -57,5 +45,7 @@
 			}
 		};
 	};
+    
+    return $.throttle;
 	
-}));
+});

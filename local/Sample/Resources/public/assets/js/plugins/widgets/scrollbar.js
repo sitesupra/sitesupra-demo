@@ -9,25 +9,13 @@
  * @param {Object} options Options, optional argument
  * @version 1.0.3
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'plugins/helpers/throttle'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery', 'plugins/helpers/debounce'], function ($) {
+    'use strict';
 	
 	var NAMESPACE = 'scrollbar';
 	
-	function Scrollbar (node, options) {
-		var options = this.options = $.extend({}, this.DEFAULT_OPTIONS, options || {});
+	function Scrollbar (node, _options) {
+		var options = this.options = $.extend({}, this.DEFAULT_OPTIONS, _options || {});
 		
 		this.nodeContainer = $(node);
 		
@@ -103,7 +91,7 @@
 		nodeInner: null,
 		
 		/**
-		 * Mouse move callback function, _onMouseMove with .throttle
+		 * Mouse move callback function, _onMouseMove with .debounce
 		 * @type {Function}
 		 * @private
 		 */
@@ -176,8 +164,8 @@
 			this.nodeContainer.append(html);
 			
 			this.node = html;
-			this.nodeDragable = html.find('.' + this.options.classname + '-dragable')
-			this.nodeInner = html.find('.' + this.options.classname + '-b')
+			this.nodeDragable = html.find('.' + this.options.classname + '-dragable');
+			this.nodeInner = html.find('.' + this.options.classname + '-b');
 			
 			this.update();
 		},
@@ -188,7 +176,7 @@
 		 * @private
 		 */
 		_bindUI: function () {
-			this.fnMouseMove = $.throttle($.proxy(this._onMouseMove, this), 30);
+			this.fnMouseMove = $.debounce($.proxy(this._onMouseMove, this), 30);
 			this.fnMouseUp = $.proxy(this._onMouseUp, this);
 			this.fnMouseWheel = $.proxy(this._onMouseWheel, this);
 			this.fnMouseWheelNatural = $.proxy(this._onMouseWheelNatural, this);
@@ -497,10 +485,10 @@
 		 * @type {String}
 		 */
 		'scrollbar': function (options) {
-			return '<div class="' + options.classname + ' ' + options.classname + '-' + options.axis + '">\
-						<div class="' + options.classname + '-t"><div class="' + options.classname + '-b"></div></div>\
-						<div class="' + options.classname + '-dragable"></div>\
-					</div>';
+			return  '<div class="' + options.classname + ' ' + options.classname + '-' + options.axis + '">' +
+					'	<div class="' + options.classname + '-t"><div class="' + options.classname + '-b"></div></div>' +
+					'	<div class="' + options.classname + '-dragable"></div>' +
+					'</div>';
 		}
 	};
 	
@@ -511,7 +499,6 @@
 	 * @return Scrollbar instance for node
 	 */
 	$.fn.scrollbar = function (options) {
-		
 		var instance = null, dropdown, node;
 		
 		//Create drop down for each item
@@ -529,6 +516,7 @@
 		return instance;
 	};
 	
-	return $.Scrollbar = Scrollbar;
+    $.Scrollbar = Scrollbar;
+	return Scrollbar;
 	
-}));
+});

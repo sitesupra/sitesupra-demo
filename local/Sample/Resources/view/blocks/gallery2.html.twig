@@ -1,6 +1,6 @@
 {% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
 
-<section class="block gallery" data-refresh-event="gallery">
+<section class="block gallery gallery-2" data-refresh-event="gallery" data-require="plugins/blocks/gallery" data-attach="$.fn.gallery">
 	
 	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
 		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">
@@ -10,16 +10,13 @@
 	
 	<div class="gallery-inner">
 		{% set wrapperTemplate %}{% verbatim %}
-			<ul class="pure-g">{{ items }}</ul>
+			<div class="pure-g pure-g-collapsed">{{ items }}</div>
 		{% endverbatim %}{% endset %}
+		
 		{% set itemTemplate %}{% verbatim %}
-		    <li class="pure-u pure-u-1-1 pure-u-sm-1-2 pure-u-md-1-4 pure-u-lg-1-4 pure-u-xl-1-4">
-		        <span class="img">{{ image }}</span>
-				<div class="text">
-			        <h2>{{ title }}</h2>
-					<p>{{ description }}</p>
-				</div>
-		    </li>
+		    <figure class="pure-u pure-u-1-2 pure-u-sm-1-3 pure-u-md-1-3 pure-u-lg-1-3 pure-u-xl-1-3">
+		        <span class="img"><a data-size="{{ fullSizeWidth }}x{{ fullSizeHeight }}" href="{{ fullSizeUrl }}">{{ image }}</a></span>
+		    </figure>
 		{% endverbatim %}{% endset %}
 		
 		{{ property(
@@ -31,8 +28,8 @@
 			{
 				'itemTemplate': 	itemTemplate,
 				'wrapperTemplate': 	wrapperTemplate,
-				'fullSizeMaxWidth': 800,
-				'fullSizeMaxHeigh': 300,
+				'fullSizeMaxWidth': 1200,
+				'fullSizeMaxHeigh': 900,
 				'fullSizeCrop':		true
 			}
 		) }}

@@ -2,7 +2,6 @@
  * Watch for content changes made by CMS
  * 
  * @version 1.0.5
- * @license Copyright 2014 Vide Infra
  */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {

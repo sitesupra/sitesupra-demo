@@ -13,7 +13,6 @@
  *     <input type="checkbox" data-require="modules/something" data-attach="myFunctionName" />
  * 
  * @version 1.0.4
- * @license Copyright 2014 Vide Infra
  */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {

@@ -1,1 +1,40 @@
 {% extends 'SamplePackage:layouts/base.html.twig' %}
+
+{% block intro %}
+	<section class="slideshow" name="home" id="home">
+		
+	</section>
+{% endblock %}
+
+{% block body %}
+	
+	<section class="content content-promo content-light">
+		<div class="wrapper">
+			{% block content %}
+				{{- placeHolder('content') -}}
+			{% endblock %}
+		</div>
+	</section>
+	<section class="content content-promo content-dark">
+		<div class="wrapper">
+			{{- placeHolder('about') -}}
+		</div>
+	</section>
+	<section class="content content-promo content-light" name="team" id="team">
+		<div class="wrapper">
+			{{- placeHolder('team') -}}
+		</div>
+	</section>
+	<section class="content content-promo content-dark" name="portfolio" id="portfolio">
+		<div class="wrapper">
+			{{- placeHolder('portfolio') -}}
+		</div>
+	</section>
+	<section class="content content-promo content-light" name="contact" id="contact">
+		<div class="wrapper">
+			{{- placeHolder('contact') -}}
+		</div>
+	</section>
+	<section class="decoration"></section>
+	
+{% endblock %}

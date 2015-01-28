@@ -1,21 +1,10 @@
 /**
  * Google maps block
+ * 
  * @version 1.0.2
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
+    'use strict';
 	
 	var DATA_INSTANCE_PROPERTY = 'map';
 	
@@ -30,11 +19,15 @@
 	function GoogleMap (element, options) {
 		this.options = $.extend({}, DEFAULTS, options || {});
 		this.element = element;
-		this._createMap();
-		this._createMarker();
 		
-		this.update = $.proxy(this.update, this);
-		$.responsive.on('resize', this.update);
+        // Map will not be created if it already exists, it could be
+        // created by CMS in page editing mode
+        if (this._createMap()) {
+            this._createMarker();
+    		
+    		this.update = $.proxy(this.update, this);
+    		$.responsive.on('resize', this.update);
+        }
 	}
 	
 	GoogleMap.prototype = {
@@ -81,6 +74,11 @@
 				latlng = null,
 				node = $('<div style="width: 100%; height: 100%;"></div>');
 			
+            if (this.element.find('.gm-style').length) {
+                // Map already has been created, exit
+                return false;
+            }
+            
 			latlng = new google.maps.LatLng(this.options.latitude, this.options.longitude);
 			
 			options = {
@@ -92,6 +90,8 @@
 			
 			this.element.append(node);
 			map = this.map = new google.maps.Map(node.get(0), options);
+            
+            return true;
 		},
 		
 		'_createMarker': function (latlng) {
@@ -169,7 +169,9 @@
 				$.googleMap.load(function () {
 					
 					widget = new GoogleMap (element, $.extend({}, element.data(), options || {}));
-					element.data(DATA_INSTANCE_PROPERTY, widget);
+                    if (widget) {
+                        element.data(DATA_INSTANCE_PROPERTY, widget);
+                    }
 					
 				});
 			} else {
@@ -198,6 +200,9 @@
 		 * @param {Function} callback Callback function
 		 */
 		'load': function (callback) {
+            var ready,
+                interval;
+            
 			if (this._loaded) {
 				return callback();
 			}
@@ -211,21 +216,46 @@
 			if (typeof google !== 'undefined' && !(google instanceof Node)) {
 				// IE11 maps DOM elements with name to window object
 				if (google.maps) {
-					callback();
+                    if (google.maps.LatLng) {
+                        this._ready();
+                    } else {
+                        ready = $.proxy(this._ready, this);
+                        interval = setInterval(function () {
+                            if (google.maps.LatLng) {
+                                clearInterval(interval);
+                                ready();
+                            }
+                        });
+                    }
 				} else if (google.load) {
 					this._loading = true;
 					google.load("maps", "3",  {callback: $.proxy(this._ready, this), other_params:"sensor=false"});
 				}
 			} else {
-				this._loading = true;
-				var script = document.createElement('script');
-					script.type = 'text/javascript';
-					script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=$.googleMap._ready';
-				
-				document.body.appendChild(script);
+                // Check if there already is script included
+				if ($('script[src*="//maps.googleapis.com/maps/api/js"]').length) {
+                    ready = $.proxy(this._ready, this);
+                    interval = setInterval(function () {
+                        if (google.maps.LatLng) {
+                            clearInterval(interval);
+                            ready();
+                        }
+                    });
+                } else {
+    				this._loading = true;
+    				var script = document.createElement('script');
+    					script.type = 'text/javascript';
+    					script.src  = document.location.protocol + '//maps.googleapis.com/maps/api/js?sensor=false&callback=$.googleMap._ready';
+    				
+    				document.body.appendChild(script);
+                }
 			}
 			
 		},
+        
+        '_readyCheck': function () {
+            
+        },
 		
 		/**
 		 * Google Maps API finished loading, call callbacks
@@ -233,7 +263,7 @@
 		 * @private
 		 */
 		'_ready': function () {
-			var callbacks = this._callbacks,
+            var callbacks = this._callbacks,
 				i = 0,
 				ii = callbacks.length;
 			
@@ -259,7 +289,7 @@
 			var map = info.target.data(DATA_INSTANCE_PROPERTY);
 			if (map && map.destroy) {
 				map.destroy();
-				info.target.data(DATA_INSTANCE_PROPERTY, null)
+				info.target.data(DATA_INSTANCE_PROPERTY, null);
 			}
 		});
 	}
@@ -267,4 +297,4 @@
 	//requirejs
 	return GoogleMap;
 	
-}));
+});

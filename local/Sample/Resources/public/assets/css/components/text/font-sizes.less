@@ -1,0 +1,108 @@
+/**
+ * Copyright (C) SiteSupra SIA, Riga, Latvia, 2015
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ * In CMS HTML editor user can choose different font size and appropriate
+ * CSS class is added to the element.
+ *
+ * We need to define line heights for text to look good. This also allows
+ * to reduce font size on mobile devices.
+ * 
+ * <h1 class="font-72">Larger heading 1 than default</h1>
+ * <p class="font-8">Very small text comparing to <span class="font-14">default</span></p>
+ */
+.font-6  { 
+	font-size: 6px;
+	line-height: @lin-height-base;
+}
+.font-8  { 
+	font-size: 8px; 
+	line-height: @line-height-base;
+}
+.font-9  { 
+	font-size: 9px; 
+	line-height: @line-height-base;
+}
+.font-10 { 
+	font-size: 10px;
+	line-height: @line-height-base;
+}
+.font-11 { 
+	font-size: 11px;
+	line-height: @line-height-base;
+}
+.font-12 { 
+	font-size: 12px;
+	line-height: @line-height-base;
+}
+.font-13 { 
+	font-size: 13px;
+	line-height: @line-height-base;
+}
+.font-14 { 
+	font-size: 14px;
+	line-height: @line-height-base;
+}
+.font-15 { 
+	font-size: 15px;
+	line-height: @line-height-base;
+}
+.font-16 { 
+	font-size: 16px;
+	line-height: @line-height-base;
+}
+.font-18 { 
+	font-size: 18px;
+	line-height: @line-height-h4;
+}
+.font-24 { 
+	font-size: 24px;
+	line-height: @line-height-h3;
+}
+.font-30 { 
+	font-size: 30px;
+	line-height: @line-height-h2;
+}
+.font-36 { 
+	font-size: 36px;
+	line-height: @line-height-h2;
+}
+.font-48 { 
+	font-size: 48px;
+	line-height: @line-height-h1;
+}
+.font-60 { 
+	font-size: 60px;
+	line-height: @line-height-h1;
+}
+.font-72 { 
+	font-size: 72px;
+	line-height: @line-height-h1;
+}
+
+// Custom font size
+// NOT YET IMPLEMENTED!
+.font-custom {
+	line-height: @line-height-base;
+}
+
+// Reset
+.font-inherit {
+	font-size: inherit;
+	line-height: inherit;
+}

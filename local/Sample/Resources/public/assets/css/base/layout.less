@@ -1,3 +1,21 @@
+/**
+ * Copyright (C) SiteSupra SIA, Riga, Latvia, 2015
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
 /*
  * Page layout, backgrounds, etc.
  * Here goes everything what is common, but doesn't fit in any other file
@@ -13,7 +31,7 @@ body {
 
 
 //
-// ---------------- Clear floats ---------------- 
+// ------------------- Clear floats -------------------
 //
 .clear {
 	clear: both !important;
@@ -32,7 +50,7 @@ body {
 
 
 //
-// ---------------- Invisible elements ---------------- 
+// ---------------- Invisible elements ----------------
 //
 .hidden {
 	display: none !important;
@@ -44,50 +62,8 @@ body {
 
 
 //
-// ---------------- Grid layout ----------------
+// ------------------- Grid layout --------------------
 //
-
-@screen-xl-min: 80em;
-@screen-lg-max: @screen-xl-min - 0.01em;
-@screen-lg-min: 64em;
-@screen-md-max: @screen-lg-min - 0.01em;
-@screen-md-min: 48em;
-@screen-sm-max: @screen-md-min - 0.01em;
-@screen-sm-min: 35.5em;
-@screen-xs-max: @screen-sm-min - 0.01em;
-
-
-@media screen and (max-width: @screen-xs-max) {
-	// xs
-	.hidden-xs {
-		display: none !important;
-	}
-}
-@media screen and (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-	// sm
-	.hidden-sm {
-		display: none !important;
-	}
-}
-@media screen and (min-width: @screen-md-min) and (max-width: @screen-md-max) {
-	// md
-	.hidden-md {
-		display: none !important;
-	}
-}
-@media screen and (min-width: @screen-lg-min) and (max-width: @screen-lg-max) {
-	// lg
-	.hidden-lg {
-		display: none !important;
-	}
-}
-@media screen and (min-width: @screen-xl-min) {
-	// xl
-	.hidden-xl {
-		display: none !important;
-	}
-}
-
 
 // Add spacing between units
 .pure-g {
@@ -100,9 +76,20 @@ body {
 	padding: 0 10px;
 }
 
+// Collapsed grid
+.pure-g-collapsed {
+	margin-left: 0;
+	margin-right: 0;
+	
+	& > .pure-u {
+		padding-left: 0;
+		padding-right: 0;
+	}
+}
+
 
 //
-// ---------------- General page layout ----------------
+// ---------------- General page layout ---------------
 //
 .wrapper {
 	.clearfix ();
@@ -114,7 +101,7 @@ body {
 
 
 //
-// ---------------- Components / modules layout ----------------
+// ----------- Components / modules layout ------------
 //
 .block {
 	margin-bottom: @block-margin;
@@ -125,7 +112,7 @@ body {
 
 
 //
-// ---------------- Form layout ----------------
+// ------------------- Form layout --------------------
 //
 .form-group {
 	margin-bottom: 25px;

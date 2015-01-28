@@ -1,0 +1,43 @@
+{% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
+
+<section class="block gallery gallery-1" data-refresh-event="gallery" data-require="plugins/blocks/gallery" data-attach="$.fn.gallery">
+	
+	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
+		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">
+			{{ title }}
+		</h2>
+	{% endif %}
+	
+	<div class="gallery-inner">
+		{% set wrapperTemplate %}{% verbatim %}
+			<div class="pure-g">{{ items }}</div>
+		{% endverbatim %}{% endset %}
+		
+		{% set itemTemplate %}{% verbatim %}
+		    <figure class="pure-u pure-u-1-2 pure-u-sm-1-2 pure-u-md-1-4 pure-u-lg-1-4 pure-u-xl-1-4">
+		        <span class="img"><a data-size="{{ fullSizeWidth }}x{{ fullSizeHeight }}" href="{{ fullSizeUrl }}">{{ image }}</a></span>
+				<figcaption class="text">
+			        <h2>{{ title }}</h2>
+					<p>{{ description }}</p>
+				</figcaption>
+		    </figure>
+		{% endverbatim %}{% endset %}
+		
+		{{ property(
+			{
+				'name': 'gallery',
+				'type': 'gallery',
+				'label': 'Gallery'
+			},
+			{
+				'itemTemplate': 	itemTemplate,
+				'wrapperTemplate': 	wrapperTemplate,
+				'fullSizeMaxWidth': 800,
+				'fullSizeMaxHeigh': 300,
+				'fullSizeCrop':		true
+			}
+		) }}
+		
+	</div>
+	
+</section>

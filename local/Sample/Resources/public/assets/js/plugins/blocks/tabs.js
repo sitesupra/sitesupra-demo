@@ -1,28 +1,17 @@
 /**
  * Tabs block
+ * 
  * @version 1.0.2
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'plugins/helpers/responsive', 'plugins/helpers/throttle'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery', 'plugins/helpers/responsive'], function ($) {
+    'use strict';
 	
 	//Elements data property on which widget instance is set
 	var DATA_INSTANCE_PROPERTY = 'tabs';
 	
-	var Tabs = function (element, options) {
+	var Tabs = function (element, _options) {
 		var container = this._container = $(element),
-			options   = this._options = $.extend({}, Tabs.defaultOptions, options || {}),
+			options   = this._options = $.extend({}, Tabs.defaultOptions, _options || {}),
 			headings  = this._headings = container.find(options.headingSelector),
 			contents  = this._contents = container.find(options.contentSelector),
 			active    = headings.filter('.' + options.activeClassName);
@@ -184,4 +173,4 @@
 		});
 	};
 	
-}));
+});

@@ -1,5 +1,5 @@
 {# Desktop version of menu, render as list #}
-<nav class="menu block pure-xs-hidden pure-sm-hidden">
+<nav class="menu block pure-xs-hidden pure-sm-hidden" data-require="plugins/blocks/anchor-menu" data-attach="$.fn.anchorMenu">
     <ul class="clearfix first-level">
     {% for link in collection({
         'name':  'linkCollection',
@@ -7,7 +7,11 @@
         'item': property({'name': 'link', 'type': 'link'})
     }) %}
 
-        <li {% if supraPage.isActive(link.href) %}class="active"{% endif %}>{{ link | raw }}</li>
+        {% if link.href|slice(0, 1) == '#' %}
+            <li>{{ link | raw }}</li>
+        {% else %}
+            <li {% if supraPage.isActive(link.href) %}class="active"{% endif %}>{{ link | raw }}</li>
+        {% endif %}
 
     {% endfor %}
     </ul>

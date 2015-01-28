@@ -1,29 +1,18 @@
 /**
  * Accordion block
+ * 
  * @version 1.0.1
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery'], function ($) {
+    'use strict';
 	
 	//Elements data property on which widget instance is set
 	var DATA_INSTANCE_PROPERTY = 'accordion',
 		CMS_MODE = $('html').hasClass('supra-cms');
 	
-	var Accordion = function (element, options) {
+	var Accordion = function (element, _options) {
 		var container = this._container = $(element),
-			options   = this._options = $.extend({}, Accordion.defaultOptions, options || {}),
+			options   = this._options = $.extend({}, Accordion.defaultOptions, _options || {}),
 			items     = this._items = container.find(options.itemSelector),
 			headings  = this._headings = container.find(options.headingSelector),
 			contents  = this._contents = container.find(options.contentSelector),
@@ -180,4 +169,4 @@
 	// requirejs
 	return Accordion;
 	
-}));
+});

@@ -4,26 +4,14 @@
  * 
  * @version 1.0.1
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'plugins/helpers/responsive', 'plugins/helpers/throttle'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery', 'plugins/helpers/responsive', 'plugins/helpers/debounce'], function ($) {
+    "use strict";
 	
 	//Elements data property on which widget instance is set
 	var DATA_INSTANCE_PROPERTY = 'resize';
 	
 	function Resize (element, options) {
-		this._options = $.extend({}, Resize.defaultOptions, options || {}),
+		this._options = $.extend({}, Resize.defaultOptions, options || {});
 		this._node = $(element);
 		this._container = this._node.parent();
 		this._type = (this._node.is('video, embed, object, iframe') ? 'video' : 'image');
@@ -32,7 +20,7 @@
 		this.update = $.proxy(this.update, this);
 		
 		if (this._type == 'video') {
-			$(window).on('resize', $.throttle(this.update, this, 100, true));
+			$(window).on('resize', $.debounce(this.update, this, 100, true));
 		}  else {
 			$.responsive.on('resize', this.update);
 		}
@@ -251,43 +239,19 @@
 				node.find('EMBED').attr('width', width + 'px').attr('height', height + 'px');
 			}
 			
-			// Thumbnail
-			if (tag !== 'IMG' && node.parent().data('thumbnail')) {
-				if (this.allowVideoThumbnail(node)) {
-					if (width < options.thumbnailMaxWidth || height < options.thumbnailMaxHeight) {
-						// Show thumbnail
-						if (!node.next().is('img')) {
-							$('<img alt="" src="' + node.parent().data('thumbnail') + '" />').insertAfter(node);
-						}
-						
-						node.next().removeClass('hidden');
-						node.addClass('hidden');
-					} else {
-						// Show video
-						if (node.next().is('img')) {
-							node.next().addClass('hidden');
-							node.removeClass('hidden');
-						}
-					}
-				}
-			}
-			
 			this._width = width;
 			this._height = height;
 			this._containerWidth = newContainerWidth;
-		},
-		
-		/**
-		 * Returns true if video thumbnail is allowed, otherwise false
-		 */
-		'allowVideoThumbnail': function (node) {
-			// K: This is harcoded and bad way to do this, @FIXME
-			if (node.closest('.blog-post, .text').size()) return false;
-			
-			return true;
 		}
 	};
 	
+    /**
+     * Plugin which automatically resizes images, video, iframes and embed
+     * content to take container size, while preserving width/height ratio
+     *
+     * @param {Object} prop Options
+     * @returns {Object} Element for chaining
+     */
 	$.fn.resize = function (prop) {
 		var options = typeof prop === 'object' ? prop : null,
 			fn = typeof prop === 'string' && typeof Resize.prototype[prop] === 'function' && prop[0] !== '_' ? prop : null,
@@ -313,7 +277,13 @@
 		});
 	};
 	
-	// Video plugin
+	/**
+     * Video plugin resizes iframes to take container size, while preserving
+     * aspect ratio
+     *
+     * @param {Object} prop Options
+     * @returns {Object} Element for chaining
+     */
 	$.fn.video = function (prop) {
 		// A second before initializing
 		var defer,
@@ -355,4 +325,4 @@
 	
 	return Resize;
 	
-}));
+});

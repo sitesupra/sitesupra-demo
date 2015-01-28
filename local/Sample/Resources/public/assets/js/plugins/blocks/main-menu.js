@@ -1,21 +1,10 @@
 /**
  * Menu block
+ * 
  * @version 1.0.0
  */
-"use strict";
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'app/refresh'], function ($) {
-            return factory($);
-        });
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
+define(['jquery', 'app/refresh'], function ($) {
+    'use strict';
 	
 	var DATA_INSTANCE_PROPERTY_ANDROID = 'androidTouchShim',
 		DATA_INSTANCE_PROPERTY_POSITIONING = 'menuDirection',
@@ -25,10 +14,10 @@
 		})(),
 		NAMESPACE_COUNTER = 1;
 	
-	//
-	// Make main menu fallout menus work as on iOS
-	// where first click opens dropdown and second click opens page
-	//
+    /*
+     * Simulate same behaviour for Android as it is on iOS, where
+     * first click opens dropdown and second click opens page
+     */
 	function AndroidTouchShim (node) {
 		this.eventNameSpace = '.androidShim' + (NAMESPACE_COUNTER++);
 		this.node = $(node);
@@ -251,15 +240,15 @@
 			var instance = info.target.data(DATA_INSTANCE_PROPERTY_ANDROID);
 			if (instance && instance.destroy) {
 				instance.destroy();
-				info.target.data(DATA_INSTANCE_PROPERTY_ANDROID, null)
+				info.target.data(DATA_INSTANCE_PROPERTY_ANDROID, null);
 			}
 			
 			instance = info.target.data(DATA_INSTANCE_PROPERTY_POSITIONING);
 			if (instance && instance.destroy) {
 				instance.destroy();
-				info.target.data(DATA_INSTANCE_PROPERTY_POSITIONING, null)
+				info.target.data(DATA_INSTANCE_PROPERTY_POSITIONING, null);
 			}
 		});
 	}
 
-}));
+});

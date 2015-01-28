@@ -6,11 +6,11 @@ use Supra\Package\Cms\Pages\Block\Config\BlockConfig;
 use Supra\Package\Cms\Pages\Block\Mapper\AttributeMapper;
 use Supra\Package\Cms\Pages\Block\Mapper\PropertyMapper;
 
-class Gallery extends BlockConfig
+class Gallery1 extends BlockConfig
 {
 	protected function configureAttributes(AttributeMapper $mapper)
 	{
-		$mapper->title('Gallery')
+		$mapper->title('Gallery Example 1')
 				->icon('sample:blocks/gallery.png')
 		;
 	}

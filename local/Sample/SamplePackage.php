@@ -36,7 +36,8 @@ class SamplePackage extends AbstractSupraCmsPackage
 	{
 		return array(
 			new Blocks\Text(),
-			new Blocks\Gallery(),
+			new Blocks\Gallery1(),
+			new Blocks\Gallery2(),
 			new Blocks\GoogleMap(),
 			new Blocks\ContactForm(),
 			new Blocks\Menu(),

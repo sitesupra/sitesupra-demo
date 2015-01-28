@@ -9,23 +9,8 @@
  * @param {Object} options Dropdown widget options
  * @version 1.1.0
  */
-
-(function (root, factory) {
-    if (typeof define === 'function' && define.amd) {
-        // AMD. Register as an anonymous module.
-        define(['jquery', 'plugins/widgets/scrollbar'], function ($) {
-            return factory($);
-        });
-	} else if (typeof module !== "undefined" && module.exports) {
-		// CommonJS
-		module.exports = factory(jQuery);
-    } else {
-        // AMD is not supported, assume all required scripts are
-        // already loaded
-        factory(jQuery);
-    }
-}(this, function ($) {
-	"use strict";
+define(['jquery', 'plugins/widgets/scrollbar'], function ($) {
+	'use strict';
 	
 	//Save if this is old IE browser or not
 	var msieOld = false;
@@ -1394,4 +1379,4 @@
 	$.DropDown = DropDown;
 	return DropDown;
 	
-}));
+});

@@ -3,9 +3,8 @@
  * 
  * @version 1.0.0
  */
-"use strict";
-
 define(['jquery', 'app/refresh'], function ($) {
+    'use strict';
     
 	/*
      * On any property change reload
