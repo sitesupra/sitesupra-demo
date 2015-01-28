@@ -17,12 +17,12 @@
  */
 
 /*
- * Form style reset, there shouldn't be any specific classnames,
- * see components/form/... for that.
+ * Form style reset
  */
 input,
 textarea,
-select {
+select,
+.select {
 	// Text
 	color: @color-base;
 	font-size: @font-size-small;
@@ -39,6 +39,11 @@ select {
 	
 	// Animations make it look nicer
 	.transition (~'border-color @{animation-duration}, color @{animation-duration}, background-color @{animation-duration}, box-shadow @{animation-duration}');
+	
+	// Focus
+	&:focus {
+		border-color: @color-base;
+	}
 }
 
 input, textarea {

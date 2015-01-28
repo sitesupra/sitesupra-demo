@@ -21,6 +21,92 @@
  * /local/Sample/Resources/view/layouts/welcome.html.twig
  **/
 .slideshow {
+	// Default is xs/mobile size
 	background: url(../img/media/background.jpg) 50% 0 fixed;
-	height: 800px;
+	background-size: cover;
+	height: 310px;
+	width: 100%;
+	overflow: hidden;
+	position: relative;
+	
+	// Each item is vertically centered
+	li {
+		position: absolute;
+		left: 0;
+		top: 50%;
+		opacity: 0;
+		width: 100%;
+		background: rgba(255, 255, 255, 0.9);
+		.transform (~'translateY(-50%)');
+		
+		&.active {
+			z-index: 1;
+			opacity: 1;
+		}
+		
+		.wrapper {
+			// 70px because of arrows on the left and right side
+			padding: 20px 70px 25px;
+			text-align: center;
+		}
+		
+		h1, .h1, p {
+			// For 'top' property animation
+			position: relative;
+		}
+	}
+	
+	// Next / previous arrows
+	.controls {
+		position: absolute;
+		z-index: 1; // above items
+		top: 50%;
+		left: 0;
+		margin-top: -21px;
+		width: 100%;
+		
+		.wrapper {
+			padding-top: 0;
+			padding-bottom: 0;
+			.clearfix();
+		}
+		a {
+			display: block;
+			width: 42px;
+			height: 42px;
+			border-radius: 42px;
+			background: @color-primary url(../img/slider/arrows.png) 50% 0 no-repeat;
+			cursor: pointer;
+			
+			&:hover {
+				background-color: @color-complementary;
+			}
+			
+			&.back {
+				float: left;
+				background-position: 50% -42px;
+			}
+			&.next {
+				float: right;
+			}
+		}
+	}
+	
+	
+	// Responsive
+	@media screen and (max-width: 47.99em) { // xs, sm / mobile
+		h1, .h1 {
+			font-size: @font-size-h2;
+			line-height: @line-height-h2;
+		}
+	}
+	@media screen and (min-width: 35.5em) { // sm / large mobile
+		height: 360px;
+	}
+	@media screen and (min-width: 48em) { // md / tablet
+		height: 660px;
+	}
+	@media screen and (min-width: 64em) { // lg, xl / laptop, desktop
+		height: 800px;
+	}
 }

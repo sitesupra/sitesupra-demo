@@ -943,10 +943,14 @@ define(['jquery', 'plugins/widgets/scrollbar'], function ($) {
 		 */
 		_showPopup: function () {
 			if (!this.disabled && !this.readonly && !this.popupVisible) {
-				this.nodeDropdown.addClass(this.options.classnameOpen);
 				this.nodePopup.removeClass(this.options.classnameHidden);
 				this.popupVisible = true;
 				this.keystrokeLine = '';
+				
+				setTimeout($.proxy(function() {
+					// Delay so that CSS transitions work
+					this.nodeDropdown.addClass(this.options.classnameOpen);
+				}, this), 1);
 				
 				if (this.options.maxHeight && this.options.allowScrollbar) {
 					var elementList = this.nodeList.get(0),
@@ -1081,6 +1085,17 @@ define(['jquery', 'plugins/widgets/scrollbar'], function ($) {
 		_onBlur: function (e) {
 			if (this.clickActivatedApplyDefault) {
 				this.clickActivatedApplyDefault = false;
+				
+				// We don't close dropdown immediatelly, because blur is called
+				// before click and if dropdown won't be visible, then click
+				// and default action will never happen
+				setTimeout($.proxy(function () {
+					this._onBlur(e);
+				}, this), 160);
+				
+				// In case there is CSS transition, we remove class now
+				this.nodeDropdown.removeClass(this.options.classnameOpen);
+				
 				return;
 			}
 			
@@ -1350,6 +1365,7 @@ define(['jquery', 'plugins/widgets/scrollbar'], function ($) {
 	 */
 	$.fn.dropdown = function (options) {
 		var inputs = this.find('select').add(this.filter('select')),
+			className = DropDown.prototype.DEFAULT_OPTIONS.classname,
 			fn;
 		
 		if (typeof options === 'string' && typeof DropDown.prototype[options] === 'function') {
@@ -1357,6 +1373,10 @@ define(['jquery', 'plugins/widgets/scrollbar'], function ($) {
 			options = {};
 		} else if (typeof options !== 'object') {
 			options = {};
+		}
+		
+		if (!inputs.length) {
+			inputs = this.find('.' + className).add(this.filter('.' + className));
 		}
 		
 		inputs.each(function () {

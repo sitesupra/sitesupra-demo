@@ -1,6 +1,6 @@
 require.config({
 	shim: {
-		// For photoswipe load default skin
+		// For PhotoSwipe load default skin
 		'lib/photoswipe.min': {
 			'deps': ['lib/photoswipe-ui-default.min'],
 			'exports': 'PhotoSwipe'
@@ -54,7 +54,7 @@ require([
 	// Sticky header
 	$('header.header').eq(0).sticky({
 		'disabled': $.responsive.size < $.responsive.md
-	});
+	}).sticky('update');
 	
 	$.responsive.on('resize', function () {
 		var state = $.responsive.size < $.responsive.md ? 'disable' : 'enable';
@@ -74,9 +74,16 @@ require([
 	});
 	
 	// Scrollto
+	var offset = 0;
+	
+	if ($.responsive.size >= $.responsive.md) {
+		// Only for tablet and desktop; on mobile header is not 'sticky'
+		offset = -$('header.header').height();
+	}
+	
 	$.localScroll({
 		'duration': 700,
-		'offset': -$('header.header').height(),
+		'offset': offset,
 		'lazy': true,
 		// Except links with target="_blank"
 		'filter': ':not([target="_blank"])'

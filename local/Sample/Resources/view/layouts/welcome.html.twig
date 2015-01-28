@@ -1,7 +1,29 @@
 {% extends 'SamplePackage:layouts/base.html.twig' %}
 
 {% block intro %}
-	<section class="slideshow" name="home" id="home">
+	<section class="content content-promo slideshow" name="home" id="home" data-require="plugins/blocks/slider" data-attach="$.fn.slider">
+		
+		<ul>
+			<li>
+				<div class="wrapper">
+					{# Semantically it wouldn't be correct to use <h1> here #}
+					<p class="h1"><b>This is Drava</b></p>
+				</div>
+			</li>
+			<li>
+				<div class="wrapper">
+					<p class="h1"><b>Drava is parallax theme</b></p>
+					<p>Just scroll down to see cool parallax scrolling effect</p>
+				</div>
+			</li>
+		</ul>
+		
+		<div class="controls">
+			<div class="wrapper">
+				<a class="next"></a>
+				<a class="back"></a>
+			</div>
+		</div>
 		
 	</section>
 {% endblock %}
@@ -25,7 +47,12 @@
 			{{- placeHolder('team') -}}
 		</div>
 	</section>
-	<section class="content content-promo content-dark" name="portfolio" id="portfolio">
+	<section class="content content-promo content-dark">
+		<div class="wrapper">
+			{{- placeHolder('team2') -}}
+		</div>
+	</section>
+	<section class="content content-promo content-light" name="portfolio" id="portfolio">
 		<div class="wrapper">
 			{{- placeHolder('portfolio') -}}
 		</div>

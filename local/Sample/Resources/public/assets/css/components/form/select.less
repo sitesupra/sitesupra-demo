@@ -1,0 +1,92 @@
+/**
+ * Copyright (C) SiteSupra SIA, Riga, Latvia, 2015
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ * Select replacement widget
+ *
+ * After $.fn.checkbox plugin:
+ *     <select class="invisible">...</select>
+ *     <div class="select">
+ *         <div class="select-popup hidden">
+ *             <ul class="select-list">
+ *                 <li class="select-list-item"><a>1</a></li>
+ *                 <li class="select-list-item"><a>2</a></li>
+ *                 <li class="select-list-item"><a>3</a></li>
+ *             </ul>
+ *         </div>
+ *    	 <a class="select-item">1</a>
+ *     </div>
+ */
+.select {
+	// popup is absolute
+	position: relative;
+}
+
+.select-item,
+.select-list-item a {
+	display: block;
+	color: @color-base;
+	cursor: pointer;
+	font-size: @font-size-small;
+	line-height: normal;
+	text-decoration: none;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.select-item {
+	display: block;
+	padding: 10px 30px 8px 12px;
+	overflow: hidden;
+	min-height: 1.14em;
+	background: url(../img/form/select-toggle.png) 100% 0 no-repeat;
+}
+.select-list-item a {
+	padding: 5px 12px 5px 12px;
+}
+
+.select-list-item-active a {
+	// Active item
+	text-decoration: underline;
+}
+.select-item:hover,
+.select-list-item-selected a {
+	// Hovered item
+	color: @color-secondary;
+	text-decoration: underline;
+}
+
+// Popup
+.select-popup {
+	position: absolute;
+	z-index: 10;
+	top: 100%;
+	background: #fff;
+	border: 1px solid @color-base;
+	border-top: 0;
+	margin: -1px 0 0 -1px;
+	width: 100%;
+	opacity: 0;
+	.box-sizing (content-box);
+	
+	// Will animate opacity for nicer effect
+	.transition (~'opacity @{animation-duration}');
+}
+.select-open .select-popup {
+	opacity: 1;
+}

@@ -11,7 +11,12 @@
 
 {# Mobile version of menu, render as dropdown #}
 <nav class="menu block pure-md-hidden pure-lg-hidden pure-xl-hidden">
-    <div class="select">
+    <div class="select"
+         tabindex="0"
+         data-require="plugins/widgets/dropdown"
+         data-attach="$.fn.dropdown"
+         data-prevent-default="false" {# when clicking on a link, go to that page #}
+    >
         <a class="select-item"><span>{{ supraPage.page.title }}</span></a>
         <div class="select-popup hidden">
             <ul class="select-list">

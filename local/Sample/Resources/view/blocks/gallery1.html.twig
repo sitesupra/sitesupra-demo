@@ -9,12 +9,16 @@
 	{% endif %}
 	
 	<div class="gallery-inner">
+		{#
+			Mobile  - 2 columns
+			Tablet+ - 4 columns
+		#}
 		{% set wrapperTemplate %}{% verbatim %}
 			<div class="pure-g">{{ items }}</div>
 		{% endverbatim %}{% endset %}
 		
 		{% set itemTemplate %}{% verbatim %}
-		    <figure class="pure-u pure-u-1-2 pure-u-sm-1-2 pure-u-md-1-4 pure-u-lg-1-4 pure-u-xl-1-4">
+		    <figure class="pure-u pure-u-1-2 pure-u-md-1-4">
 		        <span class="img"><a data-size="{{ fullSizeWidth }}x{{ fullSizeHeight }}" href="{{ fullSizeUrl }}">{{ image }}</a></span>
 				<figcaption class="text">
 			        <h2>{{ title }}</h2>

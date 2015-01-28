@@ -24,11 +24,16 @@
 	<div class="gallery-inner">
 		<div class="pure-g">
 			
+			{# Based on item count change item classname #}
 			{% set count = services | length %}
 			{% set columns = min(max(count, 1), 4) %}
 			
 			{% for service in services %}
-			    <div class="pure-u pure-u-1-1 pure-u-sm-1-1 pure-u-md-1-{{ columns }} pure-u-lg-1-{{ columns }} pure-u-xl-1-{{ columns }}">
+				{#
+					Mobile  - 1 column
+					Tablet+ - column count based on item count, but not more than 4
+				#}
+			    <div class="pure-u pure-u-1-1 pure-u-md-1-{{ columns }}">
 			        <div class="img">{{ service.image | raw }}</div>
 					<div class="text">
 				        <h2>{{ service.title | raw }}</h2>

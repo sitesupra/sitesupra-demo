@@ -27,8 +27,9 @@
 		display: none;
 	}
 	
-	// Gallery
-	.gallery .text {
+	// Gallery, Slideshow
+	.gallery .text,
+	.slideshow {
 		text-align: center;
 	}
 }
@@ -55,5 +56,11 @@
 			font-size: @font-size-h3;
 			line-height: @line-height-h3;
 		}
+	}
+}
+.content-light + .content-light,
+.content-dark + .content-dark {
+	.wrapper {
+		padding-top: 0;
 	}
 }
