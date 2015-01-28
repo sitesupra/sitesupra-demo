@@ -1,0 +1,69 @@
+/**
+ * Copyright (C) SiteSupra SIA, Riga, Latvia, 2015
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+/*
+ * Form style reset, there shouldn't be any specific classnames,
+ * see components/form/... for that.
+ */
+input,
+textarea,
+select {
+	// Text
+	color: @color-base;
+	font-size: @font-size-small;
+	line-height: @line-height-base;
+	
+	// Position and size
+	vertical-align: middle;
+	width: 100%;
+	outline: none;
+	
+	// Style
+	background: #fff;
+	border: 1px solid #d3d3d3;
+	
+	// Animations make it look nicer
+	.transition (~'border-color @{animation-duration}, color @{animation-duration}, background-color @{animation-duration}, box-shadow @{animation-duration}');
+}
+
+input, textarea {
+	padding: 7px 12px 5px;
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+	width: auto;
+}
+
+textarea {
+	// Horizontal resize will break layout, allow only vertical
+	resize: vertical;
+	min-height: 150px;
+}
+
+fieldset {
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+label {
+	color: @color-base;
+	display: inline-block;
+	padding: 0 4px 2px;
+}

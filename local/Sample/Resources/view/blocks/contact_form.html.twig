@@ -1,51 +1,78 @@
+{% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
+{% set sent = messageSent | default(false) %}
+
 {% do property({
 	'name': 'email',
 	'type': 'string',
 	'label': 'Submitted form recipient email address'
 }) %}
 
-{% if messageSent | default(false) %}
-	{{ property({
-		'name': 'successMessage',
-		'type': 'text',
-		'default': 'Thanks! We will contact you shortly!'
-	}) }}
-{% endif %}
-
 <div class="block form-block">
-	<form class="form no-heading" method="post">
-		<label for="nameInput">
+	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
+		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">
+			{{ title }}
+		</h2>
+	{% endif %}
+	
+	{# Success message #}
+	{% if sent or supraPage.cmsRequest %}
+		<div class="text confirmation">
+			<p>
 			{{ property({
-				'name': 'nameLabel',
-				'type': 'inline_string',
-				'default': 'Name'
+				'name': 'successMessage',
+				'type': 'text',
+				'default': 'Thanks! We will contact you shortly!'
 			}) }}
-		</label>
-		<input type="text" name="name" id="nameInput" />
-		
-		<label for="emailInput">
-			{{ property({
-				'name': 'emailLabel',
-				'type': 'inline_string',
-				'default': 'E-mail'
-			}) }}
-		</label>
-		<input type="text" name="email" id="emailInput" />
-
-		<label for="emailInput">
-			{{ property({
-				'name': 'messageLabel',
-				'type': 'inline_string',
-				'default': 'Message'
-			}) }}
-		</label>
-		<input type="textarea" name="message" id="messageInput" />
-
-		<button type="submit">
-			{{ property({
-				'name': 'buttonLabel',
-				'type': 'inline_string',
-				'default': 'Submit'
-			}) }}</button>
-	</form>
+			</p>
+		</div>
+	{% endif %}
+	
+	{% if not sent or supraPage.cmsRequest %}
+		<form class="form" method="post">
+			<div class="row">
+				<label for="nameInput">
+					{{ property({
+						'name': 'nameLabel',
+						'type': 'inline_string',
+						'default': 'Name'
+					}) }}
+					<sup class="required">*</sup>
+				</label>
+				<input class="input-text" type="text" name="name" id="nameInput" required="required" />
+			</div>
+			
+			<div class="row">
+				<label for="emailInput">
+					{{ property({
+						'name': 'emailLabel',
+						'type': 'inline_string',
+						'default': 'E-mail'
+					}) }}
+					<sup class="required">*</sup>
+				</label>
+				<input class="input-text" type="email" name="email" id="emailInput" required="required" />
+			</div>
+			
+			<div class="row">
+				<label for="messageInput">
+					{{ property({
+						'name': 'messageLabel',
+						'type': 'inline_string',
+						'default': 'Message'
+					}) }}
+					<sup class="required">*</sup>
+				</label>
+				<textarea class="input-text" type="textarea" name="message" id="messageInput" required="required"></textarea>
+			</div>
+			
+			<div class="row form-footer">
+				<button type="submit" class="button">
+					{{ property({
+						'name': 'buttonLabel',
+						'type': 'inline_string',
+						'default': 'Submit'
+					}) }}</button>
+			</div>
+		</form>
+	{% endif %}
 </div>
