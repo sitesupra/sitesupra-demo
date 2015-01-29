@@ -1,3 +1,8 @@
+var isCMSMode = (document.documentElement.className.indexOf('supra-cms') !== -1);
+
+/*
+ * Configure vendor scripts
+ */
 require.config({
 	shim: {
 		// For PhotoSwipe load default skin
@@ -16,76 +21,24 @@ require.config({
 });
 
 require([
-	'app/app',
-	'app/refresh',
-	'plugins/helpers/responsive',
-	
-	'lib/jquery.sticky.min',
-	'lib/jquery.parallax.min',
-	'lib/jquery.scrollto.min',
-	'lib/jquery.localscroll.min',
-	'plugins/helpers/responsive'
+	'frontend/app',
+	'frontend/page'
 ], function () {
 	'use strict';
 	
-	// Touch device
-	if ('ontouchstart' in document.documentElement) {
-		$('html').addClass('touch');
-	}
-	
-	// Because of InlineMediaFilter we need to add data-require for videos
-	$('div.video[data-attach="$.fn.video"]').not('[data-require]').attr('data-require', 'plugins/helpers/resize');
-	
-	// Initialize
-	if ($('html').hasClass('supra-cms')) {
-		// Load CMS scripts
-		require(['cms/index'], ready);
-	} else {
-		// Initialize immediatelly
-		ready();
-	}
+	// Because of InlineMediaFilter we need to add data-require for videos,
+	// otherwise script won't be loaded and plugin will not be initialized on
+	// those elements
+	$('div.video[data-attach="$.fn.video"]').not('[data-require]').attr('data-require', 'frontend/util/resize');
 	
 	// Load and initialize modules for elements which have
 	// data-require="..." and data-attach="..." attributes
-	function ready () {
-		$.app.parse($('body'));
-	}
-	
-	// Sticky header
-	$('header.header').eq(0).sticky({
-		'disabled': $.responsive.size < $.responsive.md
-	}).sticky('update');
-	
-	$.responsive.on('resize', function () {
-		var state = $.responsive.size < $.responsive.md ? 'disable' : 'enable';
-		$('header.header').eq(0).sticky(state);
-	});
-	
-	// Background parallax
-	$('section, header.header, footer.footer').each(function () {
-		var node = $(this),
-			background_attach = node.css('backgroundAttachment'),
-			background_position_x = null;
-		
-		if (background_attach === 'fixed') {
-			background_position_x = node.css('backgroundPositionX');
-			node.parallax(background_position_x);
-		}
-	});
-	
-	// Scrollto
-	var offset = 0;
-	
-	if ($.responsive.size >= $.responsive.md) {
-		// Only for tablet and desktop; on mobile header is not 'sticky'
-		offset = -$('header.header').height();
-	}
-	
-	$.localScroll({
-		'duration': 700,
-		'offset': offset,
-		'lazy': true,
-		// Except links with target="_blank"
-		'filter': ':not([target="_blank"])'
-	});
+	$.app.parse($('body'));
 });
+
+// Load additional scripts for CMS
+if (isCMSMode) {
+	require([
+		'cms/plugin.block-title'
+	], $.noop);
+}

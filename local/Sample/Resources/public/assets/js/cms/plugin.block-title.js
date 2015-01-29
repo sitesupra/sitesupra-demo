@@ -1,9 +1,9 @@
 /**
- * Block - In CMS on block_title property change update block title and style
+ * Block - In CMS on 'title' block property change update preview
  * 
- * @version 1.0.1
+ * @version 1.1.0
  */
-define(['jquery', 'app/refresh'], function ($) {
+define(['jquery', 'cms/refresh'], function ($) {
 	'use strict';
 	
     // Callback will be called when one of the block properties changes
@@ -16,8 +16,8 @@ define(['jquery', 'app/refresh'], function ($) {
          *   propertyValueList - if property is a list, then all list values
 		 *
 		 * If this function will return false, then it's assumed that block
-		 * preview can't be updated without reloading block content and in CMS
-		 * block content reload will be triggered
+		 * preview can't be updated without reloading block content and CMS
+		 * will reload block content
          */
         
         // Find .block element

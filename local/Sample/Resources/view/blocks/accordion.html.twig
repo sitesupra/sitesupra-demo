@@ -13,7 +13,7 @@
 })
 %}
 
-<section class="accordion block" data-require="plugins/blocks/accordion" data-attach="$.fn.accordion" data-refresh-event="accordion">
+<section class="accordion block" data-require="frontend/widgets/accordion" data-attach="$.fn.accordion" data-refresh-event="accordion">
 	
 	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
 		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">

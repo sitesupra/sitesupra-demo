@@ -3,7 +3,7 @@
  * 
  * @version 1.0.1
  */
-define(['jquery', 'plugins/helpers/debounce', 'lib/matchmedia-polyfill'], function ($) {
+define(['jquery', 'frontend/util/debounce', 'lib/matchmedia-polyfill'], function ($, debounce) {
 	'use strict';
     
 	var responsive = $.responsive = $.extend($({}), {
@@ -53,7 +53,7 @@ define(['jquery', 'plugins/helpers/debounce', 'lib/matchmedia-polyfill'], functi
 		}
 	});
 	
-	$(window).on('resize', $.debounce(responsive.handleResize, responsive));
+	$(window).on('resize', debounce(responsive.handleResize, responsive));
 	responsive.handleResize();
 	
 	// requirejs

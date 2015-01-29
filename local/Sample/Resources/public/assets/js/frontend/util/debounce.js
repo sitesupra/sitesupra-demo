@@ -11,7 +11,7 @@
 define(['jquery'], function ($) {
     'use strict';
 	
-	$.debounce = function (callback, context, _threshold, delay) {
+	return function (callback, context, _threshold, delay) {
 		if (typeof context === 'number') {
 			threshold = context;
 			context = null;
@@ -45,7 +45,5 @@ define(['jquery'], function ($) {
 			}
 		};
 	};
-    
-    return $.throttle;
 	
 });

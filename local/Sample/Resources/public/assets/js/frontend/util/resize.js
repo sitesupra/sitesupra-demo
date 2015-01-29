@@ -1,10 +1,10 @@
 /**
  * Responsive resize
- * Resize iframe, object or images
+ * Resize iframe, object or images when browser size changes
  * 
  * @version 1.0.1
  */
-define(['jquery', 'plugins/helpers/responsive', 'plugins/helpers/debounce'], function ($) {
+define(['jquery', 'frontend/util/debounce', 'frontend/util/responsive'], function ($, debounce) {
     "use strict";
 	
 	//Elements data property on which widget instance is set
@@ -20,7 +20,7 @@ define(['jquery', 'plugins/helpers/responsive', 'plugins/helpers/debounce'], fun
 		this.update = $.proxy(this.update, this);
 		
 		if (this._type == 'video') {
-			$(window).on('resize', $.debounce(this.update, this, 100, true));
+			$(window).on('resize', debounce(this.update, this, 100, true));
 		}  else {
 			$.responsive.on('resize', this.update);
 		}

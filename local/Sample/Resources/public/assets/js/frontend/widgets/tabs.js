@@ -3,7 +3,7 @@
  * 
  * @version 1.0.2
  */
-define(['jquery', 'plugins/helpers/responsive'], function ($) {
+define(['jquery', 'frontend/util/responsive'], function ($) {
     'use strict';
 	
 	//Elements data property on which widget instance is set

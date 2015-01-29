@@ -3,7 +3,7 @@
  * 
  * @version 1.0.0
  */
-if ($('html').hasClass('supra-cms')) {
+if (isCMSMode) {
     // There is no need for lightbox in CMS
     define(['jquery'], function () {
         $.fn.gallery = function () {};

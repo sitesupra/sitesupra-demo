@@ -1,6 +1,6 @@
 {% set title = property({'name': 'title', 'type': 'string', 'label': 'Title'}) %}
 
-<section class="block gallery gallery-2" data-refresh-event="gallery" data-require="plugins/blocks/gallery" data-attach="$.fn.gallery">
+<section class="block gallery gallery-2" data-refresh-event="gallery" data-require="frontend/widgets/gallery" data-attach="$.fn.gallery">
 	
 	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
 		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">

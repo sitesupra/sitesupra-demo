@@ -9,7 +9,7 @@
  * @param {Object} options Dropdown widget options
  * @version 1.1.0
  */
-define(['jquery', 'plugins/widgets/scrollbar'], function ($) {
+define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 	'use strict';
 	
 	//Save if this is old IE browser or not

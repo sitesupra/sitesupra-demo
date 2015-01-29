@@ -3,9 +3,13 @@
  * 
  * @version 1.0.2
  */
-define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
+define(['jquery', 'frontend/util/responsive'], function ($) {
     'use strict';
 	
+    // This data namespace should not be changed, because CMS checks element
+    // for data with this name for existing google.Map instance
+    // If CMS won't be able to find it, then new one will be created
+    // destroying old one
 	var DATA_INSTANCE_PROPERTY = 'map';
 	
 	//Default widget options
@@ -19,7 +23,7 @@ define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
 	function GoogleMap (element, options) {
 		this.options = $.extend({}, DEFAULTS, options || {});
 		this.element = element;
-		
+        
         // Map will not be created if it already exists, it could be
         // created by CMS in page editing mode
         if (this._createMap()) {
@@ -94,7 +98,7 @@ define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
             return true;
 		},
 		
-		'_createMarker': function (latlng) {
+		'_createMarker': function () {
 			var latlng = new google.maps.LatLng(this.options.latitude, this.options.longitude),
 				marker = new google.maps.Marker({'position': latlng, 'map': this.map});
 			
@@ -167,12 +171,15 @@ define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
 				element.data(DATA_INSTANCE_PROPERTY, {});
 				
 				$.googleMap.load(function () {
-					
-					widget = new GoogleMap (element, $.extend({}, element.data(), options || {}));
+					// Latitude and lonitude is on the inner element
+                    var inner = element.children(),
+                        data = $.extend({}, element.data(), inner.data(), options || {});
+                    
+					widget = new GoogleMap (inner, data);
                     if (widget) {
                         element.data(DATA_INSTANCE_PROPERTY, widget);
+                        inner.data(DATA_INSTANCE_PROPERTY, widget);
                     }
-					
 				});
 			} else {
 				if (fn) {
@@ -183,7 +190,7 @@ define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
 	};
 	
 	
-	// Google maps loading
+	// Google maps API loading
 	$.googleMap = {
 		// Already loading map scripts
 		'_loading': false,
@@ -253,10 +260,6 @@ define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
 			
 		},
         
-        '_readyCheck': function () {
-            
-        },
-		
 		/**
 		 * Google Maps API finished loading, call callbacks
 		 * 
@@ -276,23 +279,6 @@ define(['jquery', 'app/refresh', 'plugins/helpers/responsive'], function ($) {
 			this._loaded = true;
 		}
 	};
-	
-	
-	
-	//$.refresh implementation
-	if ($.refresh) {
-		$.refresh.on('refresh/googleMap', function (event, info) {
-			info.target.googleMap(info.target.data());
-		});
-		
-		$.refresh.on('cleanup/googleMap', function (event, info) {
-			var map = info.target.data(DATA_INSTANCE_PROPERTY);
-			if (map && map.destroy) {
-				map.destroy();
-				info.target.data(DATA_INSTANCE_PROPERTY, null);
-			}
-		});
-	}
 	
 	//requirejs
 	return GoogleMap;

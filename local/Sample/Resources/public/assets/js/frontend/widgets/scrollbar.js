@@ -9,7 +9,7 @@
  * @param {Object} options Options, optional argument
  * @version 1.0.3
  */
-define(['jquery', 'plugins/helpers/debounce'], function ($) {
+define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
     'use strict';
 	
 	var NAMESPACE = 'scrollbar';
@@ -176,7 +176,7 @@ define(['jquery', 'plugins/helpers/debounce'], function ($) {
 		 * @private
 		 */
 		_bindUI: function () {
-			this.fnMouseMove = $.debounce($.proxy(this._onMouseMove, this), 30);
+			this.fnMouseMove = debounce($.proxy(this._onMouseMove, this), 30);
 			this.fnMouseUp = $.proxy(this._onMouseUp, this);
 			this.fnMouseWheel = $.proxy(this._onMouseWheel, this);
 			this.fnMouseWheelNatural = $.proxy(this._onMouseWheelNatural, this);

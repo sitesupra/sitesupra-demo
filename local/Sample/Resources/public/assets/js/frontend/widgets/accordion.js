@@ -7,8 +7,7 @@ define(['jquery'], function ($) {
     'use strict';
 	
 	//Elements data property on which widget instance is set
-	var DATA_INSTANCE_PROPERTY = 'accordion',
-		CMS_MODE = $('html').hasClass('supra-cms');
+	var DATA_INSTANCE_PROPERTY = 'accordion';
 	
 	var Accordion = function (element, _options) {
 		var container = this._container = $(element),
@@ -133,7 +132,7 @@ define(['jquery'], function ($) {
 				index  = target.prevAll(this._options.itemSelector).size();
 			
 			// In CMS mode we disable toggle to improve usability
-			if (index === this._activeIndex && !CMS_MODE) {
+			if (index === this._activeIndex && !isCMSMode) {
 				this.active(null);
 			} else {
 				this.active(index);

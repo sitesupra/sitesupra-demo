@@ -13,7 +13,7 @@
 	})
 }) %}
 
-<section class="tabs block" data-require="plugins/blocks/tabs" data-attach="$.fn.tabs" data-refresh-event="tabs">
+<section class="tabs block" data-require="frontend/widgets/tabs" data-attach="$.fn.tabs" data-refresh-event="tabs">
 	
 	{% if not isPropertyEmpty('title') or supraPage.cmsRequest %}
 		<h2 class="block-title {% if isPropertyEmpty('title') %}hidden{% endif %}">

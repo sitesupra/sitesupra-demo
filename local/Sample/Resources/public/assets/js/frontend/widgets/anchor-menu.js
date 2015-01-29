@@ -3,7 +3,7 @@
  * 
  * @version 1.0.0
  */
-define(['jquery', 'app/refresh', 'plugins/helpers/debounce'], function ($) {
+define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
     'use strict';
 	
 	var DATA_INSTANCE_PROPERTY = 'anchorMenu',
@@ -24,7 +24,7 @@ define(['jquery', 'app/refresh', 'plugins/helpers/debounce'], function ($) {
 		}
 		
 		this.update();
-		$(document).on('scroll' + this.eventNameSpace, $.debounce(this.update, this, 60));
+		$(document).on('scroll' + this.eventNameSpace, debounce(this.update, this, 60));
 	}
 	AnchorMenu.prototype = {
 		
@@ -37,6 +37,9 @@ define(['jquery', 'app/refresh', 'plugins/helpers/debounce'], function ($) {
 		
 		/**
 		 * Returns anchor links, which have valid target on same page
+         * 
+         * @returns {Array} List of links, targets and target positions
+         * @protected
 		 */
 		_getAnchorLinks: function () {
 			var path  = document.location.pathname,
@@ -139,21 +142,5 @@ define(['jquery', 'app/refresh', 'plugins/helpers/debounce'], function ($) {
 			}
 		});
 	};
-	
-	
-	//$.refresh implementation
-	if ($.refresh) {
-		$.refresh.on('refresh/anchorMenu', function (event, info) {
-			info.target.anchorMenu(info.target.data());
-		});
-		
-		$.refresh.on('cleanup/anchorMenu', function (event, info) {
-			var instance = info.target.data(DATA_INSTANCE_PROPERTY);
-			if (instance && instance.destroy) {
-				instance.destroy();
-				info.target.data(DATA_INSTANCE_PROPERTY, null);
-			}
-		});
-	}
 
 });
