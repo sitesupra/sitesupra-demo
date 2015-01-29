@@ -1,4 +1,8 @@
+/*
+ * Detect if page is loaded inside CMS
+ */
 var isCMSMode = (document.documentElement.className.indexOf('supra-cms') !== -1);
+
 
 /*
  * Configure vendor scripts
@@ -20,6 +24,10 @@ require.config({
 	}
 });
 
+
+/*
+ * Start application
+ */
 require([
 	'frontend/app',
 	'frontend/page'
@@ -36,9 +44,16 @@ require([
 	$.app.parse($('body'));
 });
 
-// Load additional scripts for CMS
+
+/*
+ * Load additional scripts for CMS which enhances UX
+ */
 if (isCMSMode) {
+	
 	require([
 		'cms/plugin.block-title'
-	], $.noop);
+	], function () {
+		
+	});
+	
 }

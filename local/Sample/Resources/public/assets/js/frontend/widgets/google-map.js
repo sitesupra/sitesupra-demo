@@ -3,7 +3,7 @@
  * 
  * @version 1.0.2
  */
-define(['jquery', 'frontend/util/responsive'], function ($) {
+define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
     'use strict';
 	
     // This data namespace should not be changed, because CMS checks element
@@ -29,8 +29,7 @@ define(['jquery', 'frontend/util/responsive'], function ($) {
         if (this._createMap()) {
             this._createMarker();
     		
-    		this.update = $.proxy(this.update, this);
-    		$.responsive.on('resize', this.update);
+            $(window).on('resize', debounce(this.update, this, 100, true));
         }
 	}
 	

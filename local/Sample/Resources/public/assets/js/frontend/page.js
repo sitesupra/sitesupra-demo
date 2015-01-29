@@ -1,29 +1,26 @@
 define([
 	'jquery',
-	'frontend/util/responsive',
 	
 	'lib/jquery.sticky.min',
 	'lib/jquery.parallax.min',
 	'lib/jquery.scrollto.min',
-	'lib/jquery.localscroll.min'
-], function ($) {
-	var header = $('header.header').eq(0);
+	'lib/jquery.localscroll.min',
 	
-	if (!isCMSMode) {
-		/*
-		 * Sticky header
-		 * Header should always stick to the top of the view on desktop and
-		 * tablet devices, but not on mobile
-		 */
-		header.sticky({
-			'disabled': $.responsive.size < $.responsive.md
-		}).sticky('update');
-		
-		$.responsive.on('resize', function () {
-			// Enable / disable sticky header based on resolution
-			var state = $.responsive.size < $.responsive.md ? 'disable' : 'enable';
-			header.eq(0).sticky(state);
-		});
+	'lib/matchmedia-polyfill'
+], function ($) {
+	// Uses same media query as in CSS
+	var isMobile = !window.matchMedia('(min-width: 48em)').matches;
+	
+	
+	/*
+	* Sticky header
+	* Header should always stick to the top of the view on desktop and
+	* tablet devices, but not on mobile
+	* In CMS sticky header it may cause usability issues, so we don't
+	* enable it either
+	*/
+	if (!isCMSMode && !isMobile) {
+		$('header.header').sticky();
 	}
 	
 	
@@ -48,10 +45,10 @@ define([
 	 */
 	
 	function getHeaderOffset () {
-		if ($.responsive.size >= $.responsive.md) {
+		if (!isCMSMode && !isMobile) {
 			// Only for tablet and desktop; on mobile header is not 'sticky'
 			// and should not affect scroll position
-			return -header.height();
+			return -$('header.header').height();
 		} else {
 			return 0;
 		}

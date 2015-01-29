@@ -4,7 +4,7 @@
  * 
  * @version 1.0.1
  */
-define(['jquery', 'frontend/util/debounce', 'frontend/util/responsive'], function ($, debounce) {
+define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
     "use strict";
 	
 	//Elements data property on which widget instance is set
@@ -16,14 +16,8 @@ define(['jquery', 'frontend/util/debounce', 'frontend/util/responsive'], functio
 		this._container = this._node.parent();
 		this._type = (this._node.is('video, embed, object, iframe') ? 'video' : 'image');
 		
-		// Attach listeners
-		this.update = $.proxy(this.update, this);
-		
-		if (this._type == 'video') {
-			$(window).on('resize', debounce(this.update, this, 100, true));
-		}  else {
-			$.responsive.on('resize', this.update);
-		}
+		// On window resize update elements
+		$(window).on('resize', debounce(this.update, this, 100, true));
 		
 		if (!this._options.maxWidth) {
 			this._options.maxWidth = this._node.attr('width');
