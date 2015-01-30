@@ -14,7 +14,7 @@
         // AMD is not supported, assume all required scripts are already loaded
         factory(jQuery, PhotoSwipe, PhotoSwipeUI_Default);
     }
-}(this, function ($, debounce) {
+}(this, function ($, PhotoSwipe, PhotoSwipeUI_Default) {
     'use strict';
     
     if (isCMSMode) {
@@ -78,7 +78,7 @@
                     size = String(link.data('size') || '').split('x');
                 
                 return {
-                    'src': link.data('index', index).attr('href'),
+                    'src': link.attr('href'),
                     'msrc': image.attr('src'),
                     'w': parseInt(size[0], 10) || 0,
                     'h': parseInt(size[1], 10) || 0
@@ -94,8 +94,21 @@
          */
         handleItemClick: function (e) {
             e.preventDefault();
-            var index = $(e.target).data('index');
+            
+            var link  = $(e.target).closest('a'),
+                index = this.getItemIndex(link);
+            
             this.open(index);
+        },
+        
+        /**
+         * Returns item index in the list
+         *
+         * @param {Object} element Element
+         * @returns {Number} Item index
+         */
+        getItemIndex: function (element) {
+            return this.el.find('figure a').index(element);
         },
         
         /**
