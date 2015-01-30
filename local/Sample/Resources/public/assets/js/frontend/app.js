@@ -14,7 +14,18 @@
  * 
  * @version 1.0.4
  */
-define(['jquery'], function ($) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery);
+    }
+}(this, function ($) {
     'use strict';
 	
 	$.app = {
@@ -110,7 +121,7 @@ define(['jquery'], function ($) {
 			elements = element.find('[data-' + this.options.namespace + ']');
 			ii = elements.length;
 			
-			for(i=0; i<ii; i++) {
+			for(i=0; i < ii; i++) {
 				require_ns = elements.eq(i).data(this.options.require);
 				if (require_ns) {
 					// If 'data-require' attribute is set then load module before instantiating it
@@ -324,4 +335,4 @@ define(['jquery'], function ($) {
 	
 	return $.app;
 
-});
+}));

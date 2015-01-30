@@ -31,7 +31,7 @@
         <div class="select-popup hidden">
             <ul class="select-list">
                 {% for link in links %}
-                    <li class="select-list-item" data="{{ link.href }}">{{ link | raw }}</li>
+                    <li class="select-list-item" data-value="{{ link.href }}">{{ link | raw }}</li>
                 {% endfor %}
             </ul>
         </div>

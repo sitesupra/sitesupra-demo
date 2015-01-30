@@ -8,7 +8,18 @@
  * @type {Function}
  * @version 1.0.1
  */
-define(['jquery'], function ($) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery);
+    }
+}(this, function ($) {
     'use strict';
 	
 	return function (callback, context, _threshold, delay) {
@@ -22,12 +33,12 @@ define(['jquery'], function ($) {
 		var timeout = null;
 		var args = [];
 		
-		function call () {
+		var trigger = function () {
 			callback.apply(context || window, args);
 			last_time = +new Date();
 			clearTimeout(timeout);
 			timeout = null;
-		}
+		};
 		
 		return function () {
 			//Save arguments
@@ -35,15 +46,15 @@ define(['jquery'], function ($) {
 			
 			if (delay) {
 				clearTimeout(timeout);
-				timeout = setTimeout(call, threshold);
+				timeout = setTimeout(trigger, threshold);
 			} else {
 				if ((+new Date()) - last_time > threshold) {
-					call();
+					trigger();
 				} else if (!timeout) {
-					timeout = setTimeout(call, threshold);
+					timeout = setTimeout(trigger, threshold);
 				}
 			}
 		};
 	};
 	
-});
+}));

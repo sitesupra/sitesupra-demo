@@ -3,7 +3,18 @@
  * 
  * @version 1.0.2
  */
-define(['jquery'], function ($) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery);
+    }
+}(this, function ($) {
     'use strict';
 	
 	//Elements data property on which widget instance is set
@@ -173,4 +184,4 @@ define(['jquery'], function ($) {
 		});
 	};
 	
-});
+}));

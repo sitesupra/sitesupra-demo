@@ -17,54 +17,77 @@
  */
 
 /*
+ * Align classnames are the same as in bootstrap
+ *
  * Styles for content align
- *   - align-left   : to the left side
- *   - align-middle : in the middle of the container
- *   - align-right  : to the right side
+ *   - pull-left    : to the left side
+ *   - center-block : in the middle of the container
+ *   - pull-right   : to the right side
+ *
+ * Styles for text align
+ *   - text-left
+ *   - text-center
+ *   - text-right
+ *   - text-justify
+ *
+ * These classnames are added by CMS in HTMLEditor
  */
 
 /*
- * General align
+ * Block level align
+ * 1. IE11 without block will not correctly position images
  */
-.align-left {
+.pull-left {
 	float: left;
+	display: block !important; // 1.
 }
-.align-right {
+.pull-right {
 	float: right;
+	display: block !important; // 1.
+}
+.center-block {
+	clear: both;
+	margin-left: auto;
+	margin-right: auto;
+	display: block !important; // 1.
+}
+
+/*
+ * Text level align
+ */
+.text-left {
+	text-align: left;
+}
+.text-right {
+	text-align: right;
+}
+.text-center {
+	text-align: center;
+}
+.text-justify {
+	text-align: justify;
 }
 
 table td,
 table th {
-	text-align: left;
+	&,
+	&.text-left,
+	&[align="left"] {
+		text-align: left;
+	}
+	&.text-center,
+	&[align="center"] {
+		text-align: center;
+	}
+	&.text-right,
+	&[align="right"] {
+		text-align: right;
+	}
+	&.text-justify,
+	&[align="justify"] {
+		text-align: justify;
+	}
 }
-
-table td,
-table th,
-table td.align-left,
-table th.align-left,
-table td[align="left"],
-table th[align="left"] {
-	float: none;
-	text-align: left;
-}
-table td.align-middle,
-table th.align-middle,
-table td[align="center"],
-table th[align="center"] {
-	text-align: center;
-}
-table td.align-right,
-table th.align-right,
-table td[align="right"],
-table th[align="right"] {
-	float: none;
-	text-align: right;
-}
-table td[align="justify"],
-table th[align="justify"] {
-	text-align: justify;
-}
-
 
 /*
  * Text align styles
@@ -74,26 +97,12 @@ table th[align="justify"] {
 	.clearfix ();
 	
 	// Align
-	.align-left {
+	.pull-left {
+		clear: left;
 		margin: 0 25px 10px 0;
 	}
-	.align-right {
-		margin: 0 0 10px 25px;
-	}
-	
-	// 1. IE11 without block will not correctly position image
-	.align-left {
-		clear: left;
-		display: block !important; // 1.
-	}
-	.align-right {
+	.pull-right {
 		clear: right;
-		display: block !important; // 1.
-	}
-	.align-middle {
-		clear: both;
-		margin-left: auto;
-		margin-right: auto;
-		display: block !important; // 1.
+		margin: 0 0 10px 25px;
 	}
 }

@@ -9,7 +9,18 @@
  * @param {Object} options Options, optional argument
  * @version 1.0.3
  */
-define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', 'frontend/util/debounce'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery, debounce);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery, debounce);
+    }
+}(this, function ($, debounce) {
     'use strict';
 	
 	var NAMESPACE = 'scrollbar';
@@ -25,7 +36,7 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
 		//Update class names
 		//replace %c in classnames with options 'classname' value
 		var classnames = ['classnameFocus'];
-		for(var i=0,ii=classnames.length; i<ii; i++) {
+		for(var i=0,ii=classnames.length; i < ii; i++) {
 			options[classnames[i]] = options[classnames[i]].split('%c').join(options.classname);
 		}
 		
@@ -502,7 +513,7 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
 		var instance = null, dropdown, node;
 		
 		//Create drop down for each item
-		for(var i=0,ii=this.length; i<ii; i++) {
+		for(var i=0,ii=this.length; i < ii; i++) {
 			node = this.eq(i);
 			scrollbar = node.data(NAMESPACE);
 			if (!scrollbar) {
@@ -519,4 +530,4 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
     $.Scrollbar = Scrollbar;
 	return Scrollbar;
 	
-});
+}));

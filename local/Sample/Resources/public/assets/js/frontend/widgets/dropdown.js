@@ -9,7 +9,18 @@
  * @param {Object} options Dropdown widget options
  * @version 1.1.0
  */
-define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', 'frontend/widgets/scrollbar'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery, jQuery.Scrollbar);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery, jQuery.Scrollbar);
+    }
+}(this, function ($) {
 	'use strict';
 	
 	//Save if this is old IE browser or not
@@ -47,7 +58,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 		//Update class names
 		//replace %c in classnames with options 'classname' value
 		var classnames = ['classnameFocus', 'classnameTouch', 'classnameOpen', 'classnameDisabled', 'classnameReadonly', 'classnameItem', 'classnamePopup', 'classnamePopupScrollable', 'classnamePopupList', 'classnamePopupItem', 'classnamePopupGroup', 'classnameSelectedItem', 'classnameActiveItem'];
-		for(var i=0,ii=classnames.length; i<ii; i++) {
+		for(var i=0,ii=classnames.length; i < ii; i++) {
 			options[classnames[i]] = options[classnames[i]].split('%c').join(options.classname);
 		}
 		
@@ -258,7 +269,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 		 */
 		getIndexByValue: function (value) {
 			var values = this.values;
-			for(var i=0,ii=values.length; i<ii; i++) {
+			for(var i=0,ii=values.length; i < ii; i++) {
 				if (values[i] == value) return i;
 			}
 			return -1;
@@ -446,7 +457,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 			
 			//Traverse options and collect values
 			function traverseOptions () {
-				for(var i=0,ii=options.length; i<ii; i++) {
+				for(var i=0,ii=options.length; i < ii; i++) {
 					val = options[i].value;
 					
 					if (val || showEmptyValue) values.push(options[i].value);
@@ -465,7 +476,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 			
 			//Traverse groups
 			if (optionGroups.length) {
-				for(var i=0,ii=optionGroups.length; i<ii; i++) {
+				for(var i=0,ii=optionGroups.length; i < ii; i++) {
 					group = optionGroups.eq(i);
 					label = group.attr('label');
 					options = group.find('option');
@@ -622,7 +633,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 			
 			//Traverse options and collect values
 			function traverseOptions () {
-				for(var i=0,ii=options.length; i<ii; i++) {
+				for(var i=0,ii=options.length; i < ii; i++) {
 					val = options[i].value;
 					
 					if (val || showEmptyValue) {
@@ -635,7 +646,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 			}
 			
 			if (optionGroups.length) {
-				for(var i=0,ii=optionGroups.length; i<ii; i++) {
+				for(var i=0,ii=optionGroups.length; i < ii; i++) {
 					group = optionGroups.eq(i);
 					label = group.attr('label');
 					options = group.find('option');
@@ -734,13 +745,13 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 				
 				item;
 			
-			for (; i<ii; i++) {
+			for (; i < ii; i++) {
 				item = li.eq(i).find('a').eq(0);
 				if (!item.size()) {
 					item = li.eq(i);
 				}
 				
-				value = this.unescape(li.eq(i).attr('data'));
+				value = this.unescape(li.eq(i).data('value'));
 				text  = this.unescape(item.text());
 				values.push(value);
 				values_obj[value] = text;
@@ -848,7 +859,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 				value,
 				search = _search.toUpperCase();
 				
-			for(var i=0,ii=values.length; i<ii; i++) {
+			for(var i=0,ii=values.length; i < ii; i++) {
 				value = values[i];
 				if (valuesObject[value].toUpperCase().indexOf(search) === 0) return i;
 			}
@@ -1010,7 +1021,7 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 			if (this.popupVisible) {
 				var target = $(event.target),
 					item = target.closest(this.classnameToSelector(this.options.classnamePopupItem)),
-					value = this.unescape(item.attr('data')),
+					value = this.unescape(item.attr('data-value')),
 					touch_scrolled = this.touchScrolled;
 				
 				this.touchScrolled = false;
@@ -1399,4 +1410,4 @@ define(['jquery', 'frontend/widgets/scrollbar'], function ($) {
 	$.DropDown = DropDown;
 	return DropDown;
 	
-});
+}));

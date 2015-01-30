@@ -3,8 +3,19 @@
  * 
  * @version 1.0.5
  */
-define(['jquery', 'frontend/app'], function ($) {
-	"use strict";
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', 'frontend/app'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery);
+    }
+}(this, function ($) {
+	'use strict';
 	
     var CustomEvent;
 
@@ -90,7 +101,7 @@ define(['jquery', 'frontend/app'], function ($) {
     		var doc = $(document);
     		
     		if (handler._proxies) {
-    			for (var i=0, ii=handler._proxies.length; i<ii; i++) {
+    			for (var i=0, ii=handler._proxies.length; i < ii; i++) {
     				doc.off(events, selector, handler._proxies[i]);
     			}
     		}
@@ -119,7 +130,7 @@ define(['jquery', 'frontend/app'], function ($) {
     			event_object = null,
     			return_value = true;
     		
-    		for (; i<ii; i++) {
+    		for (; i < ii; i++) {
     			node = nodes.eq(i);
     			evt = $.extend({'name': namespace, 'target': node}, data || {});
     			
@@ -286,4 +297,4 @@ define(['jquery', 'frontend/app'], function ($) {
 
 	return $.refresh;
 
-});
+}));

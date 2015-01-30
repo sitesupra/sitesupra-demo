@@ -1,18 +1,18 @@
 {% extends 'SamplePackage:layouts/base.html.twig' %}
 
 {% block intro %}
-	<section class="content content-promo slideshow" name="home" id="home" data-require="frontend/widgets/slider" data-attach="$.fn.slider">
+	<section class="content content-promo slideshow" id="home" data-require="frontend/widgets/slider" data-attach="$.fn.slider">
 		
 		<ul>
 			<li>
 				<div class="wrapper">
-					{# Semantically it wouldn't be correct to use <h1> here #}
-					<p class="h1"><b>This is Drava</b></p>
+					<h1><b>This is Drava</b></h1>
 				</div>
 			</li>
 			<li>
 				<div class="wrapper">
-					<p class="h1"><b>Drava is parallax theme</b></p>
+					{# Semantically it wouldn't be correct to use <h1> here too #}
+					<h2 class="h1"><b>Drava is parallax theme</b></h2>
 					<p>Just scroll down to see cool parallax scrolling effect</p>
 				</div>
 			</li>
@@ -42,7 +42,7 @@
 			{{- placeHolder('about') -}}
 		</div>
 	</section>
-	<section class="content content-promo content-light" name="team" id="team">
+	<section class="content content-promo content-light" id="team">
 		<div class="wrapper">
 			{{- placeHolder('team') -}}
 		</div>
@@ -52,16 +52,16 @@
 			{{- placeHolder('team2') -}}
 		</div>
 	</section>
-	<section class="content content-promo content-light" name="portfolio" id="portfolio">
+	<section class="content content-promo content-light" id="portfolio">
 		<div class="wrapper">
 			{{- placeHolder('portfolio') -}}
 		</div>
 	</section>
-	<section class="content content-promo content-light" name="contact" id="contact">
+	<section class="content content-promo content-light" id="contact">
 		<div class="wrapper">
 			{{- placeHolder('contact') -}}
 		</div>
 	</section>
-	<section class="decoration"></section>
+	<div class="decoration"></div>
 	
 {% endblock %}

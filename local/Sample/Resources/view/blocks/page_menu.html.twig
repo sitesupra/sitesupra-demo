@@ -21,7 +21,7 @@
         <div class="select-popup hidden">
             <ul class="select-list">
                 {% for localization in localizations %}
-                    <li class="select-list-item" data="/{{ localization.fullPath }}">
+                    <li class="select-list-item" data-value="/{{ localization.fullPath }}">
                         <a href="/{{ localization.fullPath }}">{{ localization.title }}</a>
                     </li>
                 {% endfor %}

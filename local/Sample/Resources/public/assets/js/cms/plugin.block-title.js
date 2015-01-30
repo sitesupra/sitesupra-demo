@@ -3,7 +3,18 @@
  * 
  * @version 1.1.0
  */
-define(['jquery', 'cms/refresh'], function ($) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', 'cms/refresh'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery);
+    }
+}(this, function ($) {
 	'use strict';
 	
     // Callback will be called when one of the block properties changes
@@ -37,4 +48,4 @@ define(['jquery', 'cms/refresh'], function ($) {
 		}
 	});
 		
-});
+}));

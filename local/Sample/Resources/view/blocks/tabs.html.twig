@@ -28,7 +28,7 @@
 					{% if supraPage.cmsRequest %}
 						{{ tab.title | raw }}
 					{% else %}
-						<a href="#tab-{{ loop.index }}">{{ tab.title | raw }}</a>
+						<a>{{ tab.title | raw }}</a>
 					{% endif %}
 				</li>
 			{% endfor %}
@@ -36,7 +36,7 @@
         
 		<div class="tabs-container">
 			{% for tab in tabs %}
-				<div class="tabs-content text clearfix {% if loop.first %}active{% endif %}" name="tab-{{ loop.index }}">
+				<div class="tabs-content text clearfix {% if loop.first %}active{% endif %}">
 					{{ tab.text | raw }}
 				</div>
 			{% endfor %}

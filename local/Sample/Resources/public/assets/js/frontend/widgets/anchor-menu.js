@@ -3,7 +3,18 @@
  * 
  * @version 1.0.0
  */
-define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', 'frontend/util/debounce'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery, debounce);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery, debounce);
+    }
+}(this, function ($, debounce) {
     'use strict';
 	
 	var DATA_INSTANCE_PROPERTY = 'anchorMenu',
@@ -53,11 +64,11 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
 				results = [],
 				active = -1;
 			
-			for (; i<ii; i++) {
-				parts = links.eq(i).attr('href').match(/(.*)#(.*)/);
+			for (; i < ii; i++) {
+				parts = links.eq(i).attr('href').match(/(.*)(#.*)/);
 				
 				if (!parts[1] || parts[1] === path) {
-					target = $(document.getElementsByName(parts[2]));
+					target = $(parts[2]);
 					
 					if (target.length) {
 						results.push({
@@ -90,7 +101,7 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
 				scroll = $(document).scrollTop() + $(window).height() / 2,
 				offset;
 			
-			for (; i<ii; i++) {
+			for (; i < ii; i++) {
 				offset = links[i].target.offset().top;
 				if (offset > scroll) break;
 				active = i;
@@ -143,4 +154,4 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
 		});
 	};
 
-});
+}));

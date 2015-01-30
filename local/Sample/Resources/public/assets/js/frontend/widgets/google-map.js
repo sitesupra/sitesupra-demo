@@ -3,7 +3,18 @@
  * 
  * @version 1.0.2
  */
-define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', 'frontend/util/debounce'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery, debounce);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery, debounce);
+    }
+}(this, function ($, debounce) {
     'use strict';
 	
     // This data namespace should not be changed, because CMS checks element
@@ -269,7 +280,7 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
 				i = 0,
 				ii = callbacks.length;
 			
-			for (; i<ii; i++) {
+			for (; i < ii; i++) {
 				callbacks[i]();
 			}
 			
@@ -282,4 +293,4 @@ define(['jquery', 'frontend/util/debounce'], function ($, debounce) {
 	//requirejs
 	return GoogleMap;
 	
-});
+}));

@@ -1,24 +1,36 @@
-define([
-	'jquery',
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define([
+			'jquery',
+			
+			'lib/jquery.sticky.min',
+			'lib/jquery.parallax.min',
+			'lib/jquery.scrollto.min',
+			'lib/jquery.localscroll.min',
+			
+			'lib/matchmedia-polyfill'
+		], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery);
+    }
+}(this, function ($) {
 	
-	'lib/jquery.sticky.min',
-	'lib/jquery.parallax.min',
-	'lib/jquery.scrollto.min',
-	'lib/jquery.localscroll.min',
-	
-	'lib/matchmedia-polyfill'
-], function ($) {
 	// Uses same media query as in CSS
 	var isMobile = !window.matchMedia('(min-width: 48em)').matches;
 	
 	
 	/*
-	* Sticky header
-	* Header should always stick to the top of the view on desktop and
-	* tablet devices, but not on mobile
-	* In CMS sticky header it may cause usability issues, so we don't
-	* enable it either
-	*/
+	 * Sticky header
+	 * Header should always stick to the top of the view on desktop and
+	 * tablet devices, but not on mobile
+	 * In CMS sticky header it may cause usability issues, so we don't
+	 * enable it either
+	 */
 	if (!isCMSMode && !isMobile) {
 		$('header.header').sticky();
 	}
@@ -62,4 +74,4 @@ define([
 		'filter': ':not([target="_blank"])'
 	});
 	
-});
+}));

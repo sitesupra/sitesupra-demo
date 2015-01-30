@@ -1,7 +1,18 @@
 /**
  * Simple slider for landing page intro
  */
-define(['jquery', 'lib/jquery.easing'], function () {
+(function (root, factory) {
+    if (typeof define === 'function' && define.amd) {
+        // AMD. Register as an anonymous module.
+        define(['jquery', 'lib/jquery.easing'], factory);
+	} else if (typeof module !== "undefined" && module.exports) {
+		// CommonJS
+		module.exports = factory(jQuery);
+	} else { 
+        // AMD is not supported, assume all required scripts are already loaded
+        factory(jQuery);
+    }
+}(this, function ($) {
 	
 	var DEFAULT_OPTIONS = {
 		'index': 0
@@ -125,4 +136,4 @@ define(['jquery', 'lib/jquery.easing'], function () {
 		});
 	};
 	
-});
+}));

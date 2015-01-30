@@ -31,11 +31,11 @@
 					{% if supraPage.cmsRequest %}
 						{{ accordion.title | raw }}
 					{% else %}
-						<a href="#accordion-{{ loop.index }}">{{ accordion.title | raw }}</a>
+						<a>{{ accordion.title | raw }}</a>
 					{% endif %}
 				</h5>
 				
-				<div class="accordion-content text clearfix" name="accordion-{{ loop.index }}">
+				<div class="accordion-content text clearfix">
 					{{ accordion.text | raw }}
 				</div>
 			</div>
