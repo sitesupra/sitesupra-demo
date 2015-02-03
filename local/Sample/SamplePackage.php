@@ -2,6 +2,8 @@
 
 namespace Sample;
 
+use Sample\Fixtures\Command\DumpFixturesCommand;
+use Sample\Fixtures\Command\LoadFixturesCommand;
 use Supra\Core\DependencyInjection\ContainerInterface;
 use Supra\Package\Cms\AbstractSupraCmsPackage;
 use Supra\Package\Cms\Pages\Layout\Theme\DefaultTheme;
@@ -15,6 +17,9 @@ class SamplePackage extends AbstractSupraCmsPackage
 		$container->getRouter()->loadConfiguration(
 				$container->getApplication()->locateConfigFile($this, 'routes.yml')
 		);
+
+		$container->getConsole()->add(new DumpFixturesCommand());
+		$container->getConsole()->add(new LoadFixturesCommand());
 	}
 
 	public function finish(ContainerInterface $container)
