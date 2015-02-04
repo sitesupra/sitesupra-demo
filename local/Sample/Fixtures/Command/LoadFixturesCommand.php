@@ -26,6 +26,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Nelmio\Alice\Fixtures;
 use SimpleThings\EntityAudit\AuditManager;
 use Supra\Core\NestedSet\Listener\NestedSetListener;
+use Supra\Package\Cms\Entity\Abstraction\Localization;
 use Supra\Package\Cms\Entity\File;
 use Supra\Package\Cms\Entity\Image;
 use Supra\Package\Cms\Entity\ImageSize;
@@ -128,9 +129,14 @@ class LoadFixturesCommand extends AbstractFixturesCommand
                 }
             }
 
+            $entityManager->getConnection()->executeQuery(
+                sprintf('DELETE FROM %s ', $auditManager->getConfiguration()->getRevisionTableName())
+            )->execute();
+
             $schemaTool = new SchemaTool($entityManager);
             $schemaTool->dropSchema($metadata);
             $schemaTool->createSchema($metadata);
+
         }
 
         $evtManager = $entityManager->getEventManager();
@@ -150,6 +156,9 @@ class LoadFixturesCommand extends AbstractFixturesCommand
         Fixtures::load($dataFile, $entityManager, array('persist_once' => true));
 
         $entityManager->flush();
+
+        // 'publish' pages
+        $entityManager->createQuery(sprintf('UPDATE %s l SET l.publishedRevision = 1', Localization::CN()))->execute();
 
         $fileStorage = $this->getFileStorage();
 

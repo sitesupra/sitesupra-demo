@@ -23,6 +23,7 @@ namespace Sample\Fixtures\Command;
 
 use PhpCollection\Map;
 use Sample\Fixtures\DateHandler;
+use Sample\Fixtures\SupraPathHandler;
 use Sample\Fixtures\SupraYamlFixtureGenerator;
 use Sp\FixtureDumper\Converter\Handler\HandlerRegistry;
 use Sp\FixtureDumper\ORMDumper;
@@ -59,6 +60,7 @@ class DumpFixturesCommand extends AbstractFixturesCommand
 
         $registry = new HandlerRegistry();
         $registry->addSubscribingHandler(new DateHandler());
+        $registry->addSubscribingHandler(new SupraPathHandler());
 
         $dumper = new ORMDumper(
             $this->container->getDoctrine()->getManager(),

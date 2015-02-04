@@ -1,45 +1,45 @@
 Supra\Package\CmsAuthentication\Entity\UserPreferencesCollection:
-    userPreferencesCollection019ghkue801s4gcc4sck:
-        id: 019ghkue801s4gcc4sck
+    userPreferencesCollection019hwyyay01k0wwgskg4:
+        id: 019hwyyay01k0wwgskg4
 
 
 Supra\Package\CmsAuthentication\Entity\UserPreference: {  }
 
 
 Supra\Package\CmsAuthentication\Entity\Group:
-    group019ghktz300840s8840w:
+    group019hwyy5h008wws8gw4c:
         name: admins
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
         isSuper: true
-        id: 019ghktz300840s8840w
+        id: 019hwyy5h008wws8gw4c
 
 
 Supra\Package\CmsAuthentication\Entity\AbstractUser: {  }
 
 
 Supra\Package\CmsAuthentication\Entity\User:
-    user019ghkue800o00scwcsg:
+    user019hwyyay000ow0wgwc8:
         name: admin
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:23:15+02:00''))>'
-        password: $2a$12$Txp0RjbpsAncUz.cfFpMw.Zv5UF9KIlGyP0sX.lrVjZu5tP1uMIMy
+        creationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
+        password: $2a$12$JWRIRsryMwteMcilbKOPe.RhP5k9YKv5TEL/XkaK2.vGj2p8tgqFu
         login: admin@sitesupra.org
         email: admin
         emailConfirmed: true
         avatarId: null
         personalAvatar: null
-        lastLoginTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        lastLoginTime: null
         active: true
-        salt: 54d0f44ee0a2a7.51680352
+        salt: 54d2457d8f2e43.18904194
         localeId: null
         status: null
-        lastPasswordChangeTime: '<(new \DateTime(''2015-02-03T18:16:15+02:00''))>'
+        lastPasswordChangeTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
         forcePasswordChange: false
-        roles: {  }
-        id: 019ghkue800o00scwcsg
-        group: '@group019ghktz300840s8840w'
-        preferencesCollection: '@userPreferencesCollection019ghkue801s4gcc4sck'
+        roles: [ROLE_USER]
+        id: 019hwyyay000ow0wgwc8
+        group: '@group019hwyy5h008wws8gw4c'
+        preferencesCollection: '@userPreferencesCollection019hwyyay01k0wwgskg4'
 
 
 Supra\Package\Cms\Entity\ApplicationPage: {  }
@@ -562,8 +562,8 @@ Supra\Package\Cms\Entity\Image:
         right: 3
         level: 1
         fileName: camera-man.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:36:14+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:36:14+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 141255
@@ -576,8 +576,8 @@ Supra\Package\Cms\Entity\Image:
         right: 5
         level: 1
         fileName: hay-hey.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:36:14+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:36:14+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 307905
@@ -590,8 +590,8 @@ Supra\Package\Cms\Entity\Image:
         right: 7
         level: 1
         fileName: san-francisco-two-bench-sun.JPG
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:36:14+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:36:14+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 138814
@@ -604,8 +604,8 @@ Supra\Package\Cms\Entity\Image:
         right: 9
         level: 1
         fileName: sunset-hair.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:36:14+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-30T15:42:26+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 176508
@@ -618,8 +618,8 @@ Supra\Package\Cms\Entity\Image:
         right: 13
         level: 1
         fileName: beach-tracks.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:21+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:21+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 276155
@@ -632,8 +632,8 @@ Supra\Package\Cms\Entity\Image:
         right: 15
         level: 1
         fileName: hochbunker.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:21+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:21+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 146835
@@ -646,8 +646,8 @@ Supra\Package\Cms\Entity\Image:
         right: 17
         level: 1
         fileName: steam.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 77176
@@ -660,8 +660,8 @@ Supra\Package\Cms\Entity\Image:
         right: 19
         level: 1
         fileName: stump.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 166795
@@ -674,8 +674,8 @@ Supra\Package\Cms\Entity\Image:
         right: 21
         level: 1
         fileName: tracks.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 177907
@@ -688,8 +688,8 @@ Supra\Package\Cms\Entity\Image:
         right: 23
         level: 1
         fileName: tricycle.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:22+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 220851
@@ -702,8 +702,8 @@ Supra\Package\Cms\Entity\Image:
         right: 25
         level: 1
         fileName: woods.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:23+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:23+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 163012
@@ -716,8 +716,8 @@ Supra\Package\Cms\Entity\Image:
         right: 27
         level: 1
         fileName: vectorbeastcom-grass-sun.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T13:03:54+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T13:03:54+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 147688
@@ -730,8 +730,8 @@ Supra\Package\Cms\Entity\Image:
         right: 29
         level: 1
         fileName: till-the-cows-come-home.jpg
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T13:07:07+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T13:07:07+02:00''))>'
         public: true
         mimeType: image/jpeg
         fileSize: 315214
@@ -744,8 +744,8 @@ Supra\Package\Cms\Entity\Image:
         right: 33
         level: 1
         fileName: icon-chrome.png
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T13:20:59+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T13:20:59+02:00''))>'
         public: true
         mimeType: image/png
         fileSize: 5588
@@ -758,8 +758,8 @@ Supra\Package\Cms\Entity\Image:
         right: 35
         level: 1
         fileName: icon-firefox.png
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T13:21:00+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T13:21:00+02:00''))>'
         public: true
         mimeType: image/png
         fileSize: 5645
@@ -772,8 +772,8 @@ Supra\Package\Cms\Entity\Image:
         right: 37
         level: 1
         fileName: icon-web.png
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T13:21:00+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T13:21:00+02:00''))>'
         public: true
         mimeType: image/png
         fileSize: 5896
@@ -789,8 +789,8 @@ Supra\Package\Cms\Entity\Folder:
         right: 10
         level: 0
         fileName: Team
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:36:10+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:36:10+02:00''))>'
         public: true
         id: 01965cjhu000kw4cck8w
         path: '@filePath01965cjhu000kw4cck8w'
@@ -799,8 +799,8 @@ Supra\Package\Cms\Entity\Folder:
         right: 30
         level: 0
         fileName: Gallery
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T12:59:21+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T12:59:21+02:00''))>'
         public: true
         id: 019666cms01kw8cw0s8k
         path: '@filePath019666cms01kw8cw0s8k'
@@ -809,8 +809,8 @@ Supra\Package\Cms\Entity\Folder:
         right: 38
         level: 0
         fileName: Services
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:25+02:00''))>'
+        creationTime: '<(new \DateTime(''2015-01-27T13:20:59+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-01-27T13:20:59+02:00''))>'
         public: true
         id: 01966y6lq01o0w848gwk
         path: '@filePath01966y6lq01o0w848gwk'
@@ -2619,52 +2619,34 @@ Supra\Package\Cms\Entity\PageLocalizationPath:
     pageLocalizationPath0194v809r01wg84w048g:
         __construct: [0194v809r01wg84w048g, en]
         locale: en
-        path: null
+        path: ''
         active: true
         visibleInSitemap: true
         id: 0194v809r01wg84w048g
     pageLocalizationPath0194v8qmc018wckw0oo0:
         __construct: [0194v8qmc018wckw0oo0, en]
         locale: en
-        path: null
+        path: /elements/accordion
         active: true
         visibleInSitemap: true
         id: 0194v8qmc018wckw0oo0
     pageLocalizationPath0194x8jox01s8osocsc4:
         __construct: [0194x8jox01s8osocsc4, en]
         locale: en
-        path: null
+        path: /elements/tabs
         active: true
         visibleInSitemap: true
         id: 0194x8jox01s8osocsc4
     pageLocalizationPath0194y575x01k4c8kwgws:
         __construct: [0194y575x01k4c8kwgws, en]
         locale: en
-        path: null
+        path: /elements
         active: true
         visibleInSitemap: true
         id: 0194y575x01k4c8kwgws
 
 
-Supra\Package\Cms\Entity\EditLock:
-    editLock0194wimjg004cwcsccck:
-        userName: admin@videinfra.com
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:26+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:26+02:00''))>'
-        localizationRevision: '14'
-        id: 0194wimjg004cwcsccck
-    editLock0194xozr600ss0kowgk8:
-        userName: admin@videinfra.com
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:26+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:26+02:00''))>'
-        localizationRevision: '8'
-        id: 0194xozr600ss0kowgk8
-    editLock019aguo3y000cg8gooog:
-        userName: admin@videinfra.com
-        creationTime: '<(new \DateTime(''2015-02-03T18:22:26+02:00''))>'
-        modificationTime: '<(new \DateTime(''2015-02-03T18:22:26+02:00''))>'
-        localizationRevision: '291'
-        id: 019aguo3y000cg8gooog
+Supra\Package\Cms\Entity\EditLock: {  }
 
 
 Supra\Package\Cms\Entity\Abstraction\AbstractPage: {  }
@@ -4261,7 +4243,6 @@ Supra\Package\Cms\Entity\PageLocalization:
         parentPageApplicationId: null
         id: 0194v8qmc018wckw0oo0
         master: '@page0194v8qma004c8gokg4g'
-        lock: '@editLock019aguo3y000cg8gooog'
         path: '@pageLocalizationPath0194v8qmc018wckw0oo0'
         template: '@template0194xpdwx00ssk0gk4ow'
     pageLocalization0194x8jox01s8osocsc4:
