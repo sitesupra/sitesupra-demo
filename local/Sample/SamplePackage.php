@@ -51,7 +51,6 @@ class SamplePackage extends AbstractSupraCmsPackage
 			new Blocks\Accordion(),
 			new Blocks\PageMenu(),
 			new Blocks\Services(),
-			new Blocks\Test(),
 		);
 	}
 }
