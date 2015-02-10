@@ -40,17 +40,17 @@ class SamplePackage extends AbstractSupraCmsPackage
 	public function getBlocks()
 	{
 		return array(
-			new Blocks\Text(),
+			new Blocks\Accordion(),
+			new Blocks\ContactForm(),
 			new Blocks\Gallery1(),
 			new Blocks\Gallery2(),
 			new Blocks\GoogleMap(),
-			new Blocks\ContactForm(),
 			new Blocks\Menu(),
-			new Blocks\SocialLinks(),
-			new Blocks\Tabs(),
-			new Blocks\Accordion(),
 			new Blocks\PageMenu(),
 			new Blocks\Services(),
+			new Blocks\SocialLinks(),
+			new Blocks\Tabs(),
+			new Blocks\Text(),
 		);
 	}
 }
