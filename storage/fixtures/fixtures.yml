@@ -13,6 +13,18 @@ Supra\Package\CmsAuthentication\Entity\Group:
         modificationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
         isSuper: true
         id: 019hwyy5h008wws8gw4c
+    group019hwyy5h009wws8gw5d:
+        name: supers
+        creationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
+        isSuper: false
+        id: 019hwyy5h009wws8gw5d
+    group019hwyy5h010wws8gw6e:
+        name: contribs
+        creationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
+        modificationTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
+        isSuper: false
+        id: 019hwyy5h010wws8gw6e
 
 
 Supra\Package\CmsAuthentication\Entity\AbstractUser: {  }
