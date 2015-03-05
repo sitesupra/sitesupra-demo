@@ -1,11 +1,3 @@
-Supra\Package\CmsAuthentication\Entity\UserPreferencesCollection:
-    userPreferencesCollection019hwyyay01k0wwgskg4:
-        id: 019hwyyay01k0wwgskg4
-
-
-Supra\Package\CmsAuthentication\Entity\UserPreference: {  }
-
-
 Supra\Package\CmsAuthentication\Entity\Group:
     group019hwyy5h008wws8gw4c:
         name: admins
@@ -39,19 +31,13 @@ Supra\Package\CmsAuthentication\Entity\User:
         login: admin@sitesupra.org
         email: admin
         emailConfirmed: true
-        avatarId: null
-        personalAvatar: null
         lastLoginTime: null
         active: true
         salt: 54d2457d8f2e43.18904194
-        localeId: null
         status: null
-        lastPasswordChangeTime: '<(new \DateTime(''2015-02-04T18:14:53+02:00''))>'
-        forcePasswordChange: false
         roles: [ROLE_USER]
         id: 019hwyyay000ow0wgwc8
         group: '@group019hwyy5h008wws8gw4c'
-        preferencesCollection: '@userPreferencesCollection019hwyyay01k0wwgskg4'
 
 
 Supra\Package\Cms\Entity\ApplicationPage: {  }
